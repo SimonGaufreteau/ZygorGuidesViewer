@@ -369,8 +369,8 @@ step //74
   ..accept Discover Rolf's Fate##45
 step 
   goto 70.7,59.7
-  .get Big Blue's Wing##60030
-  . from Big Blue##45030|q 26794/1
+  .from Big Blue##45030
+  .get Big Blue's Wing##60030|q 26794/1
 step //75
   goto 79.8,55.5
   .' Click Rolf's Corpse|tip On the ground next to a murloc hut.
