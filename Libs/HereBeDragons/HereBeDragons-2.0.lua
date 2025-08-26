@@ -1,8 +1,10 @@
+---@diagnostic disable: assign-type-mismatch
 -- HereBeDragons is a data API for the World of Warcraft mapping system
 
-local MAJOR, MINOR = "HereBeDragons-ZGV", 22
+local MAJOR, MINOR = "HereBeDragonsQuestie-2.0", 20
 assert(LibStub, MAJOR .. " requires LibStub")
 
+---@class HereBeDragonsQuestie-2.0
 local HereBeDragons, oldversion = LibStub:NewLibrary(MAJOR, MINOR)
 if not HereBeDragons then return end
 
@@ -17,9 +19,8 @@ HereBeDragons.callbacks        = HereBeDragons.callbacks or CBH:New(HereBeDragon
 
 local WOW_INTERFACE_VER = select(4, GetBuildInfo())
 local WoWClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local WoWBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
-local WoWWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local WoWCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
+local WoWBC = (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) and WOW_INTERFACE_VER >= 20500 and WOW_INTERFACE_VER < 30000
+local WoWWrath = (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) and WOW_INTERFACE_VER >= 30400 and WOW_INTERFACE_VER < 40000
 
 -- Data Constants
 local COSMIC_MAP_ID = 946
@@ -70,12 +71,10 @@ local instanceIDOverrides = {
     [1626] = 1220, -- Suramar Withered Scenario
     [1662] = 1220, -- Suramar Invasion Scenario
     -- BfA
-    [1917] = 1116, -- Gorgrond - Mag'har scenario
     [2213] = 0,    -- Horrific Vision of Stormwind
     [2241] = 1,    -- Uldum N'zoth assault
     [2274] = 1,    -- Uldum N'zoth Minor Vision
     [2275] = 870,  -- Vale of Eternal Blossoms N'zoth Minor Vision
-    [2454] = 2444, -- Zerek Caverns
 }
 
 local dynamicInstanceIDOverrides = {}
@@ -87,7 +86,7 @@ local function overrideInstance(instance) return instanceIDOverrides[instance] o
 HereBeDragons.___DIIDO = dynamicInstanceIDOverrides
 
 -- gather map info, but only if this isn't an upgrade (or the upgrade version forces a re-map)
-if not oldversion or oldversion < 21 then
+if not oldversion or oldversion < 17 then
     -- wipe old data, if required, otherwise the upgrade path isn't triggered
     if oldversion then
         wipe(mapData)
@@ -111,23 +110,14 @@ if not oldversion or oldversion < 21 then
             { 530, 1, -6933.33, 533.33, -16000, -8000, 10339.7, 17600 },
             { 609, 0, -10000, 10000, -10000, 10000, 0, 0 },
         }
-    elseif WoWCata then
-        transformData = {
-            { 530, 0, 4800, 16000, -10133.3, -2666.67, -2400, 2662.8 },
-            { 530, 1, -6933.33, 533.33, -16000, -8000, 10339.7, 17600 },
-             { 609, 0, -10000, 10000, -10000, 10000, 0, 0 },
-       }
     else
         transformData = {
             { 530, 1, -6933.33, 533.33, -16000, -8000, 9916, 17600 },
             { 530, 0, 4800, 16000, -10133.3, -2666.67, -2400, 2400 },
             { 732, 0, -3200, 533.3, -533.3, 2666.7, -611.8, 3904.3 },
-            { 1014, 870, 3200, 5333.3, 1066.7, 2666.7, 0, 0 },
             { 1064, 870, 5391, 8148, 3518, 7655, -2134.2, -2286.6 },
             { 1208, 1116, -2666, -2133, -2133, -1600, 10210.7, 2411.4 },
             { 1460, 1220, -1066.7, 2133.3, 0, 3200, -2333.9, 966.7 },
-            { 1498, 1220, -533.3, 2133.3, 3733.3, 5866.7, 0, 0 },
-            { 1545, 1220, -2666.7, 0, 4800, 8000, 0, -0 },
             { 1599, 1, 4800, 5866.7, -4266.7, -3200, -490.6, -0.4 },
             { 1609, 571, 6400, 8533.3, -1600, 533.3, 512.8, 545.3 },
         }
@@ -162,7 +152,6 @@ if not oldversion or oldversion < 21 then
     local vector00, vector05 = CreateVector2D(0, 0), CreateVector2D(0.5, 0.5)
     -- gather the data of one map (by uiMapID)
     local function processMap(id, data, parent)
-		if not data then data=C_Map.GetMapInfo(id) end -- Zygor. Needed?
         if not id or not data or mapData[id] then return end
 
         if data.parentMapID and data.parentMapID ~= 0 then
@@ -238,13 +227,12 @@ if not oldversion or oldversion < 21 then
             worldMapData[571] = { 47662.7, 31772.19, 25198.53, 11072.07 }
         else
             worldMapData[0] = { 76153.14, 50748.62, 65008.24, 23827.51 }
-            worldMapData[1] = { 77621.13, 51854.98, 18576.47, 28030.61 }
+            worldMapData[1] = { 77803.77, 51854.98, 13157.6, 28030.61 }
             worldMapData[571] = { 71773.64, 50054.05, 36205.94, 12366.81 }
             worldMapData[870] = { 67710.54, 45118.08, 33565.89, 38020.67 }
             worldMapData[1220] = { 82758.64, 55151.28, 52943.46, 24484.72 }
             worldMapData[1642] = { 77933.3, 51988.91, 44262.36, 32835.1 }
             worldMapData[1643] = { 76060.47, 50696.96, 55384.8, 25774.35 }
-            worldMapData[2444] = { 111420.37, 74283, 86088.21, 15682.4 }
         end
     end
 
@@ -273,10 +261,6 @@ if not oldversion or oldversion < 21 then
     end
 
     gatherMapData()
-
-	-- Zygor:
-    HereBeDragons.processMap = processMap
-    HereBeDragons.processMapChildrenRecursive = processMapChildrenRecursive
 end
 
 -- Transform a set of coordinates based on the defined map transformations
@@ -530,7 +514,7 @@ end
 -- @return angle, distance where angle is in radians and distance in yards
 function HereBeDragons:GetWorldVector(instanceID, oX, oY, dX, dY)
     local distance, deltaX, deltaY = self:GetWorldDistance(instanceID, oX, oY, dX, dY)
-    if not distance then return nil, nil end
+    if not distance or not deltaX or not deltaY then return nil, nil end
 
     -- calculate the angle from deltaY and deltaX
     local angle = atan2(-deltaX, deltaY)

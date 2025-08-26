@@ -3,7 +3,7 @@
 -- as well as associate it with a slash command.
 -- @class file
 -- @name AceConfig-3.0
--- @release $Id: AceConfig-3.0.lua 969 2010-10-07 02:11:48Z shefki $
+-- @release $Id: AceConfig-3.0.lua 1202 2019-05-15 23:11:22Z nevcairiel $
 
 --[[
 AceConfig-3.0
@@ -12,13 +12,16 @@ Very light wrapper library that combines all the AceConfig subcomponents into on
 
 ]]
 
-local MAJOR, MINOR = "AceConfig-3.0-Z", 2
-local AceConfig = LibStub:NewLibrary(MAJOR, MINOR)
-
-if not AceConfig then return end
-
 local cfgreg = LibStub("AceConfigRegistry-3.0-Z")
 local cfgcmd = LibStub("AceConfigCmd-3.0-Z")
+
+local MAJOR, MINOR = "AceConfig-3.0-Z", 3
+local AceConfig = LibStub:NewLibrary(MAJOR, MINOR)
+
+if not AceConfig then
+	return
+end
+
 --TODO: local cfgdlg = LibStub("AceConfigDialog-3.0", true)
 --TODO: local cfgdrp = LibStub("AceConfigDropdown-3.0", true)
 
@@ -26,7 +29,7 @@ local cfgcmd = LibStub("AceConfigCmd-3.0-Z")
 local pcall, error, type, pairs = pcall, error, type, pairs
 
 -- -------------------------------------------------------------------
--- :RegisterOptionsTable(appName, options, slashcmd)
+-- :RegisterOptionsTable(appName, options, slashcmd, persist)
 --
 -- - appName - (string) application name
 -- - options - table or function ref, see AceConfigRegistry
@@ -42,12 +45,14 @@ local pcall, error, type, pairs = pcall, error, type, pairs
 -- local AceConfig = LibStub("AceConfig-3.0")
 -- AceConfig:RegisterOptionsTable("MyAddon", myOptions, {"/myslash", "/my"})
 function AceConfig:RegisterOptionsTable(appName, options, slashcmd)
-	local ok,msg = pcall(cfgreg.RegisterOptionsTable, self, appName, options)
-	if not ok then error(msg, 2) end
-	
+	local ok, msg = pcall(cfgreg.RegisterOptionsTable, self, appName, options)
+	if not ok then
+		error(msg, 2)
+	end
+
 	if slashcmd then
 		if type(slashcmd) == "table" then
-			for _,cmd in pairs(slashcmd) do
+			for _, cmd in pairs(slashcmd) do
 				cfgcmd:CreateChatCommand(cmd, appName)
 			end
 		else

@@ -49,7 +49,7 @@
 
 	<Script file="Config.lua"/>
 	<Script file="Tutorial.lua"/>
-	
+
 	<Script file="StaticPopups.lua" />
 
 	<Script file="NotificationCenter.lua"/>
@@ -86,7 +86,7 @@
 	<Script file="ActionBar.lua" />
 
 	<Script file="CreatureDetector.lua" />
-	
+
 	<Script file="Code-Classic\Item-DataTables.lua" />
 	<Script file="Data-Classic\Item-Statweights.lua" />
 	<Script file="Item-ItemScore.lua" />
@@ -111,9 +111,9 @@
 	<Script file="WhoWhere.lua"/>
 
 	<Script file="Inventory.lua"/>
-	
+
 	<Script file="Code-Classic\InitialFlightPaths.lua" />
-	
+
 	<Script file="TestFramework.lua"/>
 
 	<Script file="Libs/HBDragons.lua"/>
@@ -126,7 +126,7 @@
 
 	<Script file="ChainsParser.lua"/>
 	<Script file="Data-Classic\Chains.lua"/>
-	
+
 	<Script>
 	___ZGV_TIMESTAMP_LOADFILESXML_END = debugprofilestop()
 

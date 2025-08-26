@@ -1,36 +1,157 @@
----@diagnostic disable: assign-type-mismatch
--- HereBeDragons-Pins is a library to show pins/icons on the world map and minimap
+local mapData = QuestieCompat.UiMapData -- table { width, height, left, top, .instance, .name, .mapType }
+local worldMapData = QuestieCompat.worldMapData -- table { width, height, left, top }
 
-local MAJOR, MINOR = "HereBeDragonsQuestie-Pins-2.0", 8
-assert(LibStub, MAJOR .. " requires LibStub")
+local HBD = { mapData = mapData }
+QuestieCompat.HBD = HBD
 
----@class HereBeDragonsQuestie-Pins-2.0
----@field MinimapGroup Frame
-local pins, _oldversion = LibStub:NewLibrary(MAJOR, MINOR)
-if not pins then
-	return
+--- Convert local/point coordinates to world coordinates in yards
+-- @param x X position in 0-1 point coordinates
+-- @param y Y position in 0-1 point coordinates
+-- @param zone uiMapID of the zone
+function HBD:GetWorldCoordinatesFromZone(x, y, zone)
+	local data = mapData[zone]
+	if not data or data[1] == 0 or data[2] == 0 then
+		return nil, nil, nil
+	end
+	if not x or not y then
+		return nil, nil, nil
+	end
+
+	local width, height, left, top = data[1], data[2], data[3], data[4]
+	x, y = left - width * x, top - height * y
+
+	return x, y, data.instance
 end
 
-local HBD = LibStub("HereBeDragonsQuestie-2.0")
+--- Convert world coordinates to local/point zone coordinates
+-- @param x Global X position
+-- @param y Global Y position
+-- @param zone uiMapID of the zone
+-- @param allowOutOfBounds Allow coordinates to go beyond the current map (ie. outside of the 0-1 range), otherwise nil will be returned
+function HBD:GetZoneCoordinatesFromWorld(x, y, zone, allowOutOfBounds)
+	local data = mapData[zone]
+	if not data or data[1] == 0 or data[2] == 0 then
+		return nil, nil
+	end
+	if not x or not y then
+		return nil, nil
+	end
 
-local MinimapRadiusAPI = C_Minimap and C_Minimap.GetViewRadius
+	local width, height, left, top = data[1], data[2], data[3], data[4]
+	x, y = (left - x) / width, (top - y) / height
 
-pins.updateFrame = pins.updateFrame or CreateFrame("Frame")
+	-- verify the coordinates fall into the zone
+	if not allowOutOfBounds and (x < 0 or x > 1 or y < 0 or y > 1) then
+		return nil, nil
+	end
 
--- storage for minimap pins
-pins.minimapPins = pins.minimapPins or {}
-pins.activeMinimapPins = pins.activeMinimapPins or {}
-pins.minimapPinRegistry = pins.minimapPinRegistry or {}
+	return x, y
+end
 
--- and worldmap pins
-pins.worldmapPins = pins.worldmapPins or {}
-pins.worldmapPinRegistry = pins.worldmapPinRegistry or {}
-pins.worldmapPinsPool = pins.worldmapPinsPool or CreateFramePool("FRAME")
-pins.worldmapProvider = pins.worldmapProvider or CreateFromMixins(MapCanvasDataProviderMixin)
-pins.worldmapProviderPin = pins.worldmapProviderPin or CreateFromMixins(MapCanvasPinMixin)
+--- Convert world coordinates to local/point zone coordinates on the azeroth world map
+-- @param x Global X position
+-- @param y Global Y position
+-- @param instance Instance to translate coordinates from
+-- @param allowOutOfBounds Allow coordinates to go beyond the current map (ie. outside of the 0-1 range), otherwise nil will be returned
+function HBD:GetAzerothWorldMapCoordinatesFromWorld(x, y, instance, allowOutOfBounds)
+	local data = worldMapData[instance]
+	if not data or data[1] == 0 or data[2] == 0 then
+		return nil, nil
+	end
+	if not x or not y then
+		return nil, nil
+	end
 
--- store a reference to the active minimap object
-pins.Minimap = pins.Minimap or Minimap
+	local width, height, left, top = data[1], data[2], data[3], data[4]
+	x, y = (left - x) / width, (top - y) / height
+
+	-- verify the coordinates fall into the zone
+	if not allowOutOfBounds and (x < 0 or x > 1 or y < 0 or y > 1) then
+		return nil, nil
+	end
+
+	return x, y
+end
+
+--- Return the distance from an origin position to a destination position in the same instance/continent.
+-- @param instanceID instance ID
+-- @param oX origin X
+-- @param oY origin Y
+-- @param dX destination X
+-- @param dY destination Y
+-- @return distance, deltaX, deltaY
+function HBD:GetWorldDistance(instanceID, oX, oY, dX, dY)
+	if not oX or not oY or not dX or not dY then
+		return nil, nil, nil
+	end
+	local deltaX, deltaY = dX - oX, dY - oY
+	return (deltaX * deltaX + deltaY * deltaY) ^ 0.5, deltaX, deltaY
+end
+
+--- Return the distance between two points on the same continent
+-- @param oZone origin zone uiMapID
+-- @param oX origin X, in local zone/point coordinates
+-- @param oY origin Y, in local zone/point coordinates
+-- @param dZone destination zone uiMapID
+-- @param dX destination X, in local zone/point coordinates
+-- @param dY destination Y, in local zone/point coordinates
+-- @return distance, deltaX, deltaY in yards
+function HBD:GetZoneDistance(oZone, oX, oY, dZone, dX, dY)
+	local oInstance, dInstance
+	oX, oY, oInstance = self:GetWorldCoordinatesFromZone(oX, oY, oZone)
+	if not oX then
+		return nil, nil, nil
+	end
+
+	-- translate dX, dY to the origin zone
+	dX, dY, dInstance = self:GetWorldCoordinatesFromZone(dX, dY, dZone)
+	if not dX then
+		return nil, nil, nil
+	end
+
+	if oInstance ~= dInstance then
+		return nil, nil, nil
+	end
+
+	return self:GetWorldDistance(oInstance, oX, oY, dX, dY)
+end
+
+--- Get the current world position of the player
+-- The position is transformed to the current continent, if applicable
+-- @return x, y, instanceID
+function HBD:GetPlayerWorldPosition()
+	local x, y, uiMapID = HBD:GetPlayerZonePosition()
+	if not x or not y then
+		return nil, nil, nil
+	end
+
+	x, y, instanceID = HBD:GetWorldCoordinatesFromZone(x, y, uiMapID)
+	if x and y then
+		return x, y, instanceID
+	end
+	return nil, nil, nil
+end
+
+--- Get the current zone and level of the player
+-- The returned mapFile can represent a micro dungeon, if the player currently is inside one.
+-- @return uiMapID, mapType
+function HBD:GetPlayerZone()
+	return QuestieCompat.GetCurrentPlayerPosition()
+end
+
+--- Get the current position of the player on a zone level
+-- The returned values are local point coordinates, 0-1. The mapFile can represent a micro dungeon.
+-- @param allowOutOfBounds Allow coordinates to go beyond the current map (ie. outside of the 0-1 range), otherwise nil will be returned
+-- @return x, y, uiMapID, mapType
+function HBD:GetPlayerZonePosition(allowOutOfBounds)
+	-- get the current position
+	local uiMapID, x, y = QuestieCompat.GetCurrentPlayerPosition()
+
+	if uiMapID and x and y then
+		return x, y, uiMapID
+	end
+	return nil, nil, nil, nil
+end
 
 -- Data Constants
 local WORLD_MAP_ID = 947
@@ -42,16 +163,27 @@ local type, pairs = type, pairs
 -- upvalue wow api
 local GetPlayerFacing = GetPlayerFacing
 
--- upvalue data tables
-local minimapPins = pins.minimapPins
-local activeMinimapPins = pins.activeMinimapPins
-local minimapPinRegistry = pins.minimapPinRegistry
+-- storage for minimap pins
+local minimapPins = {}
+local activeMinimapPins = {}
+local minimapPinRegistry = {}
 
-local worldmapPins = pins.worldmapPins
-local worldmapPinRegistry = pins.worldmapPinRegistry
-local worldmapPinsPool = pins.worldmapPinsPool
-local worldmapProvider = pins.worldmapProvider
-local worldmapProviderPin = pins.worldmapProviderPin
+-- and worldmap pins
+local worldmapPins = {}
+local worldmapPinRegistry = {}
+
+local pins = {
+	Minimap = Minimap,
+	updateFrame = CreateFrame("Frame"),
+	activeMinimapPins = activeMinimapPins,
+	worldmapPins = worldmapPins,
+	worldmapProvider = {
+		GetMap = function(self)
+			return QuestieCompat.WorldMapFrame
+		end,
+	},
+}
+QuestieCompat.HBDPins = pins
 
 local minimap_size = {
 	indoor = {
@@ -178,21 +310,6 @@ local function drawMinimapPin(pin, data)
 		data.onEdge = nil
 		pin.keep = nil
 	end
-end
-
-local function IsParentMap(originMapId, toCheckMapId)
-	local parentMapID = HBD.mapData[originMapId].parent
-	while parentMapID and HBD.mapData[parentMapID] do
-		local mapType = HBD.mapData[parentMapID].mapType
-		if mapType ~= Enum.UIMapType.Zone and mapType ~= Enum.UIMapType.Dungeon and mapType ~= Enum.UIMapType.Micro then
-			return false
-		end
-		if parentMapID == toCheckMapId then
-			return true
-		end
-		parentMapID = HBD.mapData[parentMapID].parent
-	end
-	return false
 end
 
 local function UpdateMinimapPins(force)
@@ -347,65 +464,27 @@ end
 -------------------------------------------------------------------------------------------
 -- WorldMap data provider
 
--- setup pin pool
-worldmapPinsPool.parent = WorldMapFrame:GetCanvas()
-worldmapPinsPool.creationFunc = function(framePool)
-	local frame = CreateFrame(framePool.frameType, nil, framePool.parent)
-	frame:SetSize(1, 1)
-	return Mixin(frame, worldmapProviderPin)
-end
-worldmapPinsPool.resetterFunc = function(pinPool, pin)
-	FramePool_HideAndClearAnchors(pinPool, pin)
-	pin:OnReleased()
+local Enum = {
+	-- https://wowpedia.fandom.com/wiki/Enum.UIMapType
+	UIMapType = {
+		Cosmic = 0,
+		World = 1,
+		Continent = 2,
+		Zone = 3,
+		Dungeon = 4,
+		Micro = 5,
+		Orphan = 6,
+	},
+}
 
-	pin.pinTemplate = nil
-	pin.owningMap = nil
-end
+local worldmapWidth, worldmapHeight
 
--- register pin pool with the world map
-WorldMapFrame.pinPools["HereBeDragonsPinsTemplateQuestie"] = worldmapPinsPool
-
--- provider base API
-function worldmapProvider:RemoveAllData()
-	self:GetMap():RemoveAllPinsByTemplate("HereBeDragonsPinsTemplateQuestie")
-end
-
-function worldmapProvider:RemovePinByIcon(icon)
-	for pin in self:GetMap():EnumeratePinsByTemplate("HereBeDragonsPinsTemplateQuestie") do
-		if pin.icon == icon then
-			self:GetMap():RemovePin(pin)
-		end
+local function HandleWorldMapPin(icon, data)
+	if not WorldMapFrame:IsVisible() then
+		return
 	end
-end
 
-function worldmapProvider:RemovePinsByRef(ref)
-	for pin in self:GetMap():EnumeratePinsByTemplate("HereBeDragonsPinsTemplateQuestie") do
-		if pin.icon and worldmapPinRegistry[ref][pin.icon] then
-			self:GetMap():RemovePin(pin)
-		end
-	end
-end
-
--- questie specific change
-local lastUiMapId = -1
-worldmapProvider.forceUpdate = false --Put into worldmapProvider to allow addons to force update from outside of HBD.
-function worldmapProvider:RefreshAllData(fromOnShow)
-	local mapId = self:GetMap():GetMapID()
-	if lastUiMapId ~= mapId or worldmapProvider.forceUpdate then
-		self:RemoveAllData()
-		local cacheMap = self:GetMap()
-		local uiMapID = cacheMap:GetMapID()
-		for icon, data in pairs(worldmapPins) do
-			self:HandlePin(icon, data, uiMapID, cacheMap)
-		end
-		--DEFAULT_CHAT_FRAME:AddMessage(mapId .. " - " .. lastUiMapId .. " : " .. tostring(worldmapProvider.forceUpdate));
-		lastUiMapId = mapId
-		worldmapProvider.forceUpdate = false
-	end
-end
-
-function worldmapProvider:HandlePin(icon, data, uiMapId, cacheMap)
-	local uiMapID = uiMapId or self:GetMap():GetMapID()
+	local uiMapID = QuestieCompat.GetCurrentUiMapID()
 
 	-- check for a valid map
 	if not uiMapID then
@@ -422,6 +501,10 @@ function worldmapProvider:HandlePin(icon, data, uiMapId, cacheMap)
 		return
 	elseif uiMapID == data.uiMapID and data.worldMapShowFlag == HBD_PINS_WORLDMAP_SHOW_CURRENT then
 		icon:Show()
+	end
+
+	if icon.type == "line" then
+		return
 	end
 
 	local x, y
@@ -497,49 +580,14 @@ function worldmapProvider:HandlePin(icon, data, uiMapId, cacheMap)
 		-- translate coordinates
 		x, y = HBD:GetZoneCoordinatesFromWorld(data.x, data.y, uiMapID)
 	end
+
 	if x and y then
-		--worldmapProvider.forceUpdate = true;
-		(cacheMap or self:GetMap()):AcquirePin("HereBeDragonsPinsTemplateQuestie", icon, x, y, data.frameLevelType)
+		icon:ClearAllPoints()
+		icon:SetPoint("CENTER", WorldMapButton, "TOPLEFT", x * worldmapWidth, -y * worldmapHeight)
+		icon:Show()
+	else
+		icon:Hide()
 	end
-end
-
---  map pin base API
-function worldmapProviderPin:OnLoad()
-	self:UseFrameLevelType("PIN_FRAME_LEVEL_AREA_POI")
-	self:SetScalingLimits(1, 1.0, 1.2)
-end
-
-function worldmapProviderPin:OnAcquired(icon, x, y, frameLevelType)
-	self:UseFrameLevelType(frameLevelType or "PIN_FRAME_LEVEL_AREA_POI")
-	self:SetPosition(x, y)
-
-	self.icon = icon
-	icon:SetParent(self)
-	icon:ClearAllPoints()
-	icon:SetPoint("CENTER", self, "CENTER")
-	icon:Show()
-end
-
-function worldmapProviderPin:OnReleased()
-	if self.icon then
-		self.icon:Hide()
-		self.icon:SetParent(UIParent)
-		self.icon:ClearAllPoints()
-		self.icon = nil
-	end
-end
-
--- register with the world map
-WorldMapFrame:AddDataProvider(worldmapProvider)
-
--- map event handling
-local function UpdateMinimap()
-	UpdateMinimapZoom()
-	UpdateMinimapPins()
-end
-
-local function UpdateWorldMap()
-	worldmapProvider:RefreshAllData()
 end
 
 local last_update = 0
@@ -555,34 +603,14 @@ local function OnUpdateHandler(frame, elapsed)
 end
 pins.updateFrame:SetScript("OnUpdate", OnUpdateHandler)
 
-local function OnEventHandler(frame, event, ...)
-	if event == "CVAR_UPDATE" then
-		local cvar, value = ...
-		if cvar == "ROTATE_MINIMAP" then
-			rotateMinimap = (value == "1")
-			queueFullUpdate = true
-		end
-	elseif event == "MINIMAP_UPDATE_ZOOM" then
-		UpdateMinimap()
-	elseif event == "PLAYER_LOGIN" then
-		-- recheck cvars after login
-		rotateMinimap = GetCVar("rotateMinimap") == "1"
-	elseif event == "PLAYER_ENTERING_WORLD" then
-		UpdateMinimap()
-		UpdateWorldMap()
-	end
-end
-
-pins.updateFrame:SetScript("OnEvent", OnEventHandler)
-pins.updateFrame:UnregisterAllEvents()
 pins.updateFrame:RegisterEvent("CVAR_UPDATE")
 pins.updateFrame:RegisterEvent("MINIMAP_UPDATE_ZOOM")
+pins.updateFrame:RegisterEvent("WORLD_MAP_UPDATE")
+pins.updateFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+pins.updateFrame:RegisterEvent("ZONE_CHANGED")
+pins.updateFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
 pins.updateFrame:RegisterEvent("PLAYER_LOGIN")
 pins.updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-
---- Fuck adding too much emmy support to libs.
----@diagnostic disable-next-line: undefined-field
-HBD.RegisterCallback(pins, "PlayerZoneChanged", UpdateMinimap)
 
 --- Add a icon to the minimap (x/y world coordinate version)
 -- Note: This API does not let you specify a map to limit the pin to, it'll be shown on all maps these coordinates are valid for.
@@ -760,7 +788,9 @@ function pins:AddWorldMapIconWorld(ref, icon, instanceID, x, y, showFlag, frameL
 
 	worldmapPins[icon] = t
 
-	worldmapProvider:HandlePin(icon, t)
+	icon.icon = icon --LOL!
+	icon:SetParent(WorldMapButton)
+	HandleWorldMapPin(icon, t)
 end
 
 --- Add a icon to the world map (uiMapID zone coordinate version)
@@ -807,7 +837,9 @@ function pins:AddWorldMapIconMap(ref, icon, uiMapID, x, y, showFlag, frameLevel)
 
 	worldmapPins[icon] = t
 
-	worldmapProvider:HandlePin(icon, t)
+	icon.icon = icon --LOL!
+	icon:SetParent(WorldMapButton)
+	HandleWorldMapPin(icon, t)
 end
 
 --- Remove a worldmap icon
@@ -822,9 +854,9 @@ function pins:RemoveWorldMapIcon(ref, icon)
 		recycle(worldmapPins[icon])
 		worldmapPins[icon] = nil
 	end
-	worldmapProvider:RemovePinByIcon(icon)
-
-	worldmapProvider.forceUpdate = true
+	icon:Hide()
+	icon:ClearAllPoints()
+	icon:SetParent(UiParent)
 end
 
 --- Remove all worldmap icons belonging to your addon (as tracked by "ref")
@@ -836,29 +868,9 @@ function pins:RemoveAllWorldMapIcons(ref)
 	for icon in pairs(worldmapPinRegistry[ref]) do
 		recycle(worldmapPins[icon])
 		worldmapPins[icon] = nil
+		icon:Hide()
+		icon:ClearAllPoints()
+		icon:SetParent(UiParent)
 	end
-	worldmapProvider:RemovePinsByRef(ref)
 	wipe(worldmapPinRegistry[ref])
-
-	worldmapProvider.forceUpdate = true
-end
-
---- Return the angle and distance from the player to the specified pin
--- @param icon icon object (minimap or worldmap)
--- @return angle, distance where angle is in radians and distance in yards
-function pins:GetVectorToIcon(icon)
-	if not icon then
-		return nil, nil
-	end
-	local data = minimapPins[icon] or worldmapPins[icon]
-	if not data then
-		return nil, nil
-	end
-
-	local x, y, instance = HBD:GetPlayerWorldPosition()
-	if not x or not y or instance ~= data.instanceID then
-		return nil
-	end
-
-	return HBD:GetWorldVector(instance, x, y, data.x, data.y)
 end

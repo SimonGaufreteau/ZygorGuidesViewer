@@ -17,18 +17,7 @@ local minor = 90000 + tonumber(("$Revision: 58 $"):match("(%d+)"))
 --Do this before anything else, so if it errors, any existing loaded copy of LibGraph-2.0
 --doesn't get modified with a newer revision (this one)
 local TextureDirectory
-do
-	local path = string.match(debugstack(1, 1, 0), "AddOns/(.+)LibGraph%-2%.0%.lua")
-		or string.match(debugstack(1, 1, 0), "AddOns\\(.+)LibGraph%-2%.0%.lua")
-	if path then
-		TextureDirectory = "Interface\\AddOns\\" .. path
-	else
-		error(
-			major
-				.. " cannot determine the folder it is located in because the path is too long and got truncated in the debugstack(1, 1, 0) function call"
-		)
-	end
-end
+TextureDirectory = "Interface\\AddOns\\ZygorGuidesViewer\\Libs\\LibGraph-2.0\\"
 
 if not LibStub then
 	error(major .. " requires LibStub")

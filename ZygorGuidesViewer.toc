@@ -15,10 +15,10 @@
 ## IconTexture: Interface\Addons\ZygorGuidesViewer\Skins\addon-icon
 ## Version: 1.1
 
+Compat\Compat.xml
 Libs\Libs.xml
 Libs-Classic\Libs.xml
 
-Retrofit.lua
 Localization\Localization.xml
 Localization-Classic\Localization.xml
 
