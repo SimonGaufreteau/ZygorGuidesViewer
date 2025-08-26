@@ -17,7 +17,7 @@
 		<Anchors><Anchor	point="CENTER" relativePoint="CENTER"/></Anchors>
 		<Scripts>
 			<OnEnter>
-				GameTooltip:SetOwner(self, "CENTER")
+				GameTooltip:SetOwner(this, "CENTER")
 				GameTooltip:SetText(ZygorGuidesViewer.MapNotes[ZygorGuidesViewer.CurrentStep.mapzone][ZygorGuidesViewer.CurrentStep.mapnote].title)
 			</OnEnter>
 			<OnLeave>
@@ -58,9 +58,6 @@
 	
 	<Frame name="ZygorGuidesViewerFrame" toplevel="true" hidden="true" frameStrata="LOW" parent="UIParent" movable="true" clampedToScreen="true">
 		<Scripts>
-			<OnEvent>
-				ZygorGuidesViewerFrame_OnEvent(event);
-			</OnEvent>
 			<OnLoad>
 				ZygorGuidesViewerFrame_OnLoad();
 			</OnLoad>
@@ -94,7 +91,7 @@
 					<Size><AbsDimension x="256" y="256"/></Size>
 					<Anchors><Anchor point="TOPLEFT"/></Anchors>
 				</Texture>
-				<Texture name="qqqq" file="Interface\ClassTrainerFrame\UI-ClassTrainer-TopRight" level="11">
+				<Texture name="qqqq" file="Interface\ClassTrainerFrame\UI-ClassTrainer-TopRight">
 					<Anchors><Anchor point="TOPRIGHT"><Offset><AbsDimension x="-25" y="-13"/></Offset></Anchor></Anchors>
 					<Size><AbsDimension x="24" y="24"/></Size>
 					<TexCoords left="0.53" right="0.7" top="0.05" bottom="0.145"/>
@@ -179,13 +176,13 @@
 					<Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="80" y="-50"/></Offset></Anchor></Anchors>
 				</FontString>
 
-				<FontString name="$parent_EmptyText" inherits="GameFontNormal" text="" justifyH="center">
-					<Size><AbsDimension x="290" y="0"/></Size>
+				<FontString name="$parent_EmptyText" inherits="GameFontNormal" text="" justifyH="CENTER">
+					<Size x="290" y="0"/>
 					<Anchors><Anchor point="TOP" relativePoint="TOP"><Offset><AbsDimension x="5" y="-98"/></Offset></Anchor></Anchors>
 				</FontString>
 
 				<FontString name="$parent_Copyright" inherits="GameFontNormal" text="(C) 2008 John Cook">
-					<Size><AbsDimension x="0" y="0"/></Size>
+					<Size x="0" y="0"/>
 					<Anchors><Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT"><Offset><AbsDimension x="22" y="26"/></Offset></Anchor></Anchors>
 				</FontString>
 			</Layer>
@@ -217,8 +214,8 @@
 						if ZygorGuidesViewer then ZygorGuidesViewer:ToggleFilterNotes() end
 					</OnClick>
 					<OnEnter>
-						GameTooltip:SetOwner(self, "BOTTOM")
-						if self:GetChecked() then
+						GameTooltip:SetOwner(this, "BOTTOM")
+						if this:GetChecked() then
 							GameTooltip:SetText("Showing map dots for all steps")
 						else
 							GameTooltip:SetText("Showing only the current map dot")
@@ -242,31 +239,6 @@
 					</OnClick>
 				</Scripts>
 			</Button>
-
-			<Frame name="$parent_SectionDropDown" inherits="UIDropDownMenuTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT">
-						<Offset>
-							<AbsDimension x="3" y="-67"/>
-						</Offset>
-					</Anchor>
-					<Anchor point="RIGHT">
-						<Offset>
-							<AbsDimension x="-5" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						UIDropDownMenu_SetWidth(self, 305);
-						UIDropDownMenu_Initialize(self, ZGVFSectionDropDown_Initialize);
-						UIDropDownMenu_JustifyText(self, "LEFT");
-					</OnLoad>
-					<OnShow>
-						UIDropDownMenu_Initialize(self, ZGVFSectionDropDown_Initialize);
-					</OnShow>
-				</Scripts>
-			</Frame>
 
 		</Frames>
 

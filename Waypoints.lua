@@ -1,635 +1,327 @@
-local me = ZygorGuidesViewer
-if not me then return end
+local name,ZGV = ...
 
-local ZGV=ZygorGuidesViewer
 local L = ZGV.L
-local BZL = ZGV.BZL
-
-local Astrolabe
+local BZL,BZR = ZGV.BZL,ZGV.BZR
 
 local tinsert=tinsert
 
-function me:getXY(id)
-	self:Debug("getXY "..id)
-	return (id % 10001)/10000, math.floor(id / 10001)/10000
-end
+ZGV.Waypoints = {}
+local Waypoints = ZGV.Waypoints
 
-local addonnames = {"none","internal","cart2","carbonite","tomtom"}
-local addonnum = {}
-for i=1,#addonnames do addonnum[addonnames[i]]=i end
+--============================================= internal =============================================
 
-function me:ConnectWaypointAddon(addon)
-	if not addon then addon=self.db.profile.waypointaddon end
-end
-
-function me:AutodetectWaypointAddon()
-	self.autodetectingwaypointaddon = true
-	self:Print(L["waypointaddon_detecting"])
-
-	local checks = {"cart2","carbonite","tomtom","internal"}
-	for i=1,#checks do
-		if self:IsWaypointAddonReady(checks[i]) then
-			return checks[i]
-		end
+local last_waypath,last_waypath_poi
+local function onChangeZone()
+	if not UnitIsDeadOrGhost("player") and (last_waypath and last_waypath.coords) or (last_waypath_poi and last_waypath_poi.coords) then
+		ZGV:Debug("&waypoints Zone changed, setting to waypath")
+		ZGV:ShowWaypoints()
+	else
+		ZGV:Debug("&waypoints Zone changed, no farm path here")
 	end
-
-	-- else
-	self:Print(L["waypointaddon_notdetected"])
 end
 
-function me:GetWaypointAddon()
-	return addonnum[self.db.profile.waypointaddon] or 0
-end
+local farmPathEvent=CreateFrame("Frame")
+farmPathEvent:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+farmPathEvent:RegisterEvent("PLAYER_CONTROL_GAINED")
+farmPathEvent:SetScript("OnEvent", onChangeZone)
 
-function me:SetWaypointAddon(info,addon)
-	if not addon then addon=info end
-	if type(addon)=="number" then addon=addonnames[addon] end
-	if not addon then
-		-- try to autodetect
-		addon = self:AutodetectWaypointAddon()
-		if not addon then addon="none" end
+function ZGV:ShowWaypoints(command)  
+	local t1=debugprofilestop()  repeat
+	table.wipe(LibRover.cfgNodeStepOverride)
+
+	if (ZGV.CurrentStep and ZGV.CurrentStep.zombiewalk) then
+		ZGV.Pointer:ClearWaypoints("corpse")
 	end
-	addon=addon:gsub("[0-9]-_","")
-
-	self:Debug("Setting waypoint addon: "..addon)
-	if addon~="none" and not self:IsWaypointAddonReady(addon) then
-		self:Print(L["waypointaddon_fail"]:format(L["opt_group_addons_"..addon]))
+	
+	if ZGV.Pointer.corpsearrow_shown then
+		self:Debug("&waypoints Corpse arrow shown; bailing out of ShowWaypoints.")
 		return
 	end
 
-	-- disconnect the current addon
-	--if (addon~=self.db.profile.waypointaddon) then
-	self:UnsetWaypointAddon()
-	--end
+	local LibRover = ZGV.LibRover
 
-	self.db.profile.waypointaddon = addon
-	--self.iconsregistered = false
-	--self.iconregistryretries = 0
-	self.ConnectedWaypointer = self.WaypointFunctions[addon]
+	self:Debug("&waypoints &_PUSH ShowWaypoints called as '%s' by %s",tostring(command or "nil"),debugstack(3):match("(\\.- in function .-)\n"))
 
-	self:Print(L["waypointaddon_set"]:format(L["opt_group_addons_"..addon]))
+	self.Pointer:ClearWaypoints("way")
+	self.Pointer:ClearSet("route")
+	self.Pointer:ClearSet("farm")
+	self.Pointer:ClearSet("path")
 
-	self:SetWaypoint()
---[[
-	if (self.db.profile.waypointaddon=="none") then
-		self.optionsmap.args.minicons.disabled = true
-	else
-		self.optionsmap.args.minicons.disabled = false
+	-- clear: JUST CLEAR.
+	if command=="clear" then
+		ZGV:Debug("&waypoints ShowWaypoints: just clearing.")
+		break
 	end
-	LibStub("AceConfigRegistry-3.0"):NotifyChange("ZygorGuidesViewer")
-]]--
-end
 
-me.WaypointFunctions = {}
+	local step = ZGV.GetFocusedStep and ZGV:GetFocusedStep() or ZGV.CurrentStep
+	if not step then ZGV:Debug("&waypoints &_POP No step.") break end
 
-me.WaypointFunctions['tomtom'] = {
-	isready = function()
-		-- make SURE we have TomTom and not Carbonite emulating it
-		return not not (TomTom and TomTom.events) -- make sure it's not Carbonite ;P
-	end,
-	setwaypoint = function (self,goalnumORx,y,title)
-		self:Debug("placing TomTom waypoint")
 
-		self:ClearTomTomWaypoints()
-		if goalnumORx==false then return end
+	---------------- NORMAL FUNCTION -------------
 
-		if y then
-			self:CreateTomTomWaypointXY(goalnumORx,y,title,true)
-		else
-			self:CreateTomTomWaypoints(goalnumORx)
-		end
-	end,
-	addmapnote = function (self,zone,x,y,data)
-		if BZL[zone] then zone=BZL[zone] end
-		self:CreateTomTomWaypointZXY(zone,x,y,data.title,false)
-	end,
-	disconnect = function(self)
-		-- TomTom can ask for clearing all waypoints; Carbonite should not.
-		if StaticPopupDialogs["TOMTOM_REMOVE_ALL_CONFIRM"] then StaticPopupDialogs["TOMTOM_REMOVE_ALL_CONFIRM"]:OnAccept() end
+	--if goal then  ZGV:Debug("&waypoints Pointing to goal %d",goal.num)  end
 
-		-- Carbonite doesn't do this, either
-		if TomTomCrazyArrow then TomTomCrazyArrow:Hide() end
-	end
-}
+	ZGV:Debug("&waypoints Pointing to step %d (%s), %d goals, waypath %s.",step.num,step.is_poi and "poi" or "guide",#step.goals,step.waypath and "present" or "absent")
 
-me.WaypointFunctions['carbonite'] = {
-	isready = function()
-		return not not (Nx and Nx.TTAW)
-	end,
-	setwaypoint = function (self,goalnumORx,y,title)
-		self:Debug("placing Carbonite waypoint")
 
-		-- clear waypoints
-		local map=Nx.Map:GeM(1)
-		if map then wipe(map.Tar) end
+	local arrowpoint,pathpoint,farmpoint
 
-		if goalnumORx==false then return end
 
-		if y then
-			self:CreateTomTomWaypointXY(goalnumORx,y,title)
-		else
-			self:CreateTomTomWaypoints(goalnumORx)
-		end
-	end,
-	clearmapnotes = function (self)
-		local folders = Nx.Fav:FiF("Notes")
-		for i,fol in ipairs(folders) do
-			for j=1,#fol do
-				if fol[j] and fol[j]:match("~#~.*%(ZG%)~") then
-					tremove(fol,j)
-					j=j-1
+	-- SHOW FARM PATH.
+
+	local waypath = step and step.waypath
+	
+	--[[  -- DISABLED temporarily. TODO!!!  Or not; one can now "use goto" in paths to import gotos.
+		... or not. Needed to have gotos automatically converted after all.
+		--]]
+	
+	if not waypath then  -- improvise waypath from gotos. If this succeeds, DON'T show goto waypoints separately.
+		waypath = {coords={},loop=false,ants="straight",follow="none",made_from_gotos=true }  --,markers="none",follow="none",inline_travel=true
+		for gi,goal in ipairs(step.goals) do goal.waypoint_moved_to_waypath=nil end
+		for gi,goal in ipairs(step.goals) do if goal.x and not goal.action=="mapmarker" then
+			goal.waypoint_marker_override=nil
+			if not goal:IsVisible() then
+				-- do nada
+				ZGV:Debug("&waypoints Waypath improv: Goal %d hidden",gi)
+				goal.waypoint_moved_to_waypath=true
+			elseif goal:IsInlineTravel() then
+				if gi<(step.current_waypoint_goal_num or 0) then
+					ZGV:Debug("&waypoints Waypath improv: Goal %d skipped",gi)
+				else
+					if not goal.zombiewalk or (goal.zombiewalk and ZGV.Pointer:IsCorpseArrowNeeded()) then
+					-- only show zombiewalk steps when player is dead (and then only show those)
+						ZGV:Debug("&waypoints Waypath improv: Goal %d goto converted to waypath (inline travel)",gi)
+						tinsert(waypath.coords,goal) -- all travel points leading up to destination
+					end
+					goal.waypoint_icon=ZGV.Pointer.Icons.greendotbig
 				end
+				goal.waypoint_moved_to_waypath=true
+			else
+				ZGV:Debug("&waypoints Waypath improv: Goal %d goto converted to waypath (final coords), improv will end",gi)
+				goal.waypoint_marker_override="greendot"
+				--goal.waypoint_icon=ZGV.Pointer.Icons.none
+				goal.waypoint_iconoverride=true
+				tinsert(waypath.coords,goal) -- destination itself
+				goal.waypoint_moved_to_waypath=true
+				break  -------------------------------- STOP CONVERTING
 			end
-		end
-		Nx.Fav:Upd()
-	end,
-	addmapnote = function (self,zone,x,y,data)
+		end end
+		
 		--[[
-		local folder=Nx.Fav:FiF("Zygor Guides")
-		if not folder then
-			folder=Nx.Fav:AdF1("Zygor Guides")
-		end
-		local fav = Nx.Fav:FiF1("Gold Guide","Name",folder)
-		if not fav then
-			fav=Nx.Fav:AdF2("Gold Guide",folder)
-			fav["ID"]=maI
-			sort(fav,function(a,b) return a["Name"]<b["Name"] end)
+		if #waypath.coords<2 then
+			ZGV:Debug("&waypoints Waypath improv: Only %d gotos, aborting.",#waypath.coords)
+			waypath=nil 
+			for gi,goal in ipairs(step.goals) do goal.waypoint_moved_to_waypath=nil end
 		end
 		--]]
 
-
-		if BZL[zone] then zone=BZL[zone] end
-		local carbZone = Nx.MNTI1[zone] --zone IDs
-		local fav = Nx.Fav:GNF(carbZone)
-		local s=Nx.Fav:CrI("N",0,(data and data.title or "Gold Spot") .. " (ZG)",3,carbZone,x,y)
-		Nx.Fav:AdI1(fav,nil,s)
-		-- ...
-		Nx.Fav:Upd()
-		--Nx:TTSTCZXY(contid,zoneid,x,y,data and data.title,false,true,true,nil)  -- cont,zone,x,y,name,persist,minimap,world,data
-	end,
-	disconnect = function(self)
-		-- remove waypoints
-		local Nx=Nx
-		for i=1,10000 do Nx:TTRW(i) end
+		--step.waypath=waypath
 	end
-}
 
-me.WaypointFunctions['cart2'] = {
-	isready = function()
-		return not not (Cartographer_Notes and Cartographer_Notes:IsActive() and Cartographer_Notes.externalDBs)
-	end,
-
-	clearmapnotes = function (self)
-	end,
-	addmapnote = function (self,zone,x,y,data)
-	end,
-
-	setwaypoint = function (self,goalnumORx,y,title)
-		self:Debug("Setting cart2 waypoint")
-		--self:Debug(self.CurrentStep.mapnote)
-	--[[		
-		if self.oldnote then
-			Cartographer_Notes:DeleteNote(self.oldzone,self.oldnote)
-		end
-	--]]
-		self:ClearCartographerWaypoints()
-		if goalnumORx==false then return end
-
-		if y then
-			self:CreateCartographerWaypointXY(goalnumORx,y,title)
-		else
-			self:CreateCartographerWaypoints(goalnumORx)
-		end
-
-		--[[
-		local queue = Cartographer_Waypoints.Queue
-		for i,v in ipairs(queue) do
-			if v and v.Db=="ZygorGuides" then
-				table.remove(queue,i)
-			end
-		end
-		--]]
-
-		--local note = Cartographer_Notes:SetNote(zone,x/100,y/100,"Circle","ZygorGuidesViewer",'manual',true,'title',)
-	--		if mapnote and mapzone and Cartographer_Notes.externalDBs then
-	--			Cartographer_Waypoints:SetNoteAsWaypoint(mapzone,mapnote)
-	--		end
-	--		self.oldzone = zone
-	end,
-	disconnect = function(self)
-		self:ClearCartographerWaypoints()
-		--if Cartographer_Notes and Cartographer_Notes.externalDBs and Cartographer_Notes.externalDBs["ZygorGuidesViewer"] then 
-		Cartographer_Notes:UnregisterNotesDatabase("ZygorGuidesViewer")
+	if waypath then
+		local pathtype = waypath.loop and "farm" or "path"
+		ZGV:Debug("&waypoints Waypath present in step, showing %d points as '%s'. (calling ShowSet)",#waypath.coords,pathtype)
+		if pathtype=="farm" then waypath.markers="none" end
+		local pointset = ZGV.Pointer:ShowSet(waypath,pathtype)
+		--if not waypath.loop then  arrowpoint = pointset.points[1]  end  -- Pointer defaults to points[1] in GetNextInPath anyway.  Miiight not play nice with Travel, but this is a band-aid...
+	else
+		ZGV:Debug("&waypoints Waypath NOT present in step.")
 	end
-}
 
-me.WaypointFunctions['cart3'] = {
-	isready = function()
-		return not not (Cartographer3 and Cartographer3.db)
-	end,
-	disconnect = function(self)
-		--[[
-		if Cartographer3 and Cartographer3.db then
-			self:Print("Cartographer3 disconnected.")
-		else
-			self:Print("Cartographer3 not connected.")
-		end
-		--]]
-	end
-}
+	-- SHOW STEP WAYPOINTS.
 
-me.WaypointFunctions['metamap'] = {
-	isready = function()
-		return false
-	end
-}
+	local pointed = false
 
-me.WaypointFunctions['internal'] = {
-	isready = function(self)
-		return not not self.Pointer.ready
-	end,
-	setwaypoint = function (self,goalnumORx,y,title)
-		if UnitIsDeadOrGhost("player") then return end -- don't overwrite the stinking arrow
-		self.Pointer:ClearWaypoints("way")
-		if goalnumORx==false then return end
-		if not y then
-			local goals={}
-			local firstpoint
-			if not self.CurrentStep or not self.CurrentStep.goals then return end
-			if goalnumORx then goals={self.CurrentStep.goals[goalnumORx]} else for i=1,#self.CurrentStep.goals do if self.CurrentStep.goals[i].x then tinsert(goals,self.CurrentStep.goals[i]) end end end
-			for k,goal in ipairs(goals) do
+	local points = {}  -- fill this with correct source material.
+
+	if step.goals then
+		if false --[[ never true! --]] then
+			--[[
 				if not goal.force_noway then
-					local way = self.Pointer:SetWaypoint (nil,goal.map,goal.x,goal.y,{title=title or self.CurrentStep:GetTitle() or (goal.map and goal.x and ("%s %d,%d"):format(goal.map,goal.x,goal.y)) or L['waypoint_step']:format(self.CurrentStepNum),onminimap="always",overworld=true})
-					if way then
-						if not firstpoint then firstpoint=way end
-					else
-						self:Print("Unable to create waypoint: "..goal.map.." "..goal.x.." "..goal.y)
-					end
+					points={goal}
+					ZGV.CurrentStep.current_waypoint_goal_num = goal.num
 				end
-			end
-			if firstpoint then
-				self.Pointer:ShowArrow (firstpoint)
-			end
+			--]]
+			--print("goal: "..goal:GetText())
 		else
-			self.Pointer:SetWaypoint (nil,nil,goalnumORx,y,{title=title,persistent=true,overworld=true})
-		end
-	end,
-	addmapnote = function (self,zone,x,y,data)
-		if BZL[zone] then zone=BZL[zone] end
-		local way = self.Pointer:SetWaypoint (nil,zone,x,y,{title=data.title or ("%s %d,%d"):format(zone,x,y),persistent=true,overworld=true})
-	end,
-	disconnect = function(self)
-		self.Pointer:ClearWaypoints()
-	end
-}
-
-me.WaypointFunctions['none'] = {
-	isready = function()
-		return true
-	end,
-	setwaypoint = function (self)
-		self:Debug("No waypointing addon connected.")
-	end
-}
-
--- call empty funcs under missing indices
-local nilfuncs = {__index=function() end}
-for k,v in pairs(me.WaypointFunctions) do setmetatable (v,nilfuncs) end
-
-
-function me:SetWaypoint(...)
-	if not self.ConnectedWaypointer then return end
-	if ...~=false and self.db.profile.hidearrowwithguide and not ZGV.Frame:IsShown() then return end
-	if not self:IsWaypointAddonReady() then
-		self:Print("Waypoint addon '"..self.db.profile.waypointaddon.."' failed.")
-		return
-	end
-	self.ConnectedWaypointer.setwaypoint(self,...)
-end
-
-function me:UnsetWaypointAddon()
-	if not self.ConnectedWaypointer then return end
-	local addon = self.db.profile.waypointaddon
-	if not addon or addon=="none" then return end
-
-	if not self:IsWaypointAddonEnabled() then
-		self:Debug("Not enabled, out.")
-		return
-	end --nothing to do here, move along
-
-	if not self:IsWaypointAddonReady() then return end
-
-	self.ConnectedWaypointer.disconnect(self)
-	self.ConnectedWaypointer = nil
-
-	self:Print(L["waypointaddon_disconnected"]:format(L["opt_group_addons_"..addon]))
-end
-
-function me:IsWaypointAddonReady(addon)
-	if not addon then addon = self.db.profile.waypointaddon end
-	return self.WaypointFunctions[addon].isready(self)
-end
-
-function me:IsWaypointAddonEnabled(addon)
-	if not addon then addon = self.db.profile.waypointaddon end
-	return self.db.profile.waypointaddon==addon and self:IsWaypointAddonReady(addon) -- and self.iconsregistered
-end
-
-
-
-function me:qRegisterNotes()
-	if not self.CurrentStep then return end
-	-- use for pre-registering. Cartographer needs that, while TomTom does not.
-	
-	-- retrying 3 times
-	if self.iconsregistered then return end
-	if not self.iconregistryretries then self.iconregistryretries=0 end
-	if self.iconregistryretries==3 then
-		self:Print(L["waypointaddon_fail"]:format(L["opt_group_addons_"..self.db.profile.waypointaddon]))
-		if not self.autodetectingwaypointaddon then
-			self:AutodetectWaypointAddon()
-		end
-
-	end
-	if self.iconregistryretries>3 then return end
-	self.iconregistryretries = self.iconregistryretries + 1
-
-	if not self:IsWaypointAddonReady() then return end
-
-	--self:Print(L["waypointaddon_connecting"]:format(self.optionsmap.args.waypoints.values[self.db.profile.waypointaddon]))
-
-	local addon = self.db.profile.waypointaddon
-
-	if addon=="tomtom" then
-		--[[
-		if not self.db.profile.filternotes then
-			self:Print("Creating all waypoints for TomTom. This may take a while.")
-			local contid,zoneid
-			for zone in pairs(self.MapNotes) do
-				local zoneTr = BZL[zone]
-				contid,zoneid = self:GetMapZoneNumbers(zoneTr)
-				self:Debug("contid="..ns(contid).." zoneid="..ns(zoneid).." for "..ns(zoneTr))
-				if contid and zoneid and (type(self.MapNotes[zone])=="table") then
-					if (TomTom:GetMapFile(contid,zoneid)) then
-						for note,mapnote in pairs(self.MapNotes[zone]) do
-							x,y = self:getXY(note)
-							--self:Debug("x="..ns(x).." y="..ns(y))
-							if x and y then
-								--self:Debug(GetCurrentMapContinent().." "..ns(note).." "..ns(zone).." x"..ns(x).." y"..tostring(y))
-								self.TomTomWaypoints[#self.TomTomWaypoints+1] = TomTom:AddZWaypoint(
-									contid,zoneid,x*100,y*100,
-									self.MapNotes[zone][note].title, --desc
-									false, --persistent
-									true, true, --minimap,world
-									nil,true, --callbacks,silent
-									(zone==self.CurrentStep.mapzone and note==self.CurrentStep.mapnote) --arrow
-								)
-							end
-						end
+			local canhidetravel=false
+			--if not self.db.profile.showinlinetravel then for i,goal in ipairs(step.goals) do if not goal:IsInlineTravel() then canhidetravel=true break end end end
+			for i,goal in ipairs(step.goals) do
+				if goal.x and goal:IsVisible() and (not goal.force_noway) and (not (canhidetravel and goal:IsInlineTravel())) and (not goal.waypoint_moved_to_waypath) and (goal.action~="mapmarker") then
+					if goal.parentStep.is_poi then
+						goal.waypoint_icon = ZGV.Pointer.Icons.graydot
 					else
-						self:Print("No map data for continent id "..ns(contid)..", zone id "..ns(zoneid)..", zone "..ns(zone)..", please report.")
+						if ZGV.db.profile.nav_finaldest_circle==1 then goal.waypoint_icon = ZGV.Pointer.Icons.greendotbig
+						elseif ZGV.db.profile.nav_finaldest_circle==2 then goal.waypoint_icon = ZGV.Pointer.Icons.crosshair
+						else goal.waypoint_icon = nil
+						end
+					end
+					ZGV:Debug("&waypoints Goal %d added.",i)
+					tinsert(points,goal)
+				else
+					ZGV:Debug("&waypoints Goal %d not added.",i)
+				end
+				if goal.ways then
+					ZGV:Debug("&waypoints Goal %d has %d ways, adding those.",i,#goal.ways)
+					for j,way in ipairs(goal.ways) do
+						tinsert(points,way)
 					end
 				end
 			end
 		end
-		--]]
-	elseif addon=="cart2" then
-		--[[
-		self:Debug("registering database "..#self.MapNotes)
-		Cartographer_Notes:RegisterNotesDatabase('ZygorGuides', self.MapNotes, self)
-		self:Debug("registered database")
+	else
+		ZGV:Debug("&waypoints No goals in step!?")
+	end
 
-		self:Debug("registering icons")
-		if not self.iconsregistered then
-			for k,v in pairs(self.icons) do
-				Cartographer_Notes:RegisterIcon(k, v)
+	-- if any points are present (that is: haven't been removed to waypath), show them as regular markers.
+	if points and #points>0 then
+		local goal=nil --TODO: what was this?
+		ZGV:Debug("&waypoints Showing %s: (#points=|cffffaadd%d|r, waypath |cffffaadd%s|r, Pointer.DestinationWaypoint=|cffffaadd%s|r)", goal and "goal" or "step goals",  #points, waypath and "PRESENT" or "absent", tostring(ZGV.Pointer.DestinationWaypoint))
+		arrowpoint,farmpoint = ZGV.Pointer.set_waypoints(points,35,30,"way")
+	else
+		ZGV:Debug("&waypoints No step points (left) to show.")
+	end
+	-- regardless of points and waypaths, try to point towards "current" goal.
+	if (waypath or (points and #points>0)) and step.current_waypoint_goal_num then
+		local cwgn = step.current_waypoint_goal_num
+		--[[
+		-- make sure the point is still visible!
+		while not step.goals[cwgn] or not step.goals[cwgn]:IsVisible() do
+			cwgn = cwgn + 1
+		end
+		--]]
+		if not step.goals[cwgn]:IsVisible() then ZGV.CurrentStep:CycleWaypoint(nil,"no cycle","current invisible in waypoints") end
+		
+		arrowpoint=ZGV.Pointer:GetWaypointByGoal(step.goals[step.current_waypoint_goal_num])
+		ZGV:Debug("&waypoints Arrowpoint set to cwgn = |cffffaadd%d|r",step.current_waypoint_goal_num)
+	else
+	end
+
+	-- Waypoints are set.
+
+	-- NOW, POINT THE ARROW / PLOT THE PATH.
+
+	-- Wait. If player is dead, point there instead.
+	--[[ -- or not, it breaks dead navigation
+	if self.Pointer.corpsearrow or self.Pointer:IsCorpseArrowNeeded() then
+		self:Debug("&waypoints ShowWaypoints: we have a corpse!.")
+		ZGV.Pointer:FindCorpseArrow(true)
+		break --------------------------------------------------------------------------------
+	end
+	--]]
+
+	if ZGV.Pointer.SavedPointsLoaded and ZGV.db.char.pointsetsmanual[1] then
+		arrowpoint = ZGV.db.char.pointsetsmanual[1]
+	end
+
+	ZGV:Debug("&waypoints Point the arrow! arrowpoint %s, farmpoint %s, waypath %s",ZGV.Pointer.waypoint_tostring_color(arrowpoint),ZGV.Pointer.waypoint_tostring_color(farmpoint),waypath and (#waypath.coords>0) and (#waypath.coords.." points") or "empty")
+
+	if arrowpoint and WorldMapFrame:IsShown() then 
+		if ZGV.WorldQuests and (ZGV.WorldQuests.PreventMapSwitch or 0 > 0) then
+			ZGV.WorldQuests.PreventMapSwitch = ZGV.WorldQuests.PreventMapSwitch - 1
+		elseif not UnitOnTaxi("player") and ZGV.db.profile.autoswitchmap then
+			if WorldMapFrame.HandleUserActionOpenSelf then
+				OpenWorldMap(arrowpoint.m)
+			else
+				ShowUIPanel(WorldMapFrame);
+				WorldMapFrame:SetMapID(arrowpoint.m);
 			end
 		end
-		--]]
-	elseif addon=="internal" then
 	end
 
-	self:Print(L["waypointaddon_connected"]:format(L["opt_group_addons_"..addon]))
-	self:Debug("registered icons")
-	self.iconsregistered = true
-	self.iconregistryretries = 0
-
-	self:SetWaypoint()
-end
-
-
-
-
-
--- icon handlers:
-
-function me:GetNoteScaling(zone,id,data)
-	return self.db.profile.iconScale
-end
-
-function me:IsNoteHidden(zone,id,data)
-	return self.db.profile.filternotes and (not self.CurrentStep or not self.CurrentStep.mapnote or (id~=self.CurrentStep.mapnote) or (zone~=self.CurrentStep.mapzone))
-end
-
-function me:IsMiniNoteHidden(zone,id,data)
-	return not self.db.profile.minicons or (self.db.profile.filternotes and ((id~=self.CurrentStep.mapnote) or (zone~=self.CurrentStep.mapzone)))
-end
-
-function me:GetNoteTransparency(zone,id,data)
-	return self.db.profile.iconAlpha
-end
-
-function me:GetNoteIcon(zone,id,data)
---	return (not self.db.profile.filternotes and self.CurrentStep and (id==self.CurrentStep.mapnote) and (zone==self.CurrentStep.mapzone)) and "hilite" or data.icon
-	return (self.CurrentStep and (id==self.CurrentStep.mapnote) and (zone==self.CurrentStep.mapzone)) and (data.icon=="Square" and "hilitesquare" or "hilite") or data.icon
-end
-
-
-
--------------------------- Cartographer stuff
-
-function me:ClearCartographerWaypoints()
-	if Cartographer_Waypoints then
-		for i,v in ipairs(Cartographer_Waypoints.Queue) do
-			v:Cancel()
-			Cartographer_Waypoints.Queue[i]=nil
-		end
-	end
-	if Cartographer_Notes and Cartographer_Notes.externalDBs["ZygorGuidesViewer"] then
-		Cartographer_Notes:UnregisterNotesDatabase("ZygorGuidesViewer")
-	end
-end
-
-function me:CreateCartographerWaypoints(goalnum)
-	if not self.CurrentStep or not self.CurrentStep.goals then return end
-
-	local x,y,zone
-
-	local db = {version=3}
-
-	local waypoints = {}
-
-	-- set mapnotes for all the coordinates found in step lines
-	-- REVERSE direction to create proper waypoint queue
-	for i=#self.CurrentStep.goals,1,-1 do
-		local g = self.CurrentStep.goals[i]
-		if g.x and not g.force_noway then
-			zone = g.map
-			if zone then
-				if self.BZR[zone] then zone = self.BZR[zone] end
-				local note = Cartographer_Notes.getID(g.x/100,g.y/100)
-				if not db[zone] then db[zone]={} end
-				db[zone][note]={icon="Circle",title=g.title or self.CurrentStep.title or g.autotitle or self.CurrentStep:GetTitle() or L['waypoint_step']:format(self.CurrentStepNum)}
-
-				if (i==goalnum) or not goalnum then
-					table.insert(waypoints,{zone=zone,note=note})
+	if ZGV.db.profile.pathfinding then
+		last_waypath = waypath
+		local waypath_poi = nil --TODO: shouldn't this be set to something?
+		last_waypath_poi = waypath_poi
+		if ZGV.Pointer.nummanual>0 then
+			-- leave it the hell alone.
+			ZGV:Debug("&waypoints Finding path to: Pointer.DestinationWaypoint (there are manual points)")
+			ZGV.Pointer:FindTravelPath(ZGV.Pointer.DestinationWaypoint)
+		elseif arrowpoint then
+			if step.travelcfg then
+				for i,v in pairs(step.travelcfg) do
+					LibRover.cfgNodeStepOverride[i]=v
 				end
 			end
-		end
-	end
-
-	Cartographer_Notes:RegisterNotesDatabase("ZygorGuidesViewer",db)
-
-	for i,way in ipairs(waypoints) do
-		Cartographer_Waypoints:SetNoteAsWaypoint(way.zone,way.note)
-	end
-
-	Cartographer_Notes:MINIMAP_UPDATE_ZOOM()
-end
-
-function me:CreateCartographerWaypointXY(x,y,title)
-	local zone = select(GetCurrentMapZone(), GetMapZones(GetCurrentMapContinent())) -- likely fails in Scarlet Enclave
-	Cartographer_Waypoints:AddWaypoint(NotePoint:new(zone, x, y, title or "Waypoint"))
-end
-
-
-function me:UpdateCartographerExport()
-	if ((self.db.profile.waypointaddon~="cart2") and (self.db.profile.waypointaddon~="cart3")) then return end  -- or (not self.iconsregistered) 
-
-	Cartographer_Notes:MINIMAP_UPDATE_ZOOM()
-	Cartographer_Notes:UpdateMinimapIcons()
-	Cartographer_Notes:RefreshMap()
-end
-
-
-
--------------------------- TomTom stuff
-
-
-function me:ClearTomTomWaypoints()
-	--self:Debug("Clearing TomTom waypoints:")
-	for i,p in ipairs(self.TomTomWaypoints) do
-		--self:Debug(p)
-		TomTom:RemoveWaypoint(p)
-	end
-	self.TomTomWaypoints = {}
-end
-
-function me:CreateTomTomWaypoints(goalnum)
-	--if not Astrolabe.ContinentList[101] then Astrolabe.ContinentList[101] = {[1]="ScarletEnclave"} end
-	if not self.CurrentStep or not self.CurrentStep.goals then return end
-	
-	if (TomTom.profile and TomTom.profile.persistence) then
-		TomTom.profile.persistence.cleardistance = 0
-	end
-
---	if self.CurrentStep.mapnote then
-
-	local x,y,zone
-
-	for i=#self.CurrentStep.goals,1,-1 do
-		local goal = self.CurrentStep.goals[i]
-		if goal.x and not goal.force_noway then
-			local contid,zoneid
-			contid,zoneid = self:GetMapZoneNumbers(goal.map)  -- localized already on load
-			--self:Print("contid:"..(contid or 'nil').." zoneid:"..(zoneid or 'nil'))
-			local way = TomTom:AddZWaypoint(
-				contid, zoneid,
-				goal.x, goal.y,
-				goal.title or self.CurrentStep.title or goal.autotitle or self.CurrentStep:GetTitle() or "Step "..self.CurrentStepNum,
-				false, --persistent
-				true, --minimap
-				true, --world
-				nil, --custom_callbacks
-				true, --silent
-				(i==goalnum or not goalnum) --arrow
-			)
-			--self:Debug("added to TomTom as:"..(way or 'nil'))
-			if way then table.insert(self.TomTomWaypoints, way) end
-		end
-
-	end
-
-end
-
-function me:CreateTomTomWaypointXY(x,y,title,arrow)
-	return self:CreateTomTomWaypointZXY(GetRealZoneText(),x,y,title,arrow)
-end
-
-function me:CreateTomTomWaypointZXY(zone,x,y,title,arrow)
-	local contid,zoneid = self:GetMapZoneNumbers(zone)
-	return self:CreateTomTomWaypointCZXY(contid,zoneid,x,y,title,arrow)
-end
-
-function me:CreateTomTomWaypointCZXY(contid,zoneid,x,y,title,arrow)
-	self:Debug(x..' '..y)
-	local way = TomTom:AddZWaypoint(
-		contid, zoneid,
-		x, y,
-		title or self.CurrentStep.title or "Step "..self.CurrentStepNum,
-		false, --persistent
-		true, --minimap
-		true, --world
-		nil, --custom_callbacks
-		true, --silent
-		arrow --arrow
-	)
-	if way then table.insert(self.TomTomWaypoints, way) end
-end
-
-local MapZoneCache={}
-local cached
-function me:GetMapZoneNumbers(zonename)
-	if zonename==self.BZL["Plaguelands: The Scarlet Enclave"] then return 5,1 end
-	cached = MapZoneCache[zonename]
-	if cached then return unpack(cached) end
-	for cont in pairs{GetMapContinents()} do
-		for zone,name in pairs{GetMapZones(cont)} do
-			if name==zonename then
-				MapZoneCache[zonename]={cont,zone}
-				return cont,zone
+			
+			ZGV:Debug("&waypoints Finding path to: arrowpoint")
+			ZGV.Pointer:FindTravelPath(arrowpoint)
+		elseif (waypath or waypath_poi) and not pointed and ZGV.Pointer.nummanual==0 then
+			-- setup step specific overrides
+			if step.travelcfg then
+				for i,v in pairs(step.travelcfg) do
+					LibRover.cfgNodeStepOverride[i]=v
+				end
 			end
-		end
-	end
-	return 0
-end
 
--- only for TomTom support, Astrolabe bundled
-function me:GetMapZoneFile(zonename)
-	Astrolabe = DongleStub("Astrolabe-0.4")
-	for cont in pairs{GetMapContinents()} do
-		for zone,name in pairs{GetMapZones(cont)} do
-			if name==zonename then
-				return Astrolabe.ContinentList[cont][zone]
+			ZGV:Debug("&waypoints Finding path to: waypath")
+			-- TRY TO POINT TO A FARM PATH.
+			-- find center of farm path and point there
+			-- BAD.
+			if waypath then
+				if waypath.loop then
+					-- EXPERIMENTAL: travel to path's general area.
+					local _,_,currentmapid = LibRover:GetPlayerPosition()
+					local currentmapfloor = LibRover:GetFloorByMapID(currentmapid)
+					if currentmapid ~= waypath.coords[1].map or currentmapfloor ~= waypath.coords[1].floor then
+						self:Debug("&waypoints Pointing to a looped path! We're not in the farm path's zone, let's travel.")
+						ZGV.Pointer:FindTravelPath("farm")
+					else
+						self:Debug("&waypoints Pointing to a looped path! We're in the farm path's zone. Clearing travel, just follow the route.")
+						LibRover:Abort("waypoints loop")
+						ZGV.Pointer:ClearSet("route")
+						ZGV.Pointer:PointToNextInPath("farm")  -- it's looped, so it's a farm, OK
+					end
+					break -------------------------------------------------------------------------------
+				end
+
+				local firstcoord = waypath.coords[1]
+				local _,_,currentmapid=LibRover:GetPlayerPosition()
+				if firstcoord and not firstcoord.force_noway then
+					if currentmapid~=firstcoord.map then
+						self:Debug("&waypoints Pointing to a path! We're not in the path's zone, let's travel to the first point.")
+						local x,y=0,0
+						for i,coord in ipairs(waypath.coords) do x=x+coord.x y=y+coord.y end
+						x=x/#waypath.coords
+						y=y/#waypath.coords
+
+						local way = ZGV.Pointer:SetWaypoint(firstcoord.map,x,y,{icon=ZGV.Pointer.Icons.none})
+						if way then ZGV.Pointer:FindTravelPath(way) end
+					else
+						self:Debug("&waypoints Pointing to a path! We're in the path's zone. Clearing travel, just follow the route.")
+						LibRover:Abort("waypoints noloop")
+						ZGV.Pointer:ClearSet("route")
+						ZGV.Pointer:PointToNextInPath("path")  -- it's not looped, handle it somehow.
+						-- ^ POSSIBLY change to waypath, because... why is it "path" now anyway? Seems like a bug, but won't regress into it now. ~~ 2022-01-24 sinus
+					end
+				else
+					self:Debug("&waypoints Pointing to a path NOT! First point is noway'ed.")
+					LibRover:Abort("waypoints noloop")
+					ZGV.Pointer:ClearSet("route")
+				end
 			end
+		elseif not step:IsDynamic() then 
+			ZGV:Debug("&waypoints Aborting, because no manuals and no arrowpoint and no waypath conditions: waypath %s, waypath_poi %s, pointed %s",waypath,waypath_poi,pointed)
+			LibRover:Abort("waypoints")
+			ZGV.Pointer.PathFoundHandler("failure")
 		end
-	end
-	return ""
-end
-
---EVIL STUFF. Hacking the ORIGINAL GetMapContinents(). This is bad, bad, bad - but Blizzard broke the rules by creating an off-world zone first... ;P
---[[
-local continentlist = { GetMapContinents() }
-table.insert(continentlist,ZygorGuidesViewer.BZL["Plaguelands: The Scarlet Enclave"])
-function GetMapContinents()
-	return unpack(continentlist)
-end
-local _GetMapZones = GetMapZones
-function GetMapZones(cont)
-	if cont<5 then
-		return _GetMapZones(cont)
 	else
-		return ZygorGuidesViewer.BZL["Plaguelands: The Scarlet Enclave"]
+		self.Pointer:FindTravelPath (arrowpoint)
 	end
+
+	if step.WorldQuestQueueRouter then
+		ZGV.WorldQuests:QueueProcess()
+	end
+
+	if arrowpoint and not UnitIsDeadOrGhost("player")
+	and not self.Pointer.ArrowFrame.waypoint
+	then
+		-- don't overwrite the stinking arrow
+		self:Debug("&waypoints Pointing to arrowpoint... again?")
+		self.Pointer:ShowArrow (arrowpoint)
+	else
+	end
+
+	until true
+	self:Debug("&waypoints &_POP ShowWaypoints ends [%.2f ms]",debugprofilestop()-t1)
 end
---]]

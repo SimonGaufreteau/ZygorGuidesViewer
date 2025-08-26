@@ -1,27 +1,25 @@
 ## Interface: 30300
-## Notes: Free multi-purpose leveling guide viewer.|n|nDesigned for use with Zygor Guides, but supporting user-supplied guides as well.
-## Note-frFR: 
-## Notes-esES: 
-## Title: |cffffff88Z|cffffee66y|cffffdd44g|cffffcc22o|cffffbb00r|r Guides Viewer
-## qqqTitle: |cffffff88Z|cffffee66y|cffffdd44g|cffffcc22o|cffffbb00r|r Guides Viewer |TInterface\AddOns\ZygorGuidesViewer\Skin\gnome:48:48:0:0|t
-## Author: Sinus Pi
+## Title: |cffffffffZygor Guide Viewer|r |cfff4bf2a(Classic)|r
+## Notes: Free multi-purpose leveling guide viewer, Classic edition.
+## Author: Zygor Guides
 ## DefaultState: enabled
 ## LoadOnDemand: 0
-## SavedVariables: ZygorGuidesViewerSettings
+## SavedVariables: ZygorGuidesViewerClassicSettings
 ## - SavedVariablesPerCharacter: ZygorGuidesViewerSettingsChar
-## OptionalDeps: Cartographer, Cartographer3, TomTom
+## OptionalDeps: Cartographer, Cartographer3, TomTom, WorldQuestTracker
 ## X-Category: 
 ## X-Credits: 
 ## X-eMail: zygor@zygorguides.com
 ## X-Website: http://zygorguides.com/
 ## X-License: GPL
-## Version: 2.0
+## IconTexture: Interface\Addons\ZygorGuidesViewer\Skins\addon-icon
+## Version: 1.1
 
-embeds.xml
+Libs\Libs.xml
+Libs-Classic\Libs.xml
 
-Localization\load.xml
-Localization\names.xml
+Retrofit.lua
+Localization\Localization.xml
+Localization-Classic\Localization.xml
 
-files.xml
-
-Guides\Autoload.xml
+files-Classic.xml

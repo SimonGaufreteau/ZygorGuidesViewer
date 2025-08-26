@@ -1,14 +1,14 @@
---[[ $Id: AceGUIWidget-DropDown.lua 916 2010-03-15 12:24:36Z nevcairiel $ ]]--
-local AceGUI = LibStub("AceGUI-3.0")
+--[[ $Id: AceGUIWidget-DropDown.lua 1116 2014-10-12 08:15:46Z nevcairiel $ ]]--
+local AceGUI = LibStub("AceGUI-3.0-Z")
 
 -- Lua APIs
 local min, max, floor = math.min, math.max, math.floor
-local select, pairs, ipairs = select, pairs, ipairs
+local select, pairs, ipairs, type, tostring = select, pairs, ipairs, type, tostring
 local tsort = table.sort
 
 -- WoW APIs
 local PlaySound = PlaySound
-local UIParent, CreateFrame = UIParent, CreateFrame
+local UIParent, CreateFrame = UIParent, AceGUI.CreateFrameWithBG
 local _G = _G
 
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
@@ -38,8 +38,8 @@ local function fixstrata(strata, parent, ...)
 end
 
 do
-	local widgetType = "Dropdown-Pullout"
-	local widgetVersion = 3
+	local widgetType = "Dropdown-Pullout-Z"
+	local widgetVersion = 5
 	
 	--[[ Static data ]]--
 	
@@ -153,11 +153,27 @@ do
 			end
 		end
 	end
-	
+
+	local function ApplySkin(self)
+		local ZGV = ZGV
+		local SkinData = ZGV.UI.SkinData
+
+		if not SkinData("StyleAceGUI") then 
+			self.frame:SetBackdrop(backdrop)
+			self.frame:SetBackdropColor(0, 0, 0)
+			self.frame:SetBackdropBorderColor(1, 1, 1)
+		else
+			self.frame:SetBackdrop(SkinData("AceGUIDropDownBackdrop"))
+			self.frame:SetBackdropColor(unpack(SkinData("AceGUIDropDownBackdropColor")))
+			self.frame:SetBackdropBorderColor(unpack(SkinData("AceGUIDropDownBackdropBorderColor")))
+		end
+	end
+
 	-- exported, AceGUI callback
 	local function OnAcquire(self)
 		self.frame:SetParent(UIParent)
 		--self.itemFrame:SetToplevel(true)
+		ApplySkin(self)
 	end
 	
 	-- exported, AceGUI callback
@@ -177,9 +193,21 @@ do
 		
 		item.frame:SetPoint("LEFT", self.itemFrame, "LEFT")
 		item.frame:SetPoint("RIGHT", self.itemFrame, "RIGHT")
-		
+
 		item:SetPullout(self)
 		item:SetOnEnter(OnEnter)
+
+		if item.SetFontObject then
+			item:SetFontObject(self.itemFontObject)
+		end
+	end
+
+	-- exported
+	local function SetItemFontObject(self, font)
+		for k,item in pairs(self.items) do
+			item:SetFontObject(font)
+			item:SetTextColor(font:GetTextColor())
+		end
 	end
 		
 	-- exported
@@ -193,12 +221,7 @@ do
 				
 		local height = 8
 		for i, item in pairs(items) do
-			if i == 1 then
-				item:SetPoint("TOP", itemFrame, "TOP", 0, -2)
-			else
-				item:SetPoint("TOP", items[i-1].frame, "BOTTOM", 0, 1)
-			end
-			
+			item:SetPoint("TOP", itemFrame, "TOP", 0, -2 + (i - 1) * -16)
 			item:Show()
 			
 			height = height + 16
@@ -258,7 +281,7 @@ do
 	
 	local function Constructor()
 		local count = AceGUI:GetNextWidgetNum(widgetType)
-		local frame = CreateFrame("Frame", "AceGUI30Pullout"..count, UIParent)
+		local frame = CreateFrame("Frame", AceGUI.Prefix.."Pullout"..count, UIParent, "BackdropTemplate")
 		local self = {}
 		self.count = count
 		self.type = widgetType
@@ -282,6 +305,8 @@ do
 		self.SetMaxHeight = SetMaxHeight
 		self.GetRightBorderWidth = GetRightBorderWidth
 		self.GetLeftBorderWidth = GetLeftBorderWidth
+
+		self.SetItemFontObject = SetItemFontObject
 		
 		self.items = {}
 		
@@ -291,14 +316,16 @@ do
 		
 		self.maxHeight = defaultMaxHeight
 			
-		frame:SetBackdrop(backdrop)
-		frame:SetBackdropColor(0, 0, 0)
+		--frame:SetBackdrop(backdrop)
+		--frame:SetBackdropColor(0, 0, 0)
 		frame:SetFrameStrata("FULLSCREEN_DIALOG")
 		frame:SetClampedToScreen(true)
 		frame:SetWidth(defaultWidth)
 		frame:SetHeight(self.maxHeight)	
 		--frame:SetToplevel(true)
+
 	
+
 		-- NOTE: The whole scroll frame code is copied from the AceGUI-3.0 widget ScrollFrame
 		local scrollFrame = CreateFrame("ScrollFrame", nil, frame)
 		local itemFrame = CreateFrame("Frame", nil, scrollFrame)
@@ -309,7 +336,7 @@ do
 		scrollFrame.obj = self
 		itemFrame.obj = self
 		
-		local slider = CreateFrame("Slider", "AceGUI30PulloutScrollbar"..count, scrollFrame)
+		local slider = CreateFrame("Slider", AceGUI.Prefix.."PulloutScrollbar"..count, scrollFrame, "BackdropTemplate")
 		slider:SetOrientation("VERTICAL")
 		slider:SetHitRectInsets(0, 0, -10, 0)
 		slider:SetBackdrop(sliderBackdrop)
@@ -355,8 +382,8 @@ do
 end
 
 do
-	local widgetType = "Dropdown"
-	local widgetVersion = 22
+	local widgetType = "Dropdown-Z"
+	local widgetVersion = 36
 	
 	--[[ Static data ]]--
 	
@@ -370,6 +397,16 @@ do
 		this.obj:Fire("OnLeave")
 	end
 
+	local function Button_OnEnter(this)
+		this.obj.button:LockHighlight()
+		this.obj:Fire("OnEnter")
+	end
+	
+	local function Button_OnLeave(this)
+		this.obj.button:UnlockHighlight()
+		this.obj:Fire("OnLeave")
+	end
+
 	local function Dropdown_OnHide(this)
 		local self = this.obj
 		if self.open then
@@ -379,15 +416,14 @@ do
 	
 	local function Dropdown_TogglePullout(this)
 		local self = this.obj
-		PlaySound("igMainMenuOptionCheckBoxOn") -- missleading name, but the Blizzard code uses this sound
 		if self.open then
 			self.open = nil
 			self.pullout:Close()
 			AceGUI:ClearFocus()
 		else
 			self.open = true
-			self.pullout:SetWidth(self.frame:GetWidth())
-			self.pullout:Open("TOPLEFT", self.frame, "BOTTOMLEFT", 0, self.label:IsShown() and -2 or 0)
+			self.pullout:SetWidth(self.pulloutWidth or self.frame:GetWidth())
+			self.pullout:Open("TOPLEFT", self.frame, "BOTTOMLEFT", 3, self.label:IsShown() and -2 or 0)
 			AceGUI:SetFocus(self)
 		end
 	end
@@ -403,6 +439,7 @@ do
 		end
 		
 		self.open = true
+		self:Fire("OnOpened")
 	end
 
 	local function OnPulloutClose(this)
@@ -414,7 +451,7 @@ do
 	local function ShowMultiText(self)
 		local text
 		for i, widget in self.pullout:IterateItems() do
-			if widget.type == "Dropdown-Item-Toggle" then
+			if widget.type == "Dropdown-Item-Toggle-Z" then
 				if widget:GetValue() then
 					if text then
 						text = text..", "..widget:GetText()
@@ -447,10 +484,64 @@ do
 	end
 	
 	--[[ Exported methods ]]--
+	local function ApplySkin(self)
+		local ZGV = ZGV
+
+		local SkinData = ZGV.UI.SkinData
+		local CHAIN=ZGV.ChainCall
+
+		if not SkinData("StyleAceGUI") then 
+			self.dropdown.Left:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+			self.dropdown.Middle:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+			self.dropdown.Right:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+			
+			return
+		end
+
+		local dropdownname = self.dropdown:GetName()
+		local normal = _G[dropdownname .. "ButtonNormalTexture"]
+		local pushed = _G[dropdownname .. "ButtonPushedTexture"]
+		local disabled = _G[dropdownname .. "ButtonDisabledTexture"]
+		local highlight = _G[dropdownname .. "ButtonHighlightTexture"]
+
+		self.dropdown.Left:SetTexture(SkinData("AceGUIInputTexture"))
+		self.dropdown.Middle:SetTexture(SkinData("AceGUIInputTexture"))
+		self.dropdown.Right:SetTexture(SkinData("AceGUIInputTexture"))
+
+		CHAIN(normal)
+			:SetSize(14,14)
+			:ClearAllPoints()
+			:SetPoint("LEFT",5,0)
+			:SetTexture(ZGV.ButtonSets.TitleButtons.file)
+			:SetTexCoord(unpack(ZGV.ButtonSets.TitleButtons.DROPDOWN.texcoords[1]))
+
+		CHAIN(pushed)
+			:SetSize(14,14)
+			:ClearAllPoints()
+			:SetPoint("LEFT",5,0)
+			:SetTexture(ZGV.ButtonSets.TitleButtons.file)
+			:SetTexCoord(unpack(ZGV.ButtonSets.TitleButtons.DROPDOWN.texcoords[2]))
+
+		CHAIN(highlight)
+			:SetSize(14,14)
+			:ClearAllPoints()
+			:SetPoint("LEFT",5,0)
+			:SetTexture(ZGV.ButtonSets.TitleButtons.file)
+			:SetTexCoord(unpack(ZGV.ButtonSets.TitleButtons.DROPDOWN.texcoords[3]))
+
+		CHAIN(disabled)
+			:SetSize(14,14)
+			:ClearAllPoints()
+			:SetPoint("LEFT",5,0)
+			:SetTexture(ZGV.ButtonSets.TitleButtons.file)
+			:SetTexCoord(unpack(ZGV.ButtonSets.TitleButtons.DROPDOWN.texcoords[4]))
+
+
+	end
 	
 	-- exported, AceGUI callback
 	local function OnAcquire(self)
-		local pullout = AceGUI:Create("Dropdown-Pullout")
+		local pullout = AceGUI:Create("Dropdown-Pullout-Z")
 		self.pullout = pullout
 		pullout.userdata.obj = self
 		pullout:SetCallback("OnClose", OnPulloutClose)
@@ -460,8 +551,16 @@ do
 		
 		self:SetHeight(44)
 		self:SetWidth(200)
+		self:SetLabel()
+		self:SetPulloutWidth(nil)
+		self.list = {}
+		self:SetLabelFontObject()
+		self:SetValueFontObject()
+
+		ApplySkin(self)
 	end
-	
+
+
 	-- exported, AceGUI callback
 	local function OnRelease(self)
 		if self.open then
@@ -471,7 +570,6 @@ do
 		self.pullout = nil
 		
 		self:SetText("")
-		self:SetLabel("")
 		self:SetDisabled(false)
 		self:SetMultiselect(false)
 		
@@ -490,10 +588,12 @@ do
 		if disabled then
 			self.text:SetTextColor(0.5,0.5,0.5)
 			self.button:Disable()
+			self.button_cover:Disable()
 			self.label:SetTextColor(0.5,0.5,0.5)
 		else
 			self.button:Enable()
-			self.label:SetTextColor(1,.82,0)
+			self.button_cover:Enable()
+			self.label:SetTextColor(self.label:GetFontObject():GetTextColor())
 			self.text:SetTextColor(1,1,1)
 		end
 	end
@@ -507,7 +607,7 @@ do
 	
 	-- exported
 	local function SetText(self, text)
-		self.text:SetText(text or "")
+		self.text:SetText((type(text)=="table" and text.name) or text or "")
 	end
 	
 	-- exported
@@ -515,21 +615,21 @@ do
 		if text and text ~= "" then
 			self.label:SetText(text)
 			self.label:Show()
-			self.dropdown:SetPoint("TOPLEFT",self.frame,"TOPLEFT",-15,-18)
-			self.frame:SetHeight(44)
+			self.dropdown:SetPoint("TOPLEFT",self.frame,"TOPLEFT",-15,-19)
+			self:SetHeight(45)
+			self.alignoffset = 31
 		else
 			self.label:SetText("")
 			self.label:Hide()
 			self.dropdown:SetPoint("TOPLEFT",self.frame,"TOPLEFT",-15,0)
-			self.frame:SetHeight(26)
+			self:SetHeight(26)
+			self.alignoffset = 12
 		end
 	end
 	
 	-- exported
 	local function SetValue(self, value)
-		if self.list then
 			self:SetText(self.list[value] or "")
-		end
 		self.value = value
 	end
 	
@@ -560,18 +660,28 @@ do
 		end
 	end
 	
-	local function AddListItem(self, value, text)
-		local item = AceGUI:Create("Dropdown-Item-Toggle")
-		item:SetText(text)
+	local function AddListItem(self, value, text, itemType)
+		if not itemType then itemType = "Dropdown-Item-Toggle-Z" end
+		local exists = AceGUI:GetWidgetVersion(itemType)
+		if not exists then error(("The given item type, %q, does not exist within AceGUI-3.0"):format(tostring(itemType)), 2) end
+
+		local item = AceGUI:Create(itemType)
+		item:SetText((type(text)=="number" and text) or text.name or text)
+		if type(text)=="table" then
+			item.tooltiptext = text.tooltip
+		end
 		item.userdata.obj = self
 		item.userdata.value = value
 		item:SetCallback("OnValueChanged", OnItemValueChanged)
+		if item.SetFontObject then
+			item:SetFontObject(self.itemFontObject)
+		end
 		self.pullout:AddItem(item)
 	end
 	
 	local function AddCloseButton(self)
 		if not self.hasClose then
-			local close = AceGUI:Create("Dropdown-Item-Execute")
+			local close = AceGUI:Create("Dropdown-Item-Execute-Z")
 			close:SetText(CLOSE)
 			self.pullout:AddItem(close)
 			self.hasClose = true
@@ -580,20 +690,34 @@ do
 	
 	-- exported
 	local sortlist = {}
-	local function SetList(self, list)
-		self.list = list
+	local function sortTbl(x,y)
+		local num1, num2 = tonumber(x), tonumber(y)
+		if num1 and num2 then -- numeric comparison, either two numbers or numeric strings
+			return num1 < num2
+		else -- compare everything else tostring'ed
+			return tostring(x) < tostring(y)
+		end
+	end
+	local function SetList(self, list, order, itemType)
+		self.list = list or {}
 		self.pullout:Clear()
 		self.hasClose = nil
 		if not list then return end
 		
-		for v in pairs(list) do
-			sortlist[#sortlist + 1] = v
-		end
-		tsort(sortlist)
-		
-		for i, value in pairs(sortlist) do
-			AddListItem(self, value, list[value])
-			sortlist[i] = nil
+		if type(order) ~= "table" then
+			for v in pairs(list) do
+				sortlist[#sortlist + 1] = v
+			end
+			tsort(sortlist, sortTbl)
+			
+			for i, key in ipairs(sortlist) do
+				AddListItem(self, key, list[key], itemType)
+				sortlist[i] = nil
+			end
+		else
+			for i, key in ipairs(order) do
+				AddListItem(self, key, list[key], itemType)
+			end
 		end
 		if self.multiselect then
 			ShowMultiText(self)
@@ -602,12 +726,10 @@ do
 	end
 	
 	-- exported
-	local function AddItem(self, value, text)
-		if self.list then
+	local function AddItem(self, value, text, itemType)
 			self.list[value] = text
-			AddListItem(self, value, text)
+			AddListItem(self, value, text, itemType)
 		end
-	end
 	
 	-- exported
 	local function SetMultiselect(self, multi)
@@ -623,12 +745,35 @@ do
 		return self.multiselect
 	end
 	
+	local function SetPulloutWidth(self, width)
+		self.pulloutWidth = width
+		if not width then
+			self.dropdown:SetPoint("BOTTOMRIGHT",self.frame,"BOTTOMRIGHT",21,0)
+		else
+			self.dropdown:SetPoint("BOTTOMRIGHT",self.frame,"BOTTOMLEFT",width+21,0)
+		end
+	end
+	
+	local function SetLabelFontObject(self, font)
+		font = font or GameFontNormal
+		self.label:SetFontObject(font)
+		self.label:SetTextColor(font:GetTextColor())
+	end
+	
+	local function SetValueFontObject(self, font)
+		font = font or GameFontHighlightSmall
+		self.text:SetFontObject(font)
+		self.text:SetTextColor(font:GetTextColor())
+		self.pullout.itemFontObject = font
+		self.pullout:SetItemFontObject(font)
+	end
+	
 	--[[ Constructor ]]--
 	
 	local function Constructor()
 		local count = AceGUI:GetNextWidgetNum(widgetType)
-		local frame = CreateFrame("Frame", nil, UIParent)
-		local dropdown = CreateFrame("Frame", "AceGUI30DropDown"..count, frame, "UIDropDownMenuTemplate")
+		local frame = CreateFrame("Frame", AceGUI.Prefix.."DropDown"..count.."Frame", UIParent)
+		local dropdown = CreateFrame("Frame", AceGUI.Prefix.."DropDown"..count, frame, "UIDropDownForkTemplate")
 		
 		local self = {}
 		self.type = widgetType
@@ -654,12 +799,17 @@ do
 		self.GetMultiselect = GetMultiselect
 		self.SetItemValue = SetItemValue
 		self.SetItemDisabled = SetItemDisabled
+		self.SetPulloutWidth = SetPulloutWidth
+
+		self.SetLabelFontObject = SetLabelFontObject
+		self.SetValueFontObject = SetValueFontObject
+
 		
-		self.alignoffset = 31
+		self.alignoffset = 26
 		
-		frame:SetHeight(44)
-		frame:SetWidth(200)
 		frame:SetScript("OnHide",Dropdown_OnHide)
+		frame:SetScript("OnEnter",Control_OnEnter)
+		frame:SetScript("OnLeave",Control_OnLeave)
 
 		dropdown:ClearAllPoints()
 		dropdown:SetPoint("TOPLEFT",frame,"TOPLEFT",-15,0)
@@ -678,11 +828,21 @@ do
 		right:SetPoint("TOPRIGHT", dropdown, "TOPRIGHT", 0, 17)
 
 		local button = _G[dropdown:GetName() .. "Button"]
+
 		self.button = button
 		button.obj = self
-		button:SetScript("OnEnter",Control_OnEnter)
-		button:SetScript("OnLeave",Control_OnLeave)
+		button:SetScript("OnEnter",Button_OnEnter)
+		button:SetScript("OnLeave",Button_OnLeave)
 		button:SetScript("OnClick",Dropdown_TogglePullout)
+		
+		local button_cover = CreateFrame("BUTTON",nil,self.frame)
+		self.button_cover = button_cover
+		button_cover.obj = self
+		button_cover:SetPoint("TOPLEFT",self.frame,"BOTTOMLEFT",0,25)
+		button_cover:SetPoint("BOTTOMRIGHT",self.frame,"BOTTOMRIGHT")
+		button_cover:SetScript("OnEnter",Button_OnEnter)
+		button_cover:SetScript("OnLeave",Button_OnLeave)
+		button_cover:SetScript("OnClick",Dropdown_TogglePullout)
 		
 		local text = _G[dropdown:GetName() .. "Text"]
 		self.text = text
@@ -690,9 +850,10 @@ do
 		text:ClearAllPoints()
 		text:SetPoint("RIGHT", right, "RIGHT" ,-43, 2)
 		text:SetPoint("LEFT", left, "LEFT", 25, 2)
+		text:SetJustifyH("LEFT")
 		
 		local label = frame:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
-		label:SetPoint("TOPLEFT",frame,"TOPLEFT",0,0)
+		label:SetPoint("TOPLEFT",frame,"TOPLEFT",3,0)
 		label:SetPoint("TOPRIGHT",frame,"TOPRIGHT",0,0)
 		label:SetJustifyH("LEFT")
 		label:SetHeight(18)

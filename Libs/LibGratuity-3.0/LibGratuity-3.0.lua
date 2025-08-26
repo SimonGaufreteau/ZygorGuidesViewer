@@ -1,13 +1,13 @@
 --[[
 Name: LibGratuity-3.0
-Revision: $Rev: 39 $
+Revision: $Rev: 43 $
 Author: Tekkub Stoutwrithe (tekkub@gmail.com)
 SVN: svn://svn.wowace.com/root/trunk/LibGratuity-3.0
 Description: Tooltip parsing library
 Dependencies: (optional) Deformat-2.0
 ]]
 
-local vmajor, vminor = "LibGratuity-3.0", 90000 + tonumber(("$Revision: 39 $"):match("%d+"))
+local vmajor, vminor = "LibGratuity-3.0", 100000 + tonumber(("$Revision: 43 $"):match("%d+"))
 
 local lib = LibStub:NewLibrary(vmajor, vminor)
 if not lib then
@@ -19,21 +19,28 @@ local methods = {
 	"SetCraftItem", "SetCraftSpell", "SetHyperlink", "SetInboxItem", "SetInventoryItem",
 	"SetLootItem", "SetLootRollItem", "SetMerchantItem", "SetPetAction", "SetPlayerBuff",
 	"SetQuestItem", "SetQuestLogItem", "SetQuestRewardSpell", "SetSendMailItem", "SetShapeshift",
-	"SetSpell", "SetTalent", "SetTrackingSpell", "SetTradePlayerItem", "SetTradeSkillItem", "SetTradeTargetItem",
+	"SetSpellByID", "SetTalent", "SetTrackingSpell", "SetTradePlayerItem", "SetTradeSkillItem", "SetTradeTargetItem",
 	"SetTrainerService", "SetUnit", "SetUnitBuff", "SetUnitDebuff", "SetGuildBankItem",
 }
 
+if select(4, GetBuildInfo()) >= 40000 then
+	table.insert(methods, "SetSpellBookItem")
+else
+	table.insert(methods, "SetSpell")
+end
+
 function lib:CreateTooltip()
-	local tt = CreateFrame("GameTooltip")
+	local ttname = "LibGratuityTooltip"
+	local tt = CreateFrame("GameTooltip",ttname)
 
 	self.vars.tooltip = tt
-	tt:SetOwner(UIParent, "ANCHOR_NONE")
+	tt:SetOwner(UIParent, "ANCHOR_TOP")
 --	tt:SetOwner(tt, "ANCHOR_NONE")
 --	tooltip:SetParent()
 
 	self.vars.Llines, self.vars.Rlines = {}, {}
 	for i=1,30 do
-		self.vars.Llines[i], self.vars.Rlines[i] = tt:CreateFontString(), tt:CreateFontString()
+		self.vars.Llines[i], self.vars.Rlines[i] = tt:CreateFontString(ttname.."TextLeft"..i), tt:CreateFontString(ttname.."TextRight"..i)
 		self.vars.Llines[i]:SetFontObject(GameFontNormal)
 		self.vars.Rlines[i]:SetFontObject(GameFontNormal)
 		tt:AddFontStrings(self.vars.Llines[i], self.vars.Rlines[i])

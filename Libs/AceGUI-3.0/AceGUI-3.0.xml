@@ -25,4 +25,6 @@
 	<Script file="widgets\AceGUIWidget-Label.lua"/>
 	<Script file="widgets\AceGUIWidget-MultiLineEditBox.lua"/>
 	<Script file="widgets\AceGUIWidget-Slider.lua"/>
+	
+	<Script file="widgets\AceGUIWidget-SliderLabeled.lua"/> <!-- Zygor -->
 </Ui>

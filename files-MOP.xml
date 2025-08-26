@@ -1,0 +1,147 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML/UI.xsd">
+
+	<Script>
+	___ZGV_TIMESTAMP_LOADFILESXML_START = debugprofilestop()
+	collectgarbage()
+	___ZGV_LOAD_MEM = collectgarbage("count")
+	</Script>
+
+	<Script file="ZygorGuidesViewer.lua"/>
+	<Script file="Tooltips.lua"/>
+	<Script file="Licence.lua"/>
+
+	<Script file="Ver.lua"/>
+	<Script file="Class.lua"/>
+	<Script file="Functions.lua"/>
+	<Include file="UiWidgets\files.xml" />
+
+	<Include file="DEV\DEV.xml" />
+
+	<Script file="Code-MOP\TalentAdvisor.lua"/>
+	<!--
+	<Script file="Code-MOP\TalentAdvisor-Registering.lua"/>
+	<Script file="Code-MOP\TalentAdvisor-Popout.lua"/>
+	<Include file="Code-MOP\TalentAdvisor-Popout.xml"/>
+	<Include file="Code-MOP\ZygorTalentAdvisor\files.xml" />
+	-->
+
+
+	<Script file="BugReport.lua"/>
+
+	<Script file="Parser.lua"/>
+	<Script file="Options.lua"/>
+	<Script file="Waypoints.lua"/>
+	<Script file="Log.lua"/>
+	<Script file="Localizers.lua"/>
+	<Script file="QuestTracking.lua"/>
+	<Script file="Code-MOP\QuestTracking.lua"/>
+	<Script file="Faction.lua"/>
+	<Script file="Code-MOP\Faction.lua"/>
+	<Script file="Code-MOP\Profession.lua"/>
+	<Script file="Dungeons.lua"/>
+	<Script file="Announcements.lua"/>
+
+	<Script file="QuestAutoAccept.lua"/>
+	<Script file="QuestDB.lua"/>
+	<Script file="Code-MOP\QuestDB.lua"/>
+
+	<Script file="Guide.lua"/>
+	<Script file="MacroGuide.lua"/>
+	<Script file="Step.lua"/>
+	<Script file="Goal.lua"/>
+	<Script file="Code-MOP\Goal.lua"/>
+
+	<Script file="Code-MOP\PetBattle.lua"/>
+
+	<Script file="Config.lua"/>
+	<Script file="Tutorial.lua"/>
+
+	<Script file="Code-MOP\Achievement.lua"/>
+	
+	<Script file="StaticPopups.lua" />
+
+	<Script file="NotificationCenter.lua"/>
+
+	<!-- Script file="Skills.lua"/ -->
+
+	<Script file="MapCoords.lua"/>
+
+	<Script file="Pointer.lua"/>
+	<Script file="Code-MOP\PointerMap.lua"/>
+	<Include file="PointerMarkerTemplates.xml" />
+	<Include file="Arrows\Arrows.xml" />
+
+	<Script file="Foglight.lua"/>
+
+	<Include file="MasterFrame.xml"/>
+	<Include file="MaintenanceFrame.xml"/>
+
+	<Include file="Skins.lua"/>
+	<Include file="Skins\Skins.xml"/>
+
+	<Include file="ZygorMapIcon.xml" />
+	<Include file="GuideMenu.lua" />
+	<Include file="GuideMenu-View.lua" />
+	<Include file="Data-MOP\GuideMenu-Home.lua" />
+	<Include file="Data-MOP\GuideMenu-Featured.lua" />
+
+	<Script file="Tabs.lua"/>
+
+	<Include file="Templates.xml" />
+
+	<Script file="MagicKey.lua" />
+
+	<Script file="ActionBar.lua" />
+
+	<Script file="CreatureDetector.lua" />
+	
+	<Script file="Code-MOP\Item-DataTables.lua" />
+	<Script file="Data-MOP\Item-Statweights.lua" />
+	<Script file="Item-ItemScore.lua" />
+	<Script file="Code-MOP\Item-ItemScore.lua" />
+	<Script file="Item-Upgrades.lua" />
+	<Script file="Item-GearFinder.lua" />
+	<Script file="Code-MOP\Item-GearFinder.lua" />
+	<Script file="Item-Quest.lua" />
+
+	<Include file="GoldUI\Gold.xml" />
+	<Include file="Code-MOP\GoldUI\Gold.xml" />
+	<Include file="Data-MOP\data.xml"/>
+
+	<Script file="Poi.lua"/>
+
+	<Script> ___ZGV_TIMESTAMP_LOADGUIDESXML_START = debugprofilestop() </Script>
+	<Include file="Guides-MOP\Autoload.xml"/>
+	<Script file="GuideSorting.lua" />
+	<Script> ___ZGV_TIMESTAMP_LOADGUIDESXML_END = debugprofilestop() </Script>
+
+
+
+
+	<Script file="WhoWhere.lua"/>
+
+	<Script file="Inventory.lua"/>
+	
+	<Script file="Code-MOP\InitialFlightPaths.lua" />
+	
+	<Script file="TestFramework.lua"/>
+
+	<Script file="Libs/HBDragons.lua"/>
+
+	<Script file="Sync.lua"/>
+	<Script file="Telemetry.lua"/>
+
+	<Include file="Widgets.lua"/>
+	<Include file="Widgets\files.xml"/>
+
+	<Script file="ChainsParser.lua"/>
+	<Script file="Data-MOP\Chains.lua"/>
+	
+	<Script>
+	___ZGV_TIMESTAMP_LOADFILESXML_END = debugprofilestop()
+
+	collectgarbage()
+	ZGV.loading_memory_total = collectgarbage("count")-___ZGV_LOAD_MEM
+	___ZGV_LOAD_MEM=nil
+	</Script>
+</Ui>

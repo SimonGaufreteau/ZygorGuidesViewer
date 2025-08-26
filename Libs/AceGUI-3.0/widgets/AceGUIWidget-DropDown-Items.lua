@@ -1,13 +1,13 @@
---[[ $Id: AceGUIWidget-DropDown-Items.lua 916 2010-03-15 12:24:36Z nevcairiel $ ]]--
+--[[ $Id: AceGUIWidget-DropDown-Items.lua 1137 2016-05-15 10:57:36Z nevcairiel $ ]]--
 
-local AceGUI = LibStub("AceGUI-3.0")
+local AceGUI = LibStub("AceGUI-3.0-Z")
 
 -- Lua APIs
 local select, assert = select, assert
 
 -- WoW APIs
 local PlaySound = PlaySound
-local CreateFrame = CreateFrame
+local CreateFrame = AceGUI.CreateFrameWithBG
 
 local function fixlevels(parent,...)
 	local i = 1
@@ -41,7 +41,7 @@ local ItemBase = {
 	-- NOTE: The ItemBase version is added to each item's version number
 	--       to ensure proper updates on ItemBase changes.
 	--       Use at least 1000er steps.
-	version = 1000,
+	version = 2000,
 	counter = 0,
 }
 
@@ -52,7 +52,16 @@ function ItemBase.Frame_OnEnter(this)
 		self.highlight:Show()
 	end
 	self:Fire("OnEnter")
-	
+
+	if self.tooltiptext then
+		GameTooltip:SetOwner(self.frame, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetText(self.tooltiptext, 1, .82, 0, 1, true)
+		GameTooltip:SetToplevel(true)
+		GameTooltip:SetFrameLevel(99)
+		GameTooltip:Show()
+	end
+
+
 	if self.specialOnEnter then
 		self.specialOnEnter(self)
 	end
@@ -63,6 +72,8 @@ function ItemBase.Frame_OnLeave(this)
 	
 	self.highlight:Hide()
 	self:Fire("OnLeave")
+
+	GameTooltip:Hide()
 	
 	if self.specialOnLeave then
 		self.specialOnLeave(self)
@@ -73,6 +84,30 @@ end
 function ItemBase.OnAcquire(self)
 	self.frame:SetToplevel(true)
 	self.frame:SetFrameStrata("FULLSCREEN_DIALOG")
+	self:ApplySkin()
+end
+
+function ItemBase.ApplySkin(self)
+	local ZGV = ZGV
+	local SkinData = ZGV.UI.SkinData
+	local CHAIN=ZGV.ChainCall
+
+	if not SkinData("StyleAceGUI") then 
+		self.check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+		self.check:SetTexCoord(0,1,0,1)
+
+		return 
+	end
+
+	CHAIN(self.highlight)
+		:SetTexture(ZGV.SKINSDIR.."white")
+		:SetVertexColor(unpack(SkinData("ButtonHighlight")))
+
+	CHAIN(self.check)
+		:SetTexture(ZGV.ButtonSets.Interactions.file)
+		:SetTexCoord(unpack(ZGV.ButtonSets.Interactions.CHECKBOX_ON.texcoords[1]))
+		:SetSize(12,12)
+
 end
 
 -- exported, AceGUI callback
@@ -147,10 +182,16 @@ function ItemBase.SetOnEnter(self, func)
 	self.specialOnEnter = func
 end
 
+function ItemBase.SetFontObject(self, font)
+	font = font or GameFontHighlightSmall
+	self.text:SetFontObject(font)
+	self.text:SetTextColor(font:GetTextColor())
+end
+
 function ItemBase.Create(type)
 	-- NOTE: Most of the following code is copied from AceGUI-3.0/Dropdown widget
 	local count = AceGUI:GetNextWidgetNum(type)
-	local frame = CreateFrame("Button", "AceGUI30DropDownItem"..count)
+	local frame = CreateFrame("Button", AceGUI.Prefix.."DropDownItem"..count)
 	local self = {}
 	self.frame = frame
 	frame.obj = self
@@ -169,7 +210,7 @@ function ItemBase.Create(type)
 	self.text = text
 
 	local highlight = frame:CreateTexture(nil, "OVERLAY")
-	highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+	highlight:SetTexture(136810) -- Interface\\QuestFrame\\UI-QuestTitleHighlight
 	highlight:SetBlendMode("ADD")
 	highlight:SetHeight(14)
 	highlight:ClearAllPoints()
@@ -178,19 +219,19 @@ function ItemBase.Create(type)
 	highlight:Hide()
 	self.highlight = highlight
 
-	local check = frame:CreateTexture("OVERLAY")	
+	local check = frame:CreateTexture(nil, "OVERLAY")
 	check:SetWidth(16)
 	check:SetHeight(16)
 	check:SetPoint("LEFT",frame,"LEFT",3,-1)
-	check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+	check:SetTexture(130751) -- Interface\\Buttons\\UI-CheckBox-Check
 	check:Hide()
 	self.check = check
 
-	local sub = frame:CreateTexture("OVERLAY")
+	local sub = frame:CreateTexture(nil, "OVERLAY")
 	sub:SetWidth(16)
 	sub:SetHeight(16)
 	sub:SetPoint("RIGHT",frame,"RIGHT",-3,-1)
-	sub:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
+	sub:SetTexture(130940) -- Interface\\ChatFrame\\ChatFrameExpandArrow
 	sub:Hide()
 	self.sub = sub	
 	
@@ -204,15 +245,24 @@ function ItemBase.Create(type)
 	self.GetText    = ItemBase.GetText
 	self.SetText    = ItemBase.SetText
 	self.SetDisabled = ItemBase.SetDisabled
+	self.ApplySkin = ItemBase.ApplySkin
 	
 	self.SetPoint   = ItemBase.SetPoint
 	self.Show       = ItemBase.Show
 	self.Hide       = ItemBase.Hide
+
+	self.SetFontObject       = ItemBase.SetFontObject
 	
 	self.SetOnLeave = ItemBase.SetOnLeave
 	self.SetOnEnter = ItemBase.SetOnEnter
 	
 	return self
+end
+
+-- Register a dummy LibStub library to retrieve the ItemBase, so other addons can use it.
+local IBLib = LibStub:NewLibrary("AceGUI-3.0-DropDown-ItemBase", ItemBase.version)
+if IBLib then
+	IBLib.GetItemBase = function() return ItemBase end
 end
 
 --[[
@@ -239,10 +289,11 @@ end
 -- A single text entry.
 -- Special: Different text color and no highlight
 do
-	local widgetType = "Dropdown-Item-Header"
+	local widgetType = "Dropdown-Item-Header-Z"
 	local widgetVersion = 1
 	
 	local function OnEnter(this)
+		print("Header")
 		local self = this.obj
 		self:Fire("OnEnter")
 		
@@ -288,7 +339,7 @@ end
 -- Item: Execute
 -- A simple button
 do
-	local widgetType = "Dropdown-Item-Execute"
+	local widgetType = "Dropdown-Item-Execute-Z"
 	local widgetVersion = 1
 	
 	local function Frame_OnClick(this, button)
@@ -316,8 +367,8 @@ end
 -- Some sort of checkbox for dropdown menus.
 -- Does not close the pullout on click.
 do
-	local widgetType = "Dropdown-Item-Toggle"
-	local widgetVersion = 3
+	local widgetType = "Dropdown-Item-Toggle-Z"
+	local widgetVersion = 4
 	
 	local function UpdateToggle(self)
 		if self.value then
@@ -337,9 +388,9 @@ do
 		if self.disabled then return end
 		self.value = not self.value
 		if self.value then
-			PlaySound("igMainMenuOptionCheckBoxOn")
+			PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
 		else
-			PlaySound("igMainMenuOptionCheckBoxOff")
+			PlaySound(857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
 		end
 		UpdateToggle(self)
 		self:Fire("OnValueChanged", self.value)
@@ -376,10 +427,11 @@ end
 -- Shows a submenu on mouse over
 -- Does not close the pullout on click
 do
-	local widgetType = "Dropdown-Item-Menu"
+	local widgetType = "Dropdown-Item-Menu-Z"
 	local widgetVersion = 2
 	
 	local function OnEnter(this)
+		print("Item")
 		local self = this.obj
 		self:Fire("OnEnter")
 		
@@ -433,8 +485,8 @@ end
 -- Item: Separator
 -- A single line to separate items
 do
-	local widgetType = "Dropdown-Item-Separator"
-	local widgetVersion = 1
+	local widgetType = "Dropdown-Item-Separator-Z"
+	local widgetVersion = 2
 	
 	-- exported, override
 	local function SetDisabled(self, disabled)
@@ -449,7 +501,7 @@ do
 		
 		local line = self.frame:CreateTexture(nil, "OVERLAY")
 		line:SetHeight(1)
-		line:SetTexture(.5, .5, .5)
+			line:SetColorTexture(.5, .5, .5)
 		line:SetPoint("LEFT", self.frame, "LEFT", 10, 0)
 		line:SetPoint("RIGHT", self.frame, "RIGHT", -10, 0)
 		

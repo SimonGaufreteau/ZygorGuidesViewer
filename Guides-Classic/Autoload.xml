@@ -1,0 +1,150 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<!-- Autoloading of included guides. Add your Guide##.lua files here as you please. -->
+
+		<Script>
+		___TG = debugprofilestop()
+		</Script>
+
+		<Script file="Images\Images.lua"/>
+
+
+
+
+
+	<!-- INCLUDES -->
+		<!-- NEUTRAL -->
+		<Script file="Includes\General\N_General_Includes.lua"/>
+		<Script file="Includes\General\N_Quest_Includes.lua"/>
+		<Script file="Includes\PetsMounts\N_Mounts_Includes.lua"/>
+		<Script file="Includes\PetsMounts\N_Pets_Includes.lua"/>
+		<Script file="Includes\Professions\N_Professions_Includes.lua"/>
+		<Script file="Includes\Reputations\N_Reputation_Includes.lua"/>
+		<Script file="Includes\Titles\N_Titles_Includes.lua"/>
+
+		<!-- ALLIANCE -->
+		<Script file="Includes\General\A_General_Includes.lua"/>
+		<Script file="Includes\General\A_Quest_Includes.lua"/>
+		<Script file="Includes\PetsMounts\A_Mounts_Includes.lua"/>
+		<Script file="Includes\PetsMounts\A_Pets_Includes.lua"/>
+		<Script file="Includes\Professions\A_Professions_Includes.lua"/>
+		<Script file="Includes\Reputations\A_Reputation_Includes.lua"/>
+		<Script file="Includes\Titles\A_Titles_Includes.lua"/>
+
+		<!-- HORDE -->
+		<Script file="Includes\General\H_General_Includes.lua"/>
+		<Script file="Includes\General\H_Quest_Includes.lua"/>
+		<Script file="Includes\PetsMounts\H_Mounts_Includes.lua"/>
+		<Script file="Includes\PetsMounts\H_Pets_Includes.lua"/>
+		<Script file="Includes\Professions\H_Professions_Includes.lua"/>
+		<Script file="Includes\Reputations\H_Reputation_Includes.lua"/>
+		<Script file="Includes\Titles\H_Titles_Includes.lua"/>
+
+	<!-- LEVELING -->
+		<!-- CLASSIC -->
+		<Script file="Leveling\ZygorLevelingAllianceCLASSIC.lua"/>
+		<Script file="Leveling\ZygorLevelingAllianceCLASSICTrial.lua"/>
+		<Script file="Leveling\ZygorLevelingHordeCLASSIC.lua"/>
+		<Script file="Leveling\ZygorLevelingHordeCLASSICTrial.lua"/>
+
+
+	<!-- DAILIES -->
+		<!-- CLASSIC -->
+		<Script file="Dailies\ZygorDailiesAllianceCLASSICTrial.lua"/>
+		<Script file="Dailies\ZygorDailiesCommonCLASSICTrial.lua"/>
+		<Script file="Dailies\ZygorDailiesHordeCLASSICTrial.lua"/>
+
+
+	<!-- DUNGEONS -->
+		<!-- CLASSIC -->
+		<Script file="Dungeons\ZygorDungeonAllianceCLASSIC.lua"/>
+		<Script file="Dungeons\ZygorDungeonAllianceCLASSICTrial.lua"/>
+		<Script file="Dungeons\ZygorDungeonHordeCLASSIC.lua"/>
+		<Script file="Dungeons\ZygorDungeonHordeCLASSICTrial.lua"/>
+		<Script file="Dungeons\ZygorDungeonScenariosAlliance_CLASSICTrial.lua"/>
+		<Script file="Dungeons\ZygorDungeonScenariosHordeCLASSICTrial.lua"/>
+
+
+	<!-- GEAR -->
+		<!-- CLASSIC -->
+		<Script file="Dungeons\ZygorGearAllianceCLASSICTrial.lua"/>
+		<Script file="Dungeons\ZygorGearCommonCLASSICTrial.lua"/>
+		<Script file="Dungeons\ZygorGearHordeCLASSICTrial.lua"/>
+
+	<!-- PROFESSIONS -->
+		<!-- CLASSIC -->
+		<Script file="Professions\ZygorProfessionsAllianceCLASSIC.lua"/>
+		<Script file="Professions\ZygorProfessionsAllianceCLASSICTrial.lua"/>
+		<Script file="Professions\ZygorProfessionsCommonCLASSIC.lua"/>
+		<Script file="Professions\ZygorProfessionsHordeCLASSIC.lua"/>
+		<Script file="Professions\ZygorProfessionsHordeCLASSICTrial.lua"/>
+
+	<!-- PETS AND MOUNTS -->
+		<!-- CLASSIC -->
+		<Script file="PetsMounts\ZygorHunterPetAllianceCLASSIC.lua"/>
+		<Script file="PetsMounts\ZygorHunterPetAllianceCLASSICTrial.lua"/>
+		<Script file="PetsMounts\ZygorHunterPetHordeCLASSIC.lua"/>
+		<Script file="PetsMounts\ZygorHunterPetHordeCLASSICTrial.lua"/>
+		<Script file="PetsMounts\ZygorPetsCommonCLASSIC.lua"/>
+		<Script file="PetsMounts\ZygorPetsCommonCLASSICTrial.lua"/>
+	
+	<!-- TITLES -->
+		<!-- CLASSIC -->
+		<Script file="Titles\ZygorTitlesAllianceCLASSICTrial.lua"/>
+		<Script file="Titles\ZygorTitlesHordeCLASSICTrial.lua"/>
+
+
+	<!-- REPUTATIONS -->
+		<!-- CLASSIC -->
+		<Script file="Reputations\ZygorReputationsAllianceCLASSIC.lua"/>
+		<Script file="Reputations\ZygorReputationsAllianceCLASSICTrial.lua"/>
+		<Script file="Reputations\ZygorReputationsHordeCLASSIC.lua"/>
+		<Script file="Reputations\ZygorReputationsHordeCLASSICTrial.lua"/>
+
+	<!-- EVENTS -->
+		<!-- CLASSIC -->
+		<Script file="Events\ZygorEventsAllianceCLASSIC.lua"/>
+		<Script file="Events\ZygorEventsAllianceCLASSICTrial.lua"/>
+		<Script file="Events\ZygorEventsHordeCLASSIC.lua"/>
+		<Script file="Events\ZygorEventsHordeCLASSICTrial.lua"/>
+
+	<!-- GOLD -->
+		<!-- CLASSIC -->
+		<Script file="Gold\ZygorFarmingAllianceCLASSIC.lua"/>
+		<Script file="Gold\ZygorFarmingAllianceCLASSICTrial.lua"/>
+		<Script file="Gold\ZygorFarmingCommonCLASSIC.lua"/>
+		<Script file="Gold\ZygorFarmingCommonCLASSICTrial.lua"/>
+		<Script file="Gold\ZygorFarmingHordeCLASSIC.lua"/>
+		<Script file="Gold\ZygorFarmingHordeCLASSICTrial.lua"/>
+		<Script file="Gold\ZygorGatheringAllianceCLASSIC.lua"/>
+		<Script file="Gold\ZygorGatheringAllianceCLASSICTrial.lua"/>
+		<Script file="Gold\ZygorGatheringCommonCLASSIC.lua"/>
+		<Script file="Gold\ZygorGatheringCommonCLASSICTrial.lua"/>
+		<Script file="Gold\ZygorGatheringHordeCLASSIC.lua"/>
+		<Script file="Gold\ZygorGatheringHordeCLASSICTrial.lua"/>
+		<Script file="Gold\ZygorGoldRunsAllianceCLASSIC.lua"/>
+		<Script file="Gold\ZygorGoldRunsAllianceCLASSICTrial.lua"/>
+		<Script file="Gold\ZygorGoldRunsCommonCLASSIC.lua"/>
+		<Script file="Gold\ZygorGoldRunsCommonCLASSICTrial.lua"/>
+		<Script file="Gold\ZygorGoldRunsHordeCLASSIC.lua"/>
+		<Script file="Gold\ZygorGoldRunsHordeCLASSICTrial.lua"/>
+	
+	<!-- POINTS OF INTEREST -->
+		<!-- CLASSIC -->
+		<!--
+		<Script file="Poi\Common.lua" />
+		-->
+
+	<!--
+	-->
+	
+
+		<Script file="TalentAdvisor-Builds.lua"/>
+
+
+
+		<Script>
+		ZGV.loading_time_guides = debugprofilestop()-___TG
+		___TG=nil
+		</Script>
+</Ui>

@@ -34,6 +34,7 @@ local function updateScrollHeight(categoryFrame)
             if freeButtons[categoryFrame][i] then
                 button = freeButtons[categoryFrame][i]
             else
+	    	print("LibBetterBlizzOptions",name .. "Button" .. i)
                 button = _G[name .. "Button" .. i] or CreateFrame("BUTTON", name .. "Button" .. i, categoryFrame, "InterfaceOptionsListButtonTemplate")
                 button:SetPoint("TOPLEFT", buttons[#buttons], "BOTTOMLEFT")
             end
@@ -86,9 +87,11 @@ grip:SetScript("OnMouseUp", function(self)
 	updateScrollHeight(InterfaceOptionsFrameCategories)
 	updateScrollHeight(InterfaceOptionsFrameAddOns)
 end)
+local widthed
 grip:SetScript("OnEvent", function(self)
 	updateScrollHeight(InterfaceOptionsFrameCategories)
 	updateScrollHeight(InterfaceOptionsFrameAddOns)
+	if not widthed then InterfaceOptionsFrame:SetWidth(850) widthed=true end
 end)
 if not grip:IsEventRegistered("PLAYER_LOGIN") then
 	grip:RegisterEvent("PLAYER_LOGIN")
@@ -117,11 +120,12 @@ if not InterfaceOptionsFrameAddOns:IsMouseWheelEnabled() then
 	end)
 end
 
-InterfaceOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+--InterfaceOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
 InterfaceOptionsFrame:SetResizable(true)
-InterfaceOptionsFrame:SetWidth(900)
-InterfaceOptionsFrame:SetMinResize(585, 495)
-InterfaceOptionsFrame:SetToplevel(true)
+InterfaceOptionsFrame:SetWidth(850)
+InterfaceOptionsFrame:SetMinResize(850, 495)
+InterfaceOptionsFrame:SetClampedToScreen(true)
+--InterfaceOptionsFrame:SetToplevel(true)
 
 makeMovable(InterfaceOptionsFrame)
 makeMovable(ChatConfigFrame)

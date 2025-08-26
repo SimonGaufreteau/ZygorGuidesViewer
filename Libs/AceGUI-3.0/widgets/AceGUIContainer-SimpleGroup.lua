@@ -2,15 +2,15 @@
 SimpleGroup Container
 Simple container widget that just groups widgets.
 -------------------------------------------------------------------------------]]
-local Type, Version = "SimpleGroup", 20
-local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
+local Type, Version = "SimpleGroup-Z", 20
+local AceGUI = LibStub and LibStub("AceGUI-3.0-Z", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
 local pairs = pairs
 
 -- WoW APIs
-local CreateFrame, UIParent = CreateFrame, UIParent
+local CreateFrame, UIParent = AceGUI.CreateFrameWithBG, UIParent
 
 
 --[[-----------------------------------------------------------------------------

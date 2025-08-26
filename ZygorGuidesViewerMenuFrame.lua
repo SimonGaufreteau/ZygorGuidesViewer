@@ -1,7 +1,8 @@
+local name,ZGV = ...
 --ZYGORGUIDESVIEWERFRAME_TITLE = "Zygor Guides Viewer";
 ZYGORGUIDESVIEWERFRAME_TITLE = " ";
 
-local ZGV = ZygorGuidesViewer
+-- GLOBAL ZygorGuidesViewerFrame_HighlightCurrentStep,ZygorGuidesViewerFrame_OnHide,ZygorGuidesViewerFrame_OnLoad,ZygorGuidesViewerFrame_OnShow,ZYGORGUIDESVIEWERFRAME_TITLE,ZygorGuidesViewerFrame_Update
 
 function ZygorGuidesViewerFrame_OnLoad()
 end
@@ -22,15 +23,6 @@ function ZygorGuidesViewerFrame_Update()
 	if ZGV then ZGV:UpdateMainFrame() end
 end
 
-function ZGVFSectionDropDown_Initialize()
-	if ZygorGuidesViewer then ZygorGuidesViewer:InitializeDropDown() end
-end
-
-function ZGVFSectionDropDown_Func()
-	if ZygorGuidesViewer then ZygorGuidesViewer:SectionChange(this.value) end
---	ToggleDropDownMenu(1, nil, ZygorGuidesViewerFrame_SectionDropDown, ZygorGuidesViewerFrame, 0, 0);
-end
-
 function ZygorGuidesViewerFrame_HighlightCurrentStep()
-	if ZygorGuidesViewer.CurrentStep then ZygorGuidesViewer:HighlightCurrentStep() end
+	if ZGV.CurrentStep then ZGV:HighlightCurrentStep() end
 end

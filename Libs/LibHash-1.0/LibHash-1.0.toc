@@ -1,0 +1,11 @@
+## Interface: 80300
+## Title: Lib: Hash
+## Notes: Library for calculating message digest
+## Author: Vardex
+## X-Category: Library
+## X-License: MIT
+## Version: 1.0.0
+
+LibStub\LibStub.lua
+
+LibHash-1.0.xml

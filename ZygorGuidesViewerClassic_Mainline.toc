@@ -1,0 +1,15 @@
+## Interface: 110107
+## Title: |cffff0000Zygor Guide Viewer (Classic)|r
+## Notes: This version of Zygor is not correct for this server.
+## Author: Zygor Guides
+## DefaultState: enabled
+## LoadOnDemand: 0
+## X-Category: 
+## X-Credits: 
+## X-eMail: zygor@zygorguides.com
+## X-Website: http://zygorguides.com/
+## X-License: GPL
+## IconTexture: Interface\Addons\ZygorGuidesViewerClassic\Skins\addon-icon
+## Version: 8.1
+
+Flavour.lua

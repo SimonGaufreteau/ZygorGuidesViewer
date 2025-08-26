@@ -1,0 +1,1 @@
+-- 1.14.4 uses retail C_Gossip. Classic overwrites no longer needed.

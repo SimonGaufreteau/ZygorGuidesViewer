@@ -1,15 +1,11 @@
-local AceGUI = LibStub("AceGUI-3.0")
+local AceGUI = LibStub("AceGUI-3.0-Z")
 
 -- Lua APIs
 local pairs, assert, type = pairs, assert, type
 
 -- WoW APIs
 local PlaySound = PlaySound
-local CreateFrame, UIParent = CreateFrame, UIParent
-
--- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
--- List them here for Mikk's FindGlobals script
--- GLOBALS: GameFontNormal
+local CreateFrame, UIParent = AceGUI.CreateFrameWithBG, UIParent
 
 ----------------
 -- Main Frame --
@@ -20,15 +16,19 @@ local CreateFrame, UIParent = CreateFrame, UIParent
 
 ]]
 do
-	local Type = "Window"
-	local Version = 4
+	local Type = "Window-Z"
+	local Version = 8
+
+	local function frameOnShow(this)
+		this.obj:Fire("OnShow")
+	end
 
 	local function frameOnClose(this)
 		this.obj:Fire("OnClose")
 	end
 	
 	local function closeOnClick(this)
-		PlaySound("gsTitleOptionExit")
+		PlaySound(799) -- SOUNDKIT.GS_TITLE_OPTION_EXIT
 		this.obj:Hide()
 	end
 	
@@ -153,7 +153,7 @@ do
 	local function Constructor()
 		local frame = CreateFrame("Frame",nil,UIParent)
 		local self = {}
-		self.type = "Window"
+		self.type = Type
 		
 		self.Hide = Hide
 		self.Show = Show
@@ -180,72 +180,77 @@ do
 		frame:SetFrameStrata("FULLSCREEN_DIALOG")
 		frame:SetScript("OnMouseDown", frameOnMouseDown)
 		
+		frame:SetScript("OnShow",frameOnShow)
 		frame:SetScript("OnHide",frameOnClose)
-		frame:SetMinResize(240,240)
+		if frame.SetResizeBounds then -- WoW 10.0
+			frame:SetResizeBounds(240,240)
+		else
+			frame:SetMinResize(240,240)
+		end
 		frame:SetToplevel(true)
 
 		local titlebg = frame:CreateTexture(nil, "BACKGROUND")
-		titlebg:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Title-Background]])
+		titlebg:SetTexture(251966) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background
 		titlebg:SetPoint("TOPLEFT", 9, -6)
 		titlebg:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -28, -24)
 		
 		local dialogbg = frame:CreateTexture(nil, "BACKGROUND")
-		dialogbg:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
+		dialogbg:SetTexture(137056) -- Interface\\Tooltips\\UI-Tooltip-Background
 		dialogbg:SetPoint("TOPLEFT", 8, -24)
 		dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
 		dialogbg:SetVertexColor(0, 0, 0, .75)
 		
 		local topleft = frame:CreateTexture(nil, "BORDER")
-		topleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+		topleft:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
 		topleft:SetWidth(64)
 		topleft:SetHeight(64)
 		topleft:SetPoint("TOPLEFT")
 		topleft:SetTexCoord(0.501953125, 0.625, 0, 1)
 		
 		local topright = frame:CreateTexture(nil, "BORDER")
-		topright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+		topright:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
 		topright:SetWidth(64)
 		topright:SetHeight(64)
 		topright:SetPoint("TOPRIGHT")
 		topright:SetTexCoord(0.625, 0.75, 0, 1)
 		
 		local top = frame:CreateTexture(nil, "BORDER")
-		top:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+		top:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
 		top:SetHeight(64)
 		top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
 		top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
 		top:SetTexCoord(0.25, 0.369140625, 0, 1)
 		
 		local bottomleft = frame:CreateTexture(nil, "BORDER")
-		bottomleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+		bottomleft:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
 		bottomleft:SetWidth(64)
 		bottomleft:SetHeight(64)
 		bottomleft:SetPoint("BOTTOMLEFT")
 		bottomleft:SetTexCoord(0.751953125, 0.875, 0, 1)
 		
 		local bottomright = frame:CreateTexture(nil, "BORDER")
-		bottomright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+		bottomright:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
 		bottomright:SetWidth(64)
 		bottomright:SetHeight(64)
 		bottomright:SetPoint("BOTTOMRIGHT")
 		bottomright:SetTexCoord(0.875, 1, 0, 1)
 		
 		local bottom = frame:CreateTexture(nil, "BORDER")
-		bottom:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+		bottom:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
 		bottom:SetHeight(64)
 		bottom:SetPoint("BOTTOMLEFT", bottomleft, "BOTTOMRIGHT")
 		bottom:SetPoint("BOTTOMRIGHT", bottomright, "BOTTOMLEFT")
 		bottom:SetTexCoord(0.376953125, 0.498046875, 0, 1)
 		
 		local left = frame:CreateTexture(nil, "BORDER")
-		left:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+		left:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
 		left:SetWidth(64)
 		left:SetPoint("TOPLEFT", topleft, "BOTTOMLEFT")
 		left:SetPoint("BOTTOMLEFT", bottomleft, "TOPLEFT")
 		left:SetTexCoord(0.001953125, 0.125, 0, 1)
 		
 		local right = frame:CreateTexture(nil, "BORDER")
-		right:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+		right:SetTexture(251963) -- Interface\\PaperDollInfoFrame\\UI-GearManager-Border
 		right:SetWidth(64)
 		right:SetPoint("TOPRIGHT", topright, "BOTTOMRIGHT")
 		right:SetPoint("BOTTOMRIGHT", bottomright, "TOPRIGHT")
@@ -285,7 +290,7 @@ do
 		line1:SetWidth(14)
 		line1:SetHeight(14)
 		line1:SetPoint("BOTTOMRIGHT", -8, 8)
-		line1:SetTexture("Interface\\Tooltips\\UI-Tooltip-Border")
+		line1:SetTexture(137057) -- Interface\\Tooltips\\UI-Tooltip-Border
 		local x = 0.1 * 14/17
 		line1:SetTexCoord(0.05 - x, 0.5, 0.05, 0.5 + x, 0.05, 0.5 - x, 0.5 + x, 0.5)
 
@@ -294,8 +299,8 @@ do
 		line2:SetWidth(8)
 		line2:SetHeight(8)
 		line2:SetPoint("BOTTOMRIGHT", -8, 8)
-		line2:SetTexture("Interface\\Tooltips\\UI-Tooltip-Border")
-		local x = 0.1 * 8/17
+		line2:SetTexture(137057) -- Interface\\Tooltips\\UI-Tooltip-Border
+		x = 0.1 * 8/17
 		line2:SetTexCoord(0.05 - x, 0.5, 0.05, 0.5 + x, 0.05, 0.5 - x, 0.5 + x, 0.5)
 
 		local sizer_s = CreateFrame("Frame",nil,frame)
@@ -324,7 +329,7 @@ do
 		content:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-12,13)
 		
 		AceGUI:RegisterAsContainer(self)
-		return self	
+		return self
 	end
 	
 	AceGUI:RegisterWidgetType(Type,Constructor,Version)

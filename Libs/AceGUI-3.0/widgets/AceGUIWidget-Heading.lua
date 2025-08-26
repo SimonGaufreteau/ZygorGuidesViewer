@@ -1,15 +1,15 @@
 --[[-----------------------------------------------------------------------------
 Heading Widget
 -------------------------------------------------------------------------------]]
-local Type, Version = "Heading", 20
-local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
+local Type, Version = "Heading-Z", 20
+local AceGUI = LibStub and LibStub("AceGUI-3.0-Z", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
 local pairs = pairs
 
 -- WoW APIs
-local CreateFrame, UIParent = CreateFrame, UIParent
+local CreateFrame, UIParent = AceGUI.CreateFrameWithBG, UIParent
 
 --[[-----------------------------------------------------------------------------
 Methods
@@ -19,6 +19,7 @@ local methods = {
 		self:SetText()
 		self:SetFullWidth()
 		self:SetHeight(18)
+		self:SetFontObject()
 	end,
 
 	-- ["OnRelease"] = nil,
@@ -32,7 +33,11 @@ local methods = {
 			self.left:SetPoint("RIGHT", -3, 0)
 			self.right:Hide()
 		end
-	end
+	end,
+
+	["SetFontObject"] = function(self, font)
+		self.label:SetFontObject(font or GameFontNormal)
+	end,
 }
 
 --[[-----------------------------------------------------------------------------
@@ -51,14 +56,14 @@ local function Constructor()
 	left:SetHeight(8)
 	left:SetPoint("LEFT", 3, 0)
 	left:SetPoint("RIGHT", label, "LEFT", -5, 0)
-	left:SetTexture("Interface\\Tooltips\\UI-Tooltip-Border")
+	left:SetTexture(137057) -- Interface\\Tooltips\\UI-Tooltip-Border
 	left:SetTexCoord(0.81, 0.94, 0.5, 1)
 
 	local right = frame:CreateTexture(nil, "BACKGROUND")
 	right:SetHeight(8)
 	right:SetPoint("RIGHT", -3, 0)
 	right:SetPoint("LEFT", label, "RIGHT", 5, 0)
-	right:SetTexture("Interface\\Tooltips\\UI-Tooltip-Border")
+	right:SetTexture(137057) -- Interface\\Tooltips\\UI-Tooltip-Border
 	right:SetTexCoord(0.81, 0.94, 0.5, 1)
 
 	local widget = {

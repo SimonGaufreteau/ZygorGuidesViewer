@@ -1,7 +1,7 @@
 --- AceConfigCmd-3.0 handles access to an options table through the "command line" interface via the ChatFrames.
 -- @class file
 -- @name AceConfigCmd-3.0
--- @release $Id: AceConfigCmd-3.0.lua 904 2009-12-13 11:56:37Z nevcairiel $
+-- @release $Id: AceConfigCmd-3.0.lua 1045 2011-12-09 17:58:40Z nevcairiel $
 
 --[[
 AceConfigCmd-3.0
@@ -14,8 +14,9 @@ REQUIRES: AceConsole-3.0 for command registration (loaded on demand)
 
 -- TODO: plugin args
 
+local cfgreg = LibStub("AceConfigRegistry-3.0-Z")
 
-local MAJOR, MINOR = "AceConfigCmd-3.0", 12
+local MAJOR, MINOR = "AceConfigCmd-3.0-Z", 14
 local AceConfigCmd = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfigCmd then return end
@@ -23,7 +24,6 @@ if not AceConfigCmd then return end
 AceConfigCmd.commands = AceConfigCmd.commands or {}
 local commands = AceConfigCmd.commands
 
-local cfgreg = LibStub("AceConfigRegistry-3.0")
 local AceConsole -- LoD
 local AceConsoleName = "AceConsole-3.0"
 
@@ -37,16 +37,9 @@ local error, assert = error, assert
 -- WoW APIs
 local _G = _G
 
--- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
--- List them here for Mikk's FindGlobals script
--- GLOBALS: LibStub, SELECTED_CHAT_FRAME, DEFAULT_CHAT_FRAME
-
-
 local L = setmetatable({}, {	-- TODO: replace with proper locale
 	__index = function(self,k) return k end
 })
-
-
 
 local function print(msg)
 	(SELECTED_CHAT_FRAME or DEFAULT_CHAT_FRAME):AddMessage(msg)
@@ -401,7 +394,7 @@ local function handle(info, inputpos, tab, depth, retfalse)
 		return
 	end
 	
-	local str = strsub(info.input,inputpos);
+	local strInput = strsub(info.input,inputpos);
 	
 	if tab.type=="execute" then
 		------------ execute --------------------------------------------
@@ -414,21 +407,21 @@ local function handle(info, inputpos, tab, depth, retfalse)
 		
 		local res = true
 		if tab.pattern then
-			if not(type(tab.pattern)=="string") then err(info, inputpos, "'pattern' - expected a string") end
-			if not strmatch(str, tab.pattern) then
-				usererr(info, inputpos, "'"..str.."' - " .. L["invalid input"])
+			if type(tab.pattern)~="string" then err(info, inputpos, "'pattern' - expected a string") end
+			if not strmatch(strInput, tab.pattern) then
+				usererr(info, inputpos, "'"..strInput.."' - " .. L["invalid input"])
 				return
 			end
 		end
 		
-		do_final(info, inputpos, tab, "set", str)
+		do_final(info, inputpos, tab, "set", strInput)
 		
 
 	
 	elseif tab.type=="toggle" then
 		------------ toggle --------------------------------------------
 		local b
-		local str = strtrim(strlower(str))
+		local str = strtrim(strlower(strInput))
 		if str=="" then
 			b = callmethod(info, inputpos, tab, "get")
 
@@ -465,9 +458,9 @@ local function handle(info, inputpos, tab, depth, retfalse)
 
 	elseif tab.type=="range" then
 		------------ range --------------------------------------------
-		local val = tonumber(str)
+		local val = tonumber(strInput)
 		if not val then
-			usererr(info, inputpos, "'"..str.."' - "..L["expected number"])
+			usererr(info, inputpos, "'"..strInput.."' - "..L["expected number"])
 			return
 		end
 		if type(info.step)=="number" then
@@ -487,7 +480,7 @@ local function handle(info, inputpos, tab, depth, retfalse)
 	
 	elseif tab.type=="select" then
 		------------ select ------------------------------------
-		local str = strtrim(strlower(str))
+		local str = strtrim(strlower(strInput))
 		
 		local values = tab.values
 		if type(values) == "function" or type(values) == "string" then
@@ -528,7 +521,7 @@ local function handle(info, inputpos, tab, depth, retfalse)
 		
 	elseif tab.type=="multiselect" then
 		------------ multiselect -------------------------------------------
-		local str = strtrim(strlower(str))
+		local str = strtrim(strlower(strInput))
 		
 		local values = tab.values
 		if type(values) == "function" or type(values) == "string" then
@@ -565,7 +558,7 @@ local function handle(info, inputpos, tab, depth, retfalse)
 			
 			--check that the opt is valid
 			local ok
-			for k,v in pairs(values) do 
+			for k in pairs(values) do
 				if strlower(k)==opt then
 					opt = k	-- overwrite with key (in case of case mismatches)
 					ok = true
@@ -634,7 +627,7 @@ local function handle(info, inputpos, tab, depth, retfalse)
 		
 	elseif tab.type=="color" then
 		------------ color --------------------------------------------
-		local str = strtrim(strlower(str))
+		local str = strtrim(strlower(strInput))
 		if str == "" then
 			--TODO: Show current value
 			return
@@ -642,7 +635,14 @@ local function handle(info, inputpos, tab, depth, retfalse)
 		
 		local r, g, b, a
 		
-		if tab.hasAlpha then
+		local hasAlpha = tab.hasAlpha
+		if type(hasAlpha) == "function" or type(hasAlpha) == "string" then
+			info.hasAlpha = hasAlpha
+			hasAlpha = callmethod(info, inputpos, tab, 'hasAlpha')
+			info.hasAlpha = nil
+		end
+		
+		if hasAlpha then
 			if str:len() == 8 and str:find("^%x*$")  then
 				--parse a hex string
 				r,g,b,a = tonumber(str:sub(1, 2), 16) / 255, tonumber(str:sub(3, 4), 16) / 255, tonumber(str:sub(5, 6), 16) / 255, tonumber(str:sub(7, 8), 16) / 255
@@ -699,7 +699,7 @@ local function handle(info, inputpos, tab, depth, retfalse)
 
 	elseif tab.type=="keybinding" then
 		------------ keybinding --------------------------------------------
-		local str = strtrim(strlower(str))
+		local str = strtrim(strlower(strInput))
 		if str == "" then
 			--TODO: Show current value
 			return

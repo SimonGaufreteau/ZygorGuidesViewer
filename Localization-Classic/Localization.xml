@@ -1,0 +1,33 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+<Script>
+___ZGV_TIMESTAMP_LOADLOCALIZATIONXML_START = debugprofilestop()
+</Script>
+
+<Script file="NPCs_deDE.lua"/>
+<Script file="NPCs_enUS.lua"/>
+<Script file="NPCs_esES.lua"/>
+<Script file="NPCs_frFR.lua"/>
+<Script file="NPCs_itIT.lua"/>
+<Script file="NPCs_koKR.lua"/>
+<Script file="NPCs_ptbr.lua"/>
+<Script file="NPCs_ruRU.lua"/>
+<Script file="NPCs_zhCN.lua"/>
+<Script file="NPCs_zhTW.lua"/>
+
+<Script file="Quests_deDE.lua"/>
+<Script file="Quests_enUS.lua"/>
+<Script file="Quests_esES.lua"/>
+<Script file="Quests_esMX.lua"/>
+<Script file="Quests_frFR.lua"/>
+<Script file="Quests_itIT.lua"/>
+<Script file="Quests_koKR.lua"/>
+<Script file="Quests_ptBR.lua"/>
+<Script file="Quests_ruRU.lua"/>
+<Script file="Quests_zhCN.lua"/>
+<Script file="Quests_zhTW.lua"/>
+<Script>
+___ZGV_TIMESTAMP_LOADLOCALIZATIONXML_END = debugprofilestop()
+</Script>
+</Ui>
