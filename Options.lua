@@ -49,6 +49,25 @@ function me:Options_RegisterDefaults()
 			analyzereps = false,
 
 
+			skinbacktopoff = 0,
+			disableGuideAnim = false,
+			Boarder_Close_topright_offsetX = 5,
+			Boarder_Close_topright_offsetY = 5,
+			Boarder_Mini_topright_offsetX = -40,
+			Boarder_Mini_topright_offsetY = -5,
+			Boarder_Guide_topright_offsetX = -58,
+			Boarder_Guide_topright_offsetY = -19,
+			Boarder_Settings_anchor_offsetX = 40,
+			Boarder_Settings_anchor_offsetY = -5,
+			Boarder_Lock_offsetX = 8,
+			Boarder_Lock_offsetY = -13,
+			Boarder_Settings_anchor = "TOPLEFT",
+			Boarder_topleft_offsetX = 28,
+			Boarder_topleft_offsetY = 11,
+			Boarder_topright_offsetX = 25,
+			Boarder_topright_offsetY = 11,
+			disableBackDrop = false,
+			bgfileback = "Interface\\ChatFrame\\ChatFrameBackground",
 			skin = "violet",
 			skincolors={text={0.95,0.65,1.0},back={0.17,0.07,0.20}},
 			showallsteps = false,
@@ -324,13 +343,15 @@ function me:Options_DefineOptions()
 							green=L["opt_skin_green"],
 							blue=L["opt_skin_blue"],
 							orange=L["opt_skin_orange"],
+							modern=L["opt_skin_modern"],
 						},
 						set = function(_,n)
 							self.db.profile.skin=n  
 							local colors = {	violet={text={0.95,0.65,1.0},back={0.17,0.07,0.20}},
 										blue={text={0.7,0.8,1.0},back={0.08,0.11,0.24}},
 										green={text={0.5,1.0,0.5},back={0.09,0.20,0.07}},
-										orange={text={1.0,0.8,0.0},back={0.23,0.11,0.07}}}
+										orange={text={1.0,0.8,0.0},back={0.23,0.11,0.07}},
+										modern={text={1.0, 1.0, 1.0},back={0.047, 0.047, 0.043}}}
 							self.db.profile.skincolors = colors[self.db.profile.skin]
 							self:UpdateSkin()
 							self:AlignFrame()
@@ -444,6 +465,7 @@ function me:Options_DefineOptions()
 							self:ReanchorFrame()
 							self:Debug("size up? "..tostring(self.db.profile.resizeup))
 							--self.frameNeedsResizing = self.frameNeedsResizing + 1
+							print("IDK")
 							self:AlignFrame()
 							-- THIS SUCKS.
 						      end,

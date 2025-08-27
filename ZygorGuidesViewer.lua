@@ -115,6 +115,100 @@ function me:OnInitialize()
 
 	self.optionsprofile = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 
+	function LoadModern()
+		ZygorGuidesViewerFrame_Border_Left:SetTexture(nil)
+		ZygorGuidesViewerFrame_Skipper_PrevButton:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_PrevButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper, "TOP", 50, 21)
+		ZygorGuidesViewerFrame_Skipper_Step:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_Step:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper_PrevButton, "TOP", 17, -2)
+		ZygorGuidesViewerFrame_Skipper_NextButton:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_NextButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper_PrevButton, "TOP", 37, 0)
+		ZygorGuidesViewerFrame_Border_Gear1:SetTexture(nil)
+		ZygorGuidesViewerFrame_Border_Gear2:SetTexture(nil)
+		ZygorGuidesViewerFrame_Border_Gear3:SetTexture(nil)
+		ZygorGuidesViewerFrame_Border_Logo:SetTexture(nil)
+		self.db.profile.disableBackDrop = true
+		-- me:DumpPoint(ZygorGuidesViewerFrame_Border_CloseButton)
+		-- ZygorGuidesViewerFrame_Border_Close Button
+		self.db.profile.Boarder_Close_topright_offsetX = -15
+		self.db.profile.Boarder_Close_topright_offsetY = -13
+		-- ZygorGuidesViewerFrame_Border_MiniButton Button
+		self.db.profile.Boarder_Mini_topright_offsetX = -35
+		self.db.profile.Boarder_Mini_topright_offsetY = -13
+		-- ZygorGuidesViewerFrame_Border_GuideButton
+		self.db.profile.Boarder_Guide_topright_offsetX = -55
+		self.db.profile.Boarder_Guide_topright_offsetY = -27
+		self.db.profile.disableGuideAnim = true
+		-- ZygorGuidesViewerFrame_Border_SettingsButton
+		self.db.profile.Boarder_Settings_anchor_offsetX = -75
+		self.db.profile.Boarder_Settings_anchor_offsetY = -13
+		self.db.profile.Boarder_Settings_anchor = "TOPRIGHT"
+		-- ZygorGuidesViewerFrame_Border_LockButton
+		self.db.profile.Boarder_Lock_offsetX = 10
+		self.db.profile.Boarder_Lock_offsetY = -13
+		-- ZygorGuidesViewerFrame_Border
+		self.db.profile.backopacity = 1
+		-- Minus goes up, postive goes down
+		self.db.profile.skinbacktopoff = -20
+		self.db.profile.bgfileback = "Interface\\ChatFrame\\ChatFrameBackground"
+		--End ZygorGuidesViewerFrame_Border
+		ZygorGuidesViewerFrame_Border_Top:ClearAllPoints()
+		self.db.profile.Boarder_topleft_offsetX = 0
+		self.db.profile.Boarder_topleft_offsetY = 0
+		self.db.profile.Boarder_topright_offsetX = 0
+		self.db.profile.Boarder_topright_offsetY = 0
+	end
+
+	function LoadDefault()
+		ZygorGuidesViewerFrame_Border_Left:SetTexture("Interface\\AddOns\\ZygorGuidesViewer\\Skin\\LeavesOfSteel_border")
+		ZygorGuidesViewerFrame_Skipper_Step:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_Step:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper, "TOP", 0, -19)
+		ZygorGuidesViewerFrame_Skipper_PrevButton:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_PrevButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper, "TOP", 0, 0)
+		ZygorGuidesViewerFrame_Skipper_NextButton:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_NextButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper_PrevButton, "BOTTOM", 0, -13)
+		ZygorGuidesViewerFrame_Border_Gear1:SetTexture("Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear1")
+		ZygorGuidesViewerFrame_Border_Gear2:SetTexture("Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear2")
+		ZygorGuidesViewerFrame_Border_Gear3:SetTexture("Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear3")
+		ZygorGuidesViewerFrame_Border_Logo:SetTexture(SKINDIR.."\\zglogo")
+		self.db.profile.disableBackDrop = false
+		-- ZygorGuidesViewerFrame_Border_Close Button
+		self.db.profile.Boarder_Close_topright_offsetX = 5
+		self.db.profile.Boarder_Close_topright_offsetY = -2
+		-- ZygorGuidesViewerFrame_Border_MiniButton Button
+		self.db.profile.Boarder_Mini_topright_offsetX = -40
+		self.db.profile.Boarder_Mini_topright_offsetY = -5
+		-- ZygorGuidesViewerFrame_Border_GuideButton
+		self.db.profile.Boarder_Guide_topright_offsetX = -58
+		self.db.profile.Boarder_Guide_topright_offsetY = -19
+		-- ZygorGuidesViewerFrame_Border_SettingsButton
+		self.db.profile.Boarder_Settings_anchor_offsetX = 40
+		self.db.profile.Boarder_Settings_anchor_offsetY = -5
+		self.db.profile.Boarder_Settings_anchor = "TOPLEFT"
+		-- ZygorGuidesViewerFrame_Border_LockButton
+		self.db.profile.Boarder_Lock_offsetX = 8
+		self.db.profile.Boarder_Lock_offsetY = -13
+		--ZygorGuidesViewerFrame_Border
+		self.db.profile.backopacity = 0.3
+		-- Minus goes up, postive goes down
+		self.db.profile.skinbacktopoff = 0
+		self.db.profile.bgfileback = "Interface/Tooltips/UI-Tooltip-Background"
+		--End ZygorGuidesViewerFrame_Border
+		self.db.profile.Boarder_topleft_offsetX = 28
+		self.db.profile.Boarder_topleft_offsetY = 11
+		self.db.profile.Boarder_topright_offsetX = 25
+		self.db.profile.Boarder_topright_offsetY = 11
+		self.db.profile.disableGuideAnim = false
+	end
+
+	self.skin_choice = {
+		['modern'] = LoadModern,
+		['violet'] = LoadDefault,
+		['green'] = LoadDefault,
+		['blue'] = LoadDefault,
+		['orange'] = LoadDefault
+	}
+
 	if IsShiftKeyDown() then
 		self.db.char.maint_startguides = false
 		self.db.char.maint_queryquests = false
@@ -1148,12 +1242,13 @@ function me:UpdateFrame(full,onupdate)
 						end
 					end
 
-					if stepnum==self.CurrentStepNum then
+					if self.db.profile.disableBackDrop then
+						frame.border:SetBackdrop(nil)
+					elseif stepnum==self.CurrentStepNum then
 						frame.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border_active", edgeSize = 16 })
 					else
 						frame.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border", edgeSize = 16 })
 					end
-
 					if stepdata:AreRequirementsMet() then
 						if stepdata:IsComplete() then
 							frame:SetBackdropColor(fromRGBmul_a(self.db.profile.goalbackcomplete,0.5,self.db.profile.stepbackalpha))
@@ -1541,7 +1636,11 @@ function me:UpdateFrame(full,onupdate)
 					frame.border:Hide()
 				else
 					frame.border:Show()
-					frame.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border_active", edgeSize = 16 })
+					if self.db.profile.disableBackDrop then
+						frame.border:SetBackdrop(nil)
+					else
+						frame.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border_active", edgeSize = 16 })
+					end
 					frame.border:SetBackdropBorderColor(1,1,1,1)
 				end
 
@@ -2090,10 +2189,10 @@ function me:AlignFrame()
 
 	ZygorGuidesViewerFrame_Border:SetBackdrop({
 		--bgFile="Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_bgr",  -- 3.3.3 BLIZZARD TEXTURE FAIL
-		bgFile = "Interface/Tooltips/UI-Tooltip-Background", --instead
+		bgFile = self.db.profile.bgfileback, --instead
 		tileSize=128,
 		tile=true,
-		insets={top=upsideup and 20 or 0,right=0,left=0,bottom=upsideup and 0 or 0}
+		insets={top=(upsideup and 20 or 0) + self.db.profile.skinbacktopoff,right=0,left=0,bottom=upsideup and 0 or 0}
 	})
 
 	-- fix for evil background... wtf.
@@ -2110,17 +2209,22 @@ function me:AlignFrame()
 	ZygorGuidesViewerFrame_Border_TitleBar:SetPoint(UP_TOPLEFT,ZygorGuidesViewerFrame_Border,UP_TOPLEFT,0,11*UP)
 	ZygorGuidesViewerFrame_Border_TitleBar:SetPoint(UP_BOTTOMRIGHT,ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,0,-25*UP)
 
-	ZygorGuidesViewerFrame_Border_LockButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPLEFT,8,-13*UP)
-	ZygorGuidesViewerFrame_Border_MiniButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,-40,-5*UP)
-	ZygorGuidesViewerFrame_Border_SettingsButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPLEFT,40,-5*UP)
-	ZygorGuidesViewerFrame_Border_CloseButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,5,-2*UP)
+	ZygorGuidesViewerFrame_Border_LockButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPLEFT,self.db.profile.Boarder_Lock_offsetX,self.db.profile.Boarder_Lock_offsetY*UP)
+	ZygorGuidesViewerFrame_Border_MiniButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,self.db.profile.Boarder_Mini_topright_offsetX,self.db.profile.Boarder_Mini_topright_offsetY*UP)
+	local anchor = UP_TOPLEFT -- Default for not invalid text
+	local dbanchor = self.db.profile.Boarder_Settings_anchor
+	if dbanchor == "TOPRIGHT" then
+		anchor = UP_TOPRIGHT
+	end
+	ZygorGuidesViewerFrame_Border_SettingsButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,anchor,self.db.profile.Boarder_Settings_anchor_offsetX,self.db.profile.Boarder_Settings_anchor_offsetY*UP)
+	ZygorGuidesViewerFrame_Border_CloseButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,self.db.profile.Boarder_Close_topright_offsetX,self.db.profile.Boarder_Close_topright_offsetY*UP)
 	
 	--ntx:SetTexCoord(731/1024,850/1024,76/512,145/512)
 	--ptx:SetTexCoord(731/1024,850/1024,211/512,280/512)
 	--htx:SetTexCoord(731/1024,850/1024,346/512,415/512)
 	ZygorGuidesViewerFrame_Border_GuideButton.upsideup = upsideup
 	ZygorGuidesViewerFrame_Border_GuideButton:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_GuideButton:SetPoint(UP_BOTTOM,ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,-58,-19*UP)
+	ZygorGuidesViewerFrame_Border_GuideButton:SetPoint(UP_BOTTOM,ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,self.db.profile.Boarder_Guide_topright_offsetX,self.db.profile.Boarder_Guide_topright_offsetY*UP)
 	
 	if minimized then
 		ZygorGuidesViewerFrame_Skipper:Hide()
@@ -2188,8 +2292,8 @@ function me:AlignFrame()
 
 	ZygorGuidesViewerFrame_Border_Top:ClearAllPoints()
 	ZygorGuidesViewerFrame_Border_Top:SetHeight(35)
-	ZygorGuidesViewerFrame_Border_Top:SetPoint(UP_TOPLEFT,28,11*UP)
-	ZygorGuidesViewerFrame_Border_Top:SetPoint(UP_TOPRIGHT,-25,11*UP)
+	ZygorGuidesViewerFrame_Border_Top:SetPoint(UP_TOPLEFT,self.db.profile.Boarder_topleft_offsetX,self.db.profile.Boarder_topleft_offsetY*UP)
+	ZygorGuidesViewerFrame_Border_Top:SetPoint(UP_TOPRIGHT,self.db.profile.Boarder_topright_offsetX,self.db.profile.Boarder_topright_offsetX*UP)
 	local tx = ZygorGuidesViewerFrame_Border_Top:GetTexture()
 	ZygorGuidesViewerFrame_Border_Top:SetTexture(1)
 	ZygorGuidesViewerFrame_Border_Top:SetTexture(tx,true)
@@ -2274,6 +2378,31 @@ function me:AlignFrame()
 	ZygorGuidesViewerFrame_Border_Flash_Logo:SetPoint("CENTER",ZygorGuidesViewerFrame_Border_Logo,"CENTER")
 end
 
+function me:DumpPoint(Frame_To_dump)
+	local savedPoints = {}
+	-- Save current points
+	savedPoints.num = Frame_To_dump:GetNumPoints()
+	for i = 1, savedPoints.num do
+		local point, relativeTo, relativePoint, xOfs, yOfs = Frame_To_dump:GetPoint(i)
+		savedPoints[i] = {
+			point = point,
+			relativeTo = relativeTo and relativeTo:GetName(), -- store the frame name if it has one
+			relativePoint = relativePoint,
+			xOfs = xOfs,
+			yOfs = yOfs,
+		}
+		print(string.format(
+			"Saved Point %d: point=%s, relativeTo=%s, relativePoint=%s, xOfs=%d, yOfs=%d",
+			i,
+			tostring(point),
+			tostring(savedPoints[i].relativeTo),
+			tostring(relativePoint),
+			xOfs or 0,
+			yOfs or 0
+		))
+	end
+end
+
 function me:UpdateSkin()
 	SKINDIR = DIR.."\\Skin\\"..self.db.profile.skin
 
@@ -2286,7 +2415,13 @@ function me:UpdateSkin()
 	ZygorGuidesViewerFrame_Border_BottomLeft:SetTexture(SKINDIR.."\\leavesofsteel")
 	ZygorGuidesViewerFrame_Border_BottomRight:SetTexture(SKINDIR.."\\leavesofsteel")
 
-	ZygorGuidesViewerFrame_Border_Logo:SetTexture(SKINDIR.."\\zglogo")
+	choice = self.skin_choice[self.db.profile.skin]
+	if choice then
+		choice()
+	else
+		--LoadDefault()
+		self.print("Load skin Error!")
+	end
 
 	ZygorGuidesViewerFrame_Skipper_PrevButton.ntx:SetTexture(SKINDIR.."\\titlebuttons")
 	ZygorGuidesViewerFrame_Skipper_PrevButton.ptx:SetTexture(SKINDIR.."\\titlebuttons")

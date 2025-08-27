@@ -78,7 +78,14 @@ function ZygorGuidesViewerFrame_Step_Setup(num)
 	step:GetRegions():SetTexture(1,1,1,1)
 
 	step.border:SetAllPoints()
-	step.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border", edgeSize = 16 })
+	if not ZGV.dbboard then
+		ZGV.dbboard = LibStub("AceDB-3.0"):New("ZygorGuidesViewerSettings")
+	end
+	if ZGV.dbboard.profile.disableBackDrop then
+		step.border:SetBackdrop(nil)
+	else
+		step.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border", edgeSize = 16 })
+	end
 
 	step.slideup = obj("slideup")
 	step.fadeout = obj("fadeout")
@@ -227,8 +234,17 @@ function ZygorGuidesViewerFrame_Spot_Setup(num)
 	spot:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", tile = true, tileSize = 8, insets = { left = 3, right = 3, top = 3, bottom = 3 }})
 	spot:GetRegions():SetTexture(1,1,1,1)
 
+	if not ZGV.dbboard then
+		print("DB MADE")
+		ZGV.dbboard = LibStub("AceDB-3.0"):New("ZygorGuidesViewerSettings")
+	end
+
 	spot.border:SetAllPoints()
-	spot.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border", edgeSize = 16 })
+	if ZGV.dbboard.profile.disableBackDrop then
+		spot.border:SetBackdrop(nil)
+	else
+		spot.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border", edgeSize = 16 })
+	end
 
 	spot:EnableMouse(true)
 	spot:SetScript("OnClick", Spot_OnClick)
@@ -642,7 +658,10 @@ function ZygorGuidesViewerFrame_OnUpdate(self,elapsed)
 
 	-- title button slide in
 	local but = ZygorGuidesViewerFrame_Border_GuideButton
-	if Border:IsShown() and (MouseIsOver(TitleBar,0,0,50,-50) or not ZGV.CurrentGuide) and not ZGV.loading then
+		if not self.db then
+		self.db = LibStub("AceDB-3.0"):New("ZygorGuidesViewerSettings")
+	end
+	if self.db.profile.disableGuideAnim or Border:IsShown() and (MouseIsOver(TitleBar,0,0,50,-50) or not ZGV.CurrentGuide) and not ZGV.loading then
 		if locked then
 			xPos,yPos = GetCursorPosition()
 			if (not but.oldxPos or not but.oldyPos or xPos~=but.oldxPos or yPos~=but.oldyPos) and but.delay>0 then but.delay=0 end
@@ -658,7 +677,7 @@ function ZygorGuidesViewerFrame_OnUpdate(self,elapsed)
 			but:dorot(a)
 		end
 	end
-	if but:IsShown() and not MouseIsOver(ZygorGuidesViewerFrame_Border_TitleBar,0,0,50,-50) and ZGV.CurrentGuide and not DropDownList1:IsShown() and not DropDownList2:IsShown() then
+	if not self.db.profile.disableGuideAnim and but:IsShown() and not MouseIsOver(ZygorGuidesViewerFrame_Border_TitleBar,0,0,50,-50) and ZGV.CurrentGuide and not DropDownList1:IsShown() and not DropDownList2:IsShown() then
 		if but.pos<0.01 then
 			but:Hide()
 			if but.delay>0 then but.delay=0 end
