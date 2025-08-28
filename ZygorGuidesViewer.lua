@@ -97,15 +97,8 @@ ZGV.MIN_STEP_HEIGHT = 15
 local FONT = STANDARD_TEXT_FONT
 --ZGV.BUTTONS_INLINE=true
 
-local math_modf = math.modf
-math.round = function(n)
-	local x, y = math_modf(n)
-	return n > 0 and (y >= 0.5 and x + 1 or x) or (y <= -0.5 and x - 1 or x)
-end
-local round = math.round
-
 -- NOTE : To create a skin, create an entry in both SKINS and SKIN_HOOKS
-local SKINS = {
+Z_SKINS = {
 	Default = {
 		skinbacktopoff = 0,
 		disableGuideAnim = false,
@@ -158,7 +151,7 @@ local SKINS = {
 		Boarder_topright_offsetY = 0,
 	},
 }
-local SKIN_HOOKS = {
+Z_SKIN_HOOKS = {
 	Default = function()
 		ZygorGuidesViewerFrame_Border_Left:SetTexture(
 			"Interface\\AddOns\\ZygorGuidesViewer\\Skin\\LeavesOfSteel_border"
@@ -208,6 +201,13 @@ local SKIN_HOOKS = {
 	end,
 }
 
+local math_modf = math.modf
+math.round = function(n)
+	local x, y = math_modf(n)
+	return n > 0 and (y >= 0.5 and x + 1 or x) or (y <= -0.5 and x - 1 or x)
+end
+local round = math.round
+
 function me:OnInitialize()
 	--	if not ZygorGuidesViewerMiniFrame then error("Zygor Guide Viewer step frame not loaded.") end
 	if not ZygorGuidesViewerFrame then
@@ -227,7 +227,7 @@ function me:OnInitialize()
 	self.optionsprofile = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 
 	local function ApplySkin(skinName)
-		local skin = SKINS[skinName]
+		local skin = Z_SKINS[skinName]
 		if skin then
 			for k, v in pairs(skin) do
 				if type(v) == "table" then
@@ -241,8 +241,8 @@ function me:OnInitialize()
 
 	function LoadSkin(name)
 		ApplySkin(name)
-		if SKIN_HOOKS[name] then
-			SKIN_HOOKS[name]()
+		if Z_SKIN_HOOKS[name] then
+			Z_SKIN_HOOKS[name]()
 		end
 	end
 

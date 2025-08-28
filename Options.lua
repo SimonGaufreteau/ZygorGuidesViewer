@@ -11,6 +11,119 @@ local LQ = me.LQ
 local LS = me.LS
 local DL = me.DL
 
+local function MergeTables(t1, t2)
+	local result = CopyTable(t1)
+	for k, v in pairs(t2) do
+		if type(v) == "table" then
+			result[k] = CopyTable(v)
+		else
+			result[k] = v
+		end
+	end
+	return result
+end
+
+local BASE_PROFILE_DEFAULTS = {
+	debug = false,
+	--autosizemini = true,
+	--minimode = false,
+	visible = true,
+
+	skipimpossible = false,
+
+	showmapbutton = true,
+	hideincombat = false,
+
+	-- convenience
+	autoaccept = false,
+	autoturnin = false,
+	fixblizzardautoaccept = false,
+	analyzereps = false,
+
+	skin = "violet",
+	skincolors = { text = { 0.95, 0.65, 1.0 }, back = { 0.17, 0.07, 0.20 } },
+	showallsteps = false,
+	hideborder = false,
+	hidestepborders = false,
+	showcountsteps = 1,
+	framescale = 1.0,
+	fontsize = 10,
+	fontsecsize = 10,
+
+	--backcolor = {r=0.18,g=0.05,b=0.23,a=0.56},
+	backopacity = 0.3,
+	opacitymain = 1.0,
+
+	stepbackalpha = 0.5,
+	goalicons = true,
+	goalbackgrounds = true,
+	goalcolorize = false,
+	goalbackincomplete = { r = 0.6, g = 0.0, b = 0.0, a = 0.7 },
+	goalbackprogressing = { r = 0.6, g = 0.7, b = 0.0, a = 0.7 },
+	goalbackcomplete = { r = 0.2, g = 0.7, b = 0.0, a = 0.7 },
+	goalbackimpossible = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 },
+	goalbackprogress = true,
+
+	goalupdateflash = true,
+	goalcompletionflash = true,
+	flashborder = true,
+
+	tooltipsbelow = true,
+
+	trackchains = true,
+
+	skipimpossible = false,
+	skipauxsteps = true,
+	goalbackaux = { r = 0.0, g = 0.5, b = 0.8, a = 0.5 },
+	showobsolete = true,
+	goalbackobsolete = { r = 0.0, g = 0.5, b = 0.8, a = 0.5 },
+	skipobsolete = true,
+	levelsahead = 0,
+
+	hidearrowwithguide = true,
+	iconAlpha = 1,
+	iconScale = 0.5,
+	minicons = true,
+	filternotes = true,
+	minimapnotedesc = true,
+
+	stepnumbers = true,
+
+	guidesinhistory = 5,
+
+	waypointaddon = "internal",
+
+	golddetectiondist = 400,
+	goldreqmode = 3, -- current
+	golddistmode = 1, -- in range
+
+	arrowmeters = false,
+	arrowfreeze = false,
+	--arrowcam = false,
+	arrowcolordir = true,
+	arrowscale = 1.0,
+	arrowfontsize = 10,
+	minimapzoom = false,
+	foglight = true,
+	pointeraudio = true,
+
+	arrowposx = 500,
+	arrowposy = 400,
+
+	fullheight = 400,
+
+	completesound = "MapPing",
+	flipsounds = true,
+
+	--colorborder = true,
+
+	-- hidden
+
+	displaymode = "guide",
+}
+
+local PROFILE_DEFAULTS = MergeTables(BASE_PROFILE_DEFAULTS, Z_SKINS["Default"])
+
 function me:Options_RegisterDefaults()
 	self.db:RegisterDefaults({
 		char = {
@@ -33,123 +146,7 @@ function me:Options_RegisterDefaults()
 			storedguides = {},
 			instantDailies = {},
 		},
-		profile = {
-			debug = false,
-			--autosizemini = true,
-			--minimode = false,
-			visible = true,
-
-			skipimpossible = false,
-
-			showmapbutton = true,
-			hideincombat = false,
-
-			-- convenience
-			autoaccept = false,
-			autoturnin = false,
-			fixblizzardautoaccept = false,
-			analyzereps = false,
-
-			skinbacktopoff = 0,
-			disableGuideAnim = false,
-			Boarder_Close_topright_offsetX = 5,
-			Boarder_Close_topright_offsetY = 5,
-			Boarder_Mini_topright_offsetX = -40,
-			Boarder_Mini_topright_offsetY = -5,
-			Boarder_Guide_topright_offsetX = -58,
-			Boarder_Guide_topright_offsetY = -19,
-			Boarder_Settings_anchor_offsetX = 40,
-			Boarder_Settings_anchor_offsetY = -5,
-			Boarder_Lock_offsetX = 8,
-			Boarder_Lock_offsetY = -13,
-			Boarder_Settings_anchor = "TOPLEFT",
-			Boarder_topleft_offsetX = 28,
-			Boarder_topleft_offsetY = 11,
-			Boarder_topright_offsetX = 25,
-			Boarder_topright_offsetY = 11,
-			disableBackDrop = false,
-			bgfileback = "Interface\\ChatFrame\\ChatFrameBackground",
-			skin = "violet",
-			skincolors = { text = { 0.95, 0.65, 1.0 }, back = { 0.17, 0.07, 0.20 } },
-			showallsteps = false,
-			hideborder = false,
-			hidestepborders = false,
-			showcountsteps = 1,
-			framescale = 1.0,
-			fontsize = 10,
-			fontsecsize = 10,
-
-			--backcolor = {r=0.18,g=0.05,b=0.23,a=0.56},
-			backopacity = 0.3,
-			opacitymain = 1.0,
-
-			stepbackalpha = 0.5,
-			goalicons = true,
-			goalbackgrounds = true,
-			goalcolorize = false,
-			goalbackincomplete = { r = 0.6, g = 0.0, b = 0.0, a = 0.7 },
-			goalbackprogressing = { r = 0.6, g = 0.7, b = 0.0, a = 0.7 },
-			goalbackcomplete = { r = 0.2, g = 0.7, b = 0.0, a = 0.7 },
-			goalbackimpossible = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 },
-			goalbackprogress = true,
-
-			goalupdateflash = true,
-			goalcompletionflash = true,
-			flashborder = true,
-
-			tooltipsbelow = true,
-
-			trackchains = true,
-
-			skipimpossible = false,
-			skipauxsteps = true,
-			goalbackaux = { r = 0.0, g = 0.5, b = 0.8, a = 0.5 },
-			showobsolete = true,
-			goalbackobsolete = { r = 0.0, g = 0.5, b = 0.8, a = 0.5 },
-			skipobsolete = true,
-			levelsahead = 0,
-
-			hidearrowwithguide = true,
-			iconAlpha = 1,
-			iconScale = 0.5,
-			minicons = true,
-			filternotes = true,
-			minimapnotedesc = true,
-
-			stepnumbers = true,
-
-			guidesinhistory = 5,
-
-			waypointaddon = "internal",
-
-			golddetectiondist = 400,
-			goldreqmode = 3, -- current
-			golddistmode = 1, -- in range
-
-			arrowmeters = false,
-			arrowfreeze = false,
-			--arrowcam = false,
-			arrowcolordir = true,
-			arrowscale = 1.0,
-			arrowfontsize = 10,
-			minimapzoom = false,
-			foglight = true,
-			pointeraudio = true,
-
-			arrowposx = 500,
-			arrowposy = 400,
-
-			fullheight = 400,
-
-			completesound = "MapPing",
-			flipsounds = true,
-
-			--colorborder = true,
-
-			-- hidden
-
-			displaymode = "guide",
-		},
+		profile = PROFILE_DEFAULTS,
 	})
 end
 
