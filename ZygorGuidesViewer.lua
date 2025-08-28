@@ -7,7 +7,7 @@
 --local Cartographer = nil
 --local Cartographer3 = nil
 
-local me = LibStub("AceAddon-3.0"):NewAddon("ZygorGuidesViewer", "AceConsole-3.0","AceEvent-3.0","AceTimer-3.0")
+local me = LibStub("AceAddon-3.0"):NewAddon("ZygorGuidesViewer", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 
 --global export
 ZygorGuidesViewer = me
@@ -42,9 +42,9 @@ BINDING_NAME_ZYGORGUIDES_OPENGUIDE = L["binding_togglewindow"]
 BINDING_NAME_ZYGORGUIDES_PREV = L["binding_prev"]
 BINDING_NAME_ZYGORGUIDES_NEXT = L["binding_next"]
 
-local ver = select(4,GetBuildInfo())
-ZGV.WotLK = (ver>=30000)
-ZGV.Cata = (ver>=40000)
+local ver = select(4, GetBuildInfo())
+ZGV.WotLK = (ver >= 30000)
+ZGV.Cata = (ver >= 40000)
 
 local BZ = LibStub("LibBabble-Zone-3.0")
 local BZL = BZ:GetUnstrictLookupTable()
@@ -57,20 +57,25 @@ local BFR = BF:GetReverseLookupTable()
 me.BFL = BFL
 me.BFR = BFR
 
-local _G,assert,table,string,tinsert,tonumber,tostring,type,ipairs,pairs,setmetatable,math = _G,assert,table,string,tinsert,tonumber,tostring,type,ipairs,pairs,setmetatable,math
+local _G, assert, table, string, tinsert, tonumber, tostring, type, ipairs, pairs, setmetatable, math =
+	_G, assert, table, string, tinsert, tonumber, tostring, type, ipairs, pairs, setmetatable, math
 
 --local Dewdrop = AceLibrary("Dewdrop-2.0")
 
 me.LibTaxi = LibStub("LibTaxi-1.0")
 
-
 me.icons = {
-	["hilite"] = {	text = L["map_highlight"],		path = DIR.."\\Skin\\highlightmap",	width = 32, height = 32, alpha=1 },
-	["hilitesquare"] = {	text = L["map_highlight"],		path = DIR.."\\Skin\\highlightmap_square",	width = 32, height = 32, alpha=1 },
+	["hilite"] = { text = L["map_highlight"], path = DIR .. "\\Skin\\highlightmap", width = 32, height = 32, alpha = 1 },
+	["hilitesquare"] = {
+		text = L["map_highlight"],
+		path = DIR .. "\\Skin\\highlightmap_square",
+		width = 32,
+		height = 32,
+		alpha = 1,
+	},
 }
 
-me.CartographerDatabase = { }
-
+me.CartographerDatabase = {}
 
 me.startups = {}
 
@@ -78,135 +83,175 @@ me.StepLimit = 20
 me.stepframes = {}
 me.spotframes = {}
 
-
 local STEP_LINE_SPACING = 2
-local MIN_HEIGHT=100
-local ICON_INDENT=15
-ZGV.ICON_INDENT=ICON_INDENT
+local MIN_HEIGHT = 100
+local ICON_INDENT = 15
+ZGV.ICON_INDENT = ICON_INDENT
 local STEP_SPACING = 2
-ZGV.STEP_SPACING=STEP_SPACING
-ZGV.STEPMARGIN_X=3
-ZGV.STEPMARGIN_Y=4
+ZGV.STEP_SPACING = STEP_SPACING
+ZGV.STEPMARGIN_X = 3
+ZGV.STEPMARGIN_Y = 4
 
-ZGV.MIN_STEP_HEIGHT=15
+ZGV.MIN_STEP_HEIGHT = 15
 
 local FONT = STANDARD_TEXT_FONT
 --ZGV.BUTTONS_INLINE=true
 
+local math_modf = math.modf
+math.round = function(n)
+	local x, y = math_modf(n)
+	return n > 0 and (y >= 0.5 and x + 1 or x) or (y <= -0.5 and x - 1 or x)
+end
+local round = math.round
 
-local math_modf=math.modf
-math.round=function(n) local x,y=math_modf(n) return n>0 and (y>=0.5 and x+1 or x) or (y<=-0.5 and x-1 or x) end
-local round=math.round
-
-function me:OnInitialize() 
-
---	if not ZygorGuidesViewerMiniFrame then error("Zygor Guide Viewer step frame not loaded.") end
-	if not ZygorGuidesViewerFrame then error("Zygor Guide Viewer frame not loaded.") end
-	
-	self.db = LibStub("AceDB-3.0"):New("ZygorGuidesViewerSettings")
-
-	self:Debug ("Initializing...")
-
-	self:Options_RegisterDefaults()
-	
-	--self.db:SetProfile("char/"..UnitName("player").." - "..GetRealmName())
-
-	self:Options_DefineOptions()
-
-	self.optionsprofile = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-
-	function LoadModern()
+-- NOTE : To create a skin, create an entry in both SKINS and SKIN_HOOKS
+local SKINS = {
+	Default = {
+		skinbacktopoff = 0,
+		disableGuideAnim = false,
+		Boarder_Close_topright_offsetX = 5,
+		Boarder_Close_topright_offsetY = 5,
+		Boarder_Mini_topright_offsetX = -40,
+		Boarder_Mini_topright_offsetY = -5,
+		Boarder_Guide_topright_offsetX = -58,
+		Boarder_Guide_topright_offsetY = -19,
+		Boarder_Settings_anchor_offsetX = 40,
+		Boarder_Settings_anchor_offsetY = -5,
+		Boarder_Lock_offsetX = 8,
+		Boarder_Lock_offsetY = -13,
+		Boarder_Settings_anchor = "TOPLEFT",
+		Boarder_topleft_offsetX = 28,
+		Boarder_topleft_offsetY = 11,
+		Boarder_topright_offsetX = 25,
+		Boarder_topright_offsetY = 11,
+		disableBackDrop = false,
+		bgfileback = "Interface\\ChatFrame\\ChatFrameBackground",
+	},
+	Modern = {
+		disableBackDrop = true,
+		-- ZygorGuidesViewerFrame_Border_Close Button
+		Boarder_Close_topright_offsetX = -15,
+		Boarder_Close_topright_offsetY = -13,
+		-- ZygorGuidesViewerFrame_Border_MiniButton Button
+		Boarder_Mini_topright_offsetX = -35,
+		Boarder_Mini_topright_offsetY = -13,
+		-- ZygorGuidesViewerFrame_Border_GuideButton
+		Boarder_Guide_topright_offsetX = -55,
+		Boarder_Guide_topright_offsetY = -27,
+		disableGuideAnim = true,
+		-- ZygorGuidesViewerFrame_Border_SettingsButton
+		Boarder_Settings_anchor_offsetX = -75,
+		Boarder_Settings_anchor_offsetY = -13,
+		Boarder_Settings_anchor = "TOPRIGHT",
+		-- ZygorGuidesViewerFrame_Border_LockButton
+		Boarder_Lock_offsetX = 10,
+		Boarder_Lock_offsetY = -13,
+		-- ZygorGuidesViewerFrame_Border
+		backopacity = 1,
+		-- Minus goes up, postive goes down
+		skinbacktopoff = -20,
+		bgfileback = "Interface\\ChatFrame\\ChatFrameBackground",
+		--End ZygorGuidesViewerFrame_Border
+		Boarder_topleft_offsetX = 0,
+		Boarder_topleft_offsetY = 0,
+		Boarder_topright_offsetX = 0,
+		Boarder_topright_offsetY = 0,
+	},
+}
+local SKIN_HOOKS = {
+	Default = function()
+		ZygorGuidesViewerFrame_Border_Left:SetTexture(
+			"Interface\\AddOns\\ZygorGuidesViewer\\Skin\\LeavesOfSteel_border"
+		)
+		ZygorGuidesViewerFrame_Skipper_Step:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_Step:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper, "TOP", 0, -19)
+		ZygorGuidesViewerFrame_Skipper_PrevButton:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_PrevButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper, "TOP", 0, 0)
+		ZygorGuidesViewerFrame_Skipper_NextButton:ClearAllPoints()
+		ZygorGuidesViewerFrame_Skipper_NextButton:SetPoint(
+			"TOP",
+			ZygorGuidesViewerFrame_Skipper_PrevButton,
+			"BOTTOM",
+			0,
+			-13
+		)
+		ZygorGuidesViewerFrame_Border_Gear1:SetTexture(
+			"Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear1"
+		)
+		ZygorGuidesViewerFrame_Border_Gear2:SetTexture(
+			"Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear2"
+		)
+		ZygorGuidesViewerFrame_Border_Gear3:SetTexture(
+			"Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear3"
+		)
+		ZygorGuidesViewerFrame_Border_Logo:SetTexture(SKINDIR .. "\\zglogo")
+	end,
+	Modern = function()
 		ZygorGuidesViewerFrame_Border_Left:SetTexture(nil)
 		ZygorGuidesViewerFrame_Skipper_PrevButton:ClearAllPoints()
 		ZygorGuidesViewerFrame_Skipper_PrevButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper, "TOP", 50, 21)
 		ZygorGuidesViewerFrame_Skipper_Step:ClearAllPoints()
 		ZygorGuidesViewerFrame_Skipper_Step:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper_PrevButton, "TOP", 17, -2)
 		ZygorGuidesViewerFrame_Skipper_NextButton:ClearAllPoints()
-		ZygorGuidesViewerFrame_Skipper_NextButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper_PrevButton, "TOP", 37, 0)
+		ZygorGuidesViewerFrame_Skipper_NextButton:SetPoint(
+			"TOP",
+			ZygorGuidesViewerFrame_Skipper_PrevButton,
+			"TOP",
+			37,
+			0
+		)
 		ZygorGuidesViewerFrame_Border_Gear1:SetTexture(nil)
 		ZygorGuidesViewerFrame_Border_Gear2:SetTexture(nil)
 		ZygorGuidesViewerFrame_Border_Gear3:SetTexture(nil)
 		ZygorGuidesViewerFrame_Border_Logo:SetTexture(nil)
-		self.db.profile.disableBackDrop = true
-		-- me:DumpPoint(ZygorGuidesViewerFrame_Border_CloseButton)
-		-- ZygorGuidesViewerFrame_Border_Close Button
-		self.db.profile.Boarder_Close_topright_offsetX = -15
-		self.db.profile.Boarder_Close_topright_offsetY = -13
-		-- ZygorGuidesViewerFrame_Border_MiniButton Button
-		self.db.profile.Boarder_Mini_topright_offsetX = -35
-		self.db.profile.Boarder_Mini_topright_offsetY = -13
-		-- ZygorGuidesViewerFrame_Border_GuideButton
-		self.db.profile.Boarder_Guide_topright_offsetX = -55
-		self.db.profile.Boarder_Guide_topright_offsetY = -27
-		self.db.profile.disableGuideAnim = true
-		-- ZygorGuidesViewerFrame_Border_SettingsButton
-		self.db.profile.Boarder_Settings_anchor_offsetX = -75
-		self.db.profile.Boarder_Settings_anchor_offsetY = -13
-		self.db.profile.Boarder_Settings_anchor = "TOPRIGHT"
-		-- ZygorGuidesViewerFrame_Border_LockButton
-		self.db.profile.Boarder_Lock_offsetX = 10
-		self.db.profile.Boarder_Lock_offsetY = -13
-		-- ZygorGuidesViewerFrame_Border
-		self.db.profile.backopacity = 1
-		-- Minus goes up, postive goes down
-		self.db.profile.skinbacktopoff = -20
-		self.db.profile.bgfileback = "Interface\\ChatFrame\\ChatFrameBackground"
-		--End ZygorGuidesViewerFrame_Border
 		ZygorGuidesViewerFrame_Border_Top:ClearAllPoints()
-		self.db.profile.Boarder_topleft_offsetX = 0
-		self.db.profile.Boarder_topleft_offsetY = 0
-		self.db.profile.Boarder_topright_offsetX = 0
-		self.db.profile.Boarder_topright_offsetY = 0
+	end,
+}
+
+function me:OnInitialize()
+	--	if not ZygorGuidesViewerMiniFrame then error("Zygor Guide Viewer step frame not loaded.") end
+	if not ZygorGuidesViewerFrame then
+		error("Zygor Guide Viewer frame not loaded.")
 	end
 
-	function LoadDefault()
-		ZygorGuidesViewerFrame_Border_Left:SetTexture("Interface\\AddOns\\ZygorGuidesViewer\\Skin\\LeavesOfSteel_border")
-		ZygorGuidesViewerFrame_Skipper_Step:ClearAllPoints()
-		ZygorGuidesViewerFrame_Skipper_Step:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper, "TOP", 0, -19)
-		ZygorGuidesViewerFrame_Skipper_PrevButton:ClearAllPoints()
-		ZygorGuidesViewerFrame_Skipper_PrevButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper, "TOP", 0, 0)
-		ZygorGuidesViewerFrame_Skipper_NextButton:ClearAllPoints()
-		ZygorGuidesViewerFrame_Skipper_NextButton:SetPoint("TOP", ZygorGuidesViewerFrame_Skipper_PrevButton, "BOTTOM", 0, -13)
-		ZygorGuidesViewerFrame_Border_Gear1:SetTexture("Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear1")
-		ZygorGuidesViewerFrame_Border_Gear2:SetTexture("Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear2")
-		ZygorGuidesViewerFrame_Border_Gear3:SetTexture("Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_gear3")
-		ZygorGuidesViewerFrame_Border_Logo:SetTexture(SKINDIR.."\\zglogo")
-		self.db.profile.disableBackDrop = false
-		-- ZygorGuidesViewerFrame_Border_Close Button
-		self.db.profile.Boarder_Close_topright_offsetX = 5
-		self.db.profile.Boarder_Close_topright_offsetY = -2
-		-- ZygorGuidesViewerFrame_Border_MiniButton Button
-		self.db.profile.Boarder_Mini_topright_offsetX = -40
-		self.db.profile.Boarder_Mini_topright_offsetY = -5
-		-- ZygorGuidesViewerFrame_Border_GuideButton
-		self.db.profile.Boarder_Guide_topright_offsetX = -58
-		self.db.profile.Boarder_Guide_topright_offsetY = -19
-		-- ZygorGuidesViewerFrame_Border_SettingsButton
-		self.db.profile.Boarder_Settings_anchor_offsetX = 40
-		self.db.profile.Boarder_Settings_anchor_offsetY = -5
-		self.db.profile.Boarder_Settings_anchor = "TOPLEFT"
-		-- ZygorGuidesViewerFrame_Border_LockButton
-		self.db.profile.Boarder_Lock_offsetX = 8
-		self.db.profile.Boarder_Lock_offsetY = -13
-		--ZygorGuidesViewerFrame_Border
-		self.db.profile.backopacity = 0.3
-		-- Minus goes up, postive goes down
-		self.db.profile.skinbacktopoff = 0
-		self.db.profile.bgfileback = "Interface/Tooltips/UI-Tooltip-Background"
-		--End ZygorGuidesViewerFrame_Border
-		self.db.profile.Boarder_topleft_offsetX = 28
-		self.db.profile.Boarder_topleft_offsetY = 11
-		self.db.profile.Boarder_topright_offsetX = 25
-		self.db.profile.Boarder_topright_offsetY = 11
-		self.db.profile.disableGuideAnim = false
+	self.db = LibStub("AceDB-3.0"):New("ZygorGuidesViewerSettings")
+
+	self:Debug("Initializing...")
+
+	self:Options_RegisterDefaults()
+
+	--self.db:SetProfile("char/"..UnitName("player").." - "..GetRealmName())
+
+	self:Options_DefineOptions()
+
+	self.optionsprofile = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+
+	local function ApplySkin(skinName)
+		local skin = SKINS[skinName]
+		if skin then
+			for k, v in pairs(skin) do
+				if type(v) == "table" then
+					self.db.profile[k] = CopyTable(v)
+				else
+					self.db.profile[k] = v
+				end
+			end
+		end
+	end
+
+	function LoadSkin(name)
+		ApplySkin(name)
+		if SKIN_HOOKS[name] then
+			SKIN_HOOKS[name]()
+		end
 	end
 
 	self.skin_choice = {
-		['modern'] = LoadModern,
-		['violet'] = LoadDefault,
-		['green'] = LoadDefault,
-		['blue'] = LoadDefault,
-		['orange'] = LoadDefault
+		["modern"] = "Modern",
+		["violet"] = "Default",
+		["green"] = "Default",
+		["blue"] = "Default",
+		["orange"] = "Default",
 	}
 
 	if IsShiftKeyDown() then
@@ -227,7 +272,7 @@ function me:OnInitialize()
 		self.db.char.maint_fetchitemdata = true
 	end
 
-	self.db.char.completedQuests=nil --wipe and flush
+	self.db.char.completedQuests = nil --wipe and flush
 
 	self.CurrentStepNum = self.db.char.step
 	self.CurrentGuideName = self.db.char.guidename
@@ -275,17 +320,22 @@ function me:OnInitialize()
 	self:Options_SetupConfig()
 	self:Options_SetupBlizConfig()
 
---	self:Echo(L["initialized"])
-	self:Debug ("Initialized.")
-
+	--	self:Echo(L["initialized"])
+	self:Debug("Initialized.")
 
 	if self.LibTaxi then
-		if not self.db.char.taxis then self.db.char.taxis = {} end
+		if not self.db.char.taxis then
+			self.db.char.taxis = {}
+		end
 		self.LibTaxi:Startup(self.db.char.taxis)
 	end
 
-	if self.Pointer then self.Pointer:Startup() end
-	if self.Foglight then self.Foglight:Startup() end
+	if self.Pointer then
+		self.Pointer:Startup()
+	end
+	if self.Foglight then
+		self.Foglight:Startup()
+	end
 
 	if ZygorTalentAdvisor and ZygorTalentAdvisor.revision > self.revision then
 		self.revision = ZygorTalentAdvisor.revision
@@ -293,16 +343,22 @@ function me:OnInitialize()
 		self.date = ZygorTalentAdvisor.date
 	end
 
-	if self.LocaleFont then FONT=self.LocaleFont end
-	
+	if self.LocaleFont then
+		FONT = self.LocaleFont
+	end
+
 	-- home detection, fire-and-forget style.
-	hooksecurefunc("ConfirmBinder",function() ZygorGuidesViewer.recentlyHomeChanged=true end)
+	hooksecurefunc("ConfirmBinder", function()
+		ZygorGuidesViewer.recentlyHomeChanged = true
+	end)
 end
 
 function me:OnEnable()
 	self:Debug("enabling")
 
-	if self.db.profile["visible"] then self:ToggleFrame() end
+	if self.db.profile["visible"] then
+		self:ToggleFrame()
+	end
 
 	ZygorGuidesViewerMapIcon:Show()
 
@@ -319,12 +375,12 @@ function me:OnEnable()
 
 	self:AddEvent("SPELL_UPDATE_COOLDOWN")
 
-	self:AddEvent("PLAYER_CONTROL_GAINED")  -- try to force current zone updates; should prevent GoTo lines from locking up after a taxi flight
+	self:AddEvent("PLAYER_CONTROL_GAINED") -- try to force current zone updates; should prevent GoTo lines from locking up after a taxi flight
 
 	--self.startuptimer = self:ScheduleRepeatingTimer("StartupTimer", 0.1)
 
 	-- startup 'modules'
-	for i,startup in ipairs(self.startups) do
+	for i, startup in ipairs(self.startups) do
 		startup(self)
 	end
 
@@ -340,48 +396,57 @@ function me:OnEnable()
 	-- waiting for QUEST_LOG_UPDATE for true initialization...
 	--self:QueryQuests()
 
-	if ZGV_DEV then ZGV_DEV() end
+	if ZGV_DEV then
+		ZGV_DEV()
+	end
 end
 
 function me:OnDisable()
---	self:UnregisterAllEvents()
+	--	self:UnregisterAllEvents()
 	UnsetWaypointAddon()
 
 	ZygorGuidesViewerMapIcon:Hide()
 	self.Frame:Hide()
 end
 
-
-
 -- my event handling. Multiple handlers allowed, just for the heck of it.
 
-local meta_newtables = {__index = function(tbl, key) tbl[key] = {} return tbl[key] end}
-me.Events=setmetatable({},meta_newtables)
-function me:AddEvent(event,func)
-	tinsert(self.Events[event],func or true)
-	if #self.Events[event]==1 then self:RegisterEvent(event,"EventHandler") end
+local meta_newtables = {
+	__index = function(tbl, key)
+		tbl[key] = {}
+		return tbl[key]
+	end,
+}
+me.Events = setmetatable({}, meta_newtables)
+function me:AddEvent(event, func)
+	tinsert(self.Events[event], func or true)
+	if #self.Events[event] == 1 then
+		self:RegisterEvent(event, "EventHandler")
+	end
 end
-function me:EventHandler(event,...)
-	for i,hand in ipairs(self.Events[event]) do
+function me:EventHandler(event, ...)
+	for i, hand in ipairs(self.Events[event]) do
 		local func
-		if type(hand)=="function" then
-			func=hand
-		elseif type(hand)=="string" then
-			func=self[hand]
-			assert(func,"No function "..hand.." in event handler!")
-		elseif hand==true then
-			func=self[event]
-			assert(func,"No function "..event.." in event handler!")
+		if type(hand) == "function" then
+			func = hand
+		elseif type(hand) == "string" then
+			func = self[hand]
+			assert(func, "No function " .. hand .. " in event handler!")
+		elseif hand == true then
+			func = self[event]
+			assert(func, "No function " .. event .. " in event handler!")
 		end
-		func(self,event,...)
+		func(self, event, ...)
 	end
 end
 
-
-
 function me:OnFirstQuestLogUpdate()
-	if not self.guidesloaded then return end -- let the OnGuidesLoaded func call us.
-	if self.questLogInitialized then return end
+	if not self.guidesloaded then
+		return
+	end -- let the OnGuidesLoaded func call us.
+	if self.questLogInitialized then
+		return
+	end
 
 	if self.db.char["starting"] then
 		self:Print("First start! Finding proper starter section.")
@@ -395,7 +460,7 @@ function me:OnFirstQuestLogUpdate()
 	end
 
 	if ZGV.db.char.maint_startguides then
-		self:SetGuide(self.db.char.guidename,self.db.char.step)
+		self:SetGuide(self.db.char.guidename, self.db.char.step)
 	end
 
 	self.frameNeedsResizing = 1
@@ -405,30 +470,36 @@ function me:OnFirstQuestLogUpdate()
 end
 
 function me:GetGuideByTitle(title)
-	for i,v in ipairs(self.registeredguides) do
-		if v.title==title then return v end
+	for i, v in ipairs(self.registeredguides) do
+		if v.title == title then
+			return v
+		end
 	end
 end
 
-function me:SetGuide(name,step,temp)
-	if not name then return end
-	if not step then step=1 end
-	self:Debug("SetGuide "..name.." ("..tostring(step))
+function me:SetGuide(name, step, temp)
+	if not name then
+		return
+	end
+	if not step then
+		step = 1
+	end
+	self:Debug("SetGuide " .. name .. " (" .. tostring(step))
 
 	local guide
-	if type(name)=="number" then
+	if type(name) == "number" then
 		local num = name
 		if self.registeredguides[num] then
 			guide = self.registeredguides[num]
 		else
-			self:Print("Cannot find guide number: "..num)
+			self:Print("Cannot find guide number: " .. num)
 			--return false
 		end
 	else
 		guide = self:GetGuideByTitle(name)
 		if not guide then
-			self:Print("Cannot find guide: "..name)
-			self:Debug("Cannot find guide: "..name)
+			self:Print("Cannot find guide: " .. name)
+			self:Debug("Cannot find guide: " .. name)
 			return false
 		end
 	end
@@ -450,22 +521,21 @@ function me:SetGuide(name,step,temp)
 			self.db.char.guidename = name
 		end
 
-
-		if #self.CurrentGuide.steps<step then
+		if #self.CurrentGuide.steps < step then
 			step = 1
 		end
 
 		self:QuestTracking_ResetDailies(true)
 
-		self:Debug("Guide loaded: "..name)
-		
+		self:Debug("Guide loaded: " .. name)
+
 		self:FocusStep(step)
 
 		ZygorGuidesViewerFrame_Border_GuideButton:UnlockHighlight()
 	else
 		self:Print(L["message_missingguide"]:format(name))
-		self.db.char['guide'] = nil
-		self.db.char['step'] = nil
+		self.db.char["guide"] = nil
+		self.db.char["step"] = nil
 		self.CurrentGuide = nil
 	end
 
@@ -473,8 +543,10 @@ function me:SetGuide(name,step,temp)
 end
 
 function me:FindDefaultGuide()
-	for i,guide in ipairs(self.registeredguides) do
-		if guide.defaultfor and self:RaceClassMatch(guide.defaultfor,true) then return i end
+	for i, guide in ipairs(self.registeredguides) do
+		if guide.defaultfor and self:RaceClassMatch(guide.defaultfor, true) then
+			return i
+		end
 	end
 	return nil
 end
@@ -496,13 +568,21 @@ function me:ClearRecentActivities()
 	self.completedQuestTitles = {}
 end
 
-function me:FocusStep(num,quiet)
-	if not num or num<=0 then return end
-	if not self.CurrentGuide then return end
-	if not self.CurrentGuide.steps then return end
-	if num>#self.CurrentGuide.steps then return end
+function me:FocusStep(num, quiet)
+	if not num or num <= 0 then
+		return
+	end
+	if not self.CurrentGuide then
+		return
+	end
+	if not self.CurrentGuide.steps then
+		return
+	end
+	if num > #self.CurrentGuide.steps then
+		return
+	end
 
-	self:Debug("FocusStep "..num..(quiet and " (quiet)" or ""))
+	self:Debug("FocusStep " .. num .. (quiet and " (quiet)" or ""))
 
 	self.CurrentStepNum = num
 	if not self.CurrentGuideIsTemporary then
@@ -516,8 +596,10 @@ function me:FocusStep(num,quiet)
 
 	self.stepchanged = true
 
-	for i,goal in ipairs(self.CurrentStep.goals) do
-		if goal:IsComplete() then self.recentlyCompletedGoals[goal]=true end
+	for i, goal in ipairs(self.CurrentStep.goals) do
+		if goal:IsComplete() then
+			self.recentlyCompletedGoals[goal] = true
+		end
 	end
 
 	if not quiet then
@@ -534,18 +616,20 @@ function me:FocusStep(num,quiet)
 	end
 	--self:UpdateMinimapArrow(true)
 
-	local stepcomplete,steppossible,stepmanual = self.CurrentStep:IsComplete()
+	local stepcomplete, steppossible, stepmanual = self.CurrentStep:IsComplete()
 	if self.pause then
-		if (self.db.profile.skipimpossible and not steppossible and not stepmanual)
-		or (self.db.profile.skipobsolete and self.CurrentStep:IsObsolete())
-		or (self.db.profile.skipauxsteps and self.CurrentStep:IsAuxiliarySkippable()) then
-			stepcomplete=true
+		if
+			(self.db.profile.skipimpossible and not steppossible and not stepmanual)
+			or (self.db.profile.skipobsolete and self.CurrentStep:IsObsolete())
+			or (self.db.profile.skipauxsteps and self.CurrentStep:IsAuxiliarySkippable())
+		then
+			stepcomplete = true
 			--self.pause=nil
 		end
-		self.LastSkip=1
+		self.LastSkip = 1
 		if not stepcomplete then
 			self:Debug("unpausing")
-			self.pause=nil
+			self.pause = nil
 		end
 	end
 	--and self.LastSkip~=0) then self.AutoskipTemp=false else self.AutoskipTemp=true end
@@ -553,41 +637,45 @@ function me:FocusStep(num,quiet)
 	-- add to last-guides history
 	local history = self.db.char.guides_history
 	local found
-	for i,g in ipairs(history) do
-		if g.full==self.CurrentGuideName then
+	for i, g in ipairs(history) do
+		if g.full == self.CurrentGuideName then
 			-- update
-			g.step=num
-			found=true
+			g.step = num
+			found = true
 			break
 		end
 	end
 	if not found then
-		tinsert(history,{full=self.CurrentGuideName,short=self.CurrentGuide.title_short,step=step})
-		if #history>self.db.profile.guidesinhistory then tremove(history,1) end
+		tinsert(history, { full = self.CurrentGuideName, short = self.CurrentGuide.title_short, step = step })
+		if #history > self.db.profile.guidesinhistory then
+			tremove(history, 1)
+		end
 	end
 
 	self:AnimateGears()
 end
 
 function me:FocusStepQuiet(num)
-	return self:FocusStep(num,true)
+	return self:FocusStep(num, true)
 end
 
 --- A quest is 'interesting' if any follow-ups to it appear anywhere in the guides and they're not gray.
 function me:GetMentionedFollowups(questid)
-	local q,f
-	local live = {questid}
+	local q, f
+	local live = { questid }
 	local fups = {}
 	local lev
-	while #live>0 do
-		q = tremove(live,1)
+	while #live > 0 do
+		q = tremove(live, 1)
 		lev = self.mentionedQuests[q]
-		if lev then tinsert(fups,{q,lev}) end
+		if lev then
+			tinsert(fups, { q, lev })
+		end
 
 		f = self.RevChains[q]
 		if f then
-			for i=1,#f do
-				tinsert(live,f[i])
+			for i = 1, #f do
+				tinsert(live, f[i])
 			end
 		end
 	end
@@ -596,16 +684,18 @@ end
 
 -- A quest's "maximum chained level" can be safely cached, I guess.
 function me:CacheMentionedFollowups()
-	local f,maxlev
+	local f, maxlev
 	self.maxQuestLevels = {}
-	for qid=1,30000 do
+	for qid = 1, 30000 do
 		if self.mentionedQuests[qid] then
-			f=ZGV:GetMentionedFollowups(qid)
-			maxlev=0
-			for i=1,#f do
-				if f[i][2]>maxlev then maxlev=f[i][2] end
+			f = ZGV:GetMentionedFollowups(qid)
+			maxlev = 0
+			for i = 1, #f do
+				if f[i][2] > maxlev then
+					maxlev = f[i][2]
+				end
 			end
-			self.maxQuestLevels[qid]=maxlev
+			self.maxQuestLevels[qid] = maxlev
 		end
 	end
 end
@@ -613,52 +703,68 @@ end
 function me:ListMentionedQuests()
 	self.mentionedQuests = {}
 	local guide = self:FindDefaultGuide()
-	if guide then guide=self.registeredguides[guide] else return end
+	if guide then
+		guide = self.registeredguides[guide]
+	else
+		return
+	end
 	while guide do
-		if guide.quests then for qid,lev in pairs(guide.quests) do self.mentionedQuests[qid]=lev end end
-		guide.quests=nil
+		if guide.quests then
+			for qid, lev in pairs(guide.quests) do
+				self.mentionedQuests[qid] = lev
+			end
+		end
+		guide.quests = nil
 
 		guide = self:GetGuideByTitle(guide.next)
 	end
 end
-	
+
 --- Attempt to complete current step.
--- 09-09-24: 
+-- 09-09-24:
 function me:TryToCompleteStep(force)
-	if not self.CurrentStep then return end
+	if not self.CurrentStep then
+		return
+	end
 
 	if self.BUTTONS_INLINE then
-		if self.actionsvisible and InCombatLockdown() then return end
+		if self.actionsvisible and InCombatLockdown() then
+			return
+		end
 	end
 
 	-- prevent overtime checks
-	if self.completionelapsed<=self.completioninterval and not force then
-		self.completionelapsed=self.completionelapsed+0.1
+	if self.completionelapsed <= self.completioninterval and not force then
+		self.completionelapsed = self.completionelapsed + 0.1
 		return
 	end
 	self.completionelapsed = 0
 
 	-- frame hidden? bail.
-	if not self.Frame:IsVisible() or self.Frame:GetAlpha()<0.1 then return end
+	if not self.Frame:IsVisible() or self.Frame:GetAlpha() < 0.1 then
+		return
+	end
 	--if InCombatLockdown() then return end
 
 	--local skipped=0
 	--local updated
 
-	local stepcomplete,steppossible,stepmanual = self.CurrentStep:IsComplete()
+	local stepcomplete, steppossible, stepmanual = self.CurrentStep:IsComplete()
 
 	local completing = stepcomplete
 
 	-- smart skipping: treat impossible or skippable as completed
-	if (self.db.profile.skipimpossible and not steppossible and not stepmanual)
-	or (self.db.profile.skipobsolete and self.CurrentStep:IsObsolete())
-	or (self.db.profile.skipauxsteps and self.CurrentStep:IsAuxiliarySkippable()) then
-		completing=true
+	if
+		(self.db.profile.skipimpossible and not steppossible and not stepmanual)
+		or (self.db.profile.skipobsolete and self.CurrentStep:IsObsolete())
+		or (self.db.profile.skipauxsteps and self.CurrentStep:IsAuxiliarySkippable())
+	then
+		completing = true
 		--self.pause=nil
 	end
 
 	if not completing then
-		self.pause=nil
+		self.pause = nil
 		self.completioninterval = self.completionintervallong
 	end
 
@@ -668,21 +774,29 @@ function me:TryToCompleteStep(force)
 	else
 		if completing then
 			--self.recentlyCompletedQuests = {} -- forget it! We're skipping the step, already.
-			self:Debug("Skipping step: "..self.CurrentStepNum.." ("..(stepcomplete and "complete" or (steppossible and "possible?" or "impossible"))..")")
+			self:Debug(
+				"Skipping step: "
+					.. self.CurrentStepNum
+					.. " ("
+					.. (stepcomplete and "complete" or (steppossible and "possible?" or "impossible"))
+					.. ")"
+			)
 
-			if self.lasttriedstep and self.lasttriedstep==self.CurrentStep and not self.lastwascompleted then
+			if self.lasttriedstep and self.lasttriedstep == self.CurrentStep and not self.lastwascompleted then
 				--newly completed!
 				PlaySound(self.db.profile.completesound)
 				if self.db.profile.flashborder then
-					self.delayFlash=1
+					self.delayFlash = 1
 				end
 			end
 
-			self:SkipStep(self.LastSkip,true)
-			self.fastforward=true
+			self:SkipStep(self.LastSkip, true)
+			self.fastforward = true
 
 			self.completioninterval = self.completioninterval * 0.9
-			if self.completioninterval<self.completionintervalmin then self.completioninterval=self.completionintervalmin end
+			if self.completioninterval < self.completionintervalmin then
+				self.completioninterval = self.completionintervalmin
+			end
 			--skipped=skipped+1
 			--if skipped>100 then break end
 
@@ -691,14 +805,13 @@ function me:TryToCompleteStep(force)
 
 			--self.completioninterval = self.completionshortinterval
 
-
 			--ZygorGuidesViewerFrame_CoverFlash_blink:Play()
 
 			--stepcomplete = self.CurrentStep:IsComplete()
 		else
 			self.completioninterval = self.completionintervallong
-			self.pause=nil
-			self.fastforward=nil
+			self.pause = nil
+			self.fastforward = nil
 			self.LastSkip = 1
 			--self.completioninterval = self.completionlonginterval
 		end
@@ -720,36 +833,36 @@ function me:TryToCompleteStep(force)
 	self.lastwascompleted = stepcomplete
 end
 
-
-
 function me:InitializeDropDown(frame)
-	if not self.guidesloaded then return end
+	if not self.guidesloaded then
+		return
+	end
 
 	local guides = ZygorGuidesViewer.registeredguides
-	
-	if not guides then return end
-	
-	for i,guide in ipairs(guides) do
 
---		ChatFrame1:AddMessage(section)
+	if not guides then
+		return
+	end
+
+	for i, guide in ipairs(guides) do
+		--		ChatFrame1:AddMessage(section)
 		local info = {}
 		info.text = guide.title
 		info.value = guide.title
 		info.func = ZGVFSectionDropDown_Func
-		if (self.CurrentGuideName == guide.title) then
+		if self.CurrentGuideName == guide.title then
 			info.checked = 1
 		else
 			info.checked = nil
 		end
 		info.button = 1
---		if (i == 1) then
---			info.isTitle = 1
---		end
+		--		if (i == 1) then
+		--			info.isTitle = 1
+		--		end
 		UIDropDownMenu_AddButton(info)
 	end
 	UIDropDownMenu_SetText(frame, self.CurrentGuideName)
 end
-
 
 function me:UpdateLocking()
 	-- remove mouse activity in lock mode
@@ -766,9 +879,9 @@ function me:UpdateLocking()
 	ZygorGuidesViewerFrameScroll:EnableMouseWheel(not locked)
 
 	if self.stepframes then
-		for s,st in ipairs(self.stepframes) do
+		for s, st in ipairs(self.stepframes) do
 			st:EnableMouse(not locked)
-		--[[
+			--[[
 			for l,ln in ipairs(st.lines) do
 				ln.clicker:EnableMouse(not locked)
 			end
@@ -778,32 +891,36 @@ function me:UpdateLocking()
 
 	-- lock button
 	if self.db.profile["windowlocked"] then
-		ZygorGuidesViewerFrame_Border_LockButton.ntx:SetTexCoord(0.375,0.500,0.00,0.25)
-		ZygorGuidesViewerFrame_Border_LockButton.ptx:SetTexCoord(0.375,0.500,0.25,0.50)
-		ZygorGuidesViewerFrame_Border_LockButton.htx:SetTexCoord(0.375,0.500,0.50,0.75)
+		ZygorGuidesViewerFrame_Border_LockButton.ntx:SetTexCoord(0.375, 0.500, 0.00, 0.25)
+		ZygorGuidesViewerFrame_Border_LockButton.ptx:SetTexCoord(0.375, 0.500, 0.25, 0.50)
+		ZygorGuidesViewerFrame_Border_LockButton.htx:SetTexCoord(0.375, 0.500, 0.50, 0.75)
 	else
-		ZygorGuidesViewerFrame_Border_LockButton.ntx:SetTexCoord(0.250,0.375,0.00,0.25)
-		ZygorGuidesViewerFrame_Border_LockButton.ptx:SetTexCoord(0.250,0.375,0.25,0.50)
-		ZygorGuidesViewerFrame_Border_LockButton.htx:SetTexCoord(0.250,0.375,0.50,0.75)
+		ZygorGuidesViewerFrame_Border_LockButton.ntx:SetTexCoord(0.250, 0.375, 0.00, 0.25)
+		ZygorGuidesViewerFrame_Border_LockButton.ptx:SetTexCoord(0.250, 0.375, 0.25, 0.50)
+		ZygorGuidesViewerFrame_Border_LockButton.htx:SetTexCoord(0.250, 0.375, 0.50, 0.75)
 	end
 
 	if self.db.profile["showallsteps"] then
-		ZygorGuidesViewerFrame_Border_MiniButton.ntx:SetTexCoord(0.000,0.125,0.0,0.25)
-		ZygorGuidesViewerFrame_Border_MiniButton.ptx:SetTexCoord(0.000,0.125,0.25,0.5)
-		ZygorGuidesViewerFrame_Border_MiniButton.htx:SetTexCoord(0.000,0.125,0.50,0.75)
+		ZygorGuidesViewerFrame_Border_MiniButton.ntx:SetTexCoord(0.000, 0.125, 0.0, 0.25)
+		ZygorGuidesViewerFrame_Border_MiniButton.ptx:SetTexCoord(0.000, 0.125, 0.25, 0.5)
+		ZygorGuidesViewerFrame_Border_MiniButton.htx:SetTexCoord(0.000, 0.125, 0.50, 0.75)
 	else
-		ZygorGuidesViewerFrame_Border_MiniButton.ntx:SetTexCoord(0.125,0.250,0.00,0.25)
-		ZygorGuidesViewerFrame_Border_MiniButton.ptx:SetTexCoord(0.125,0.250,0.25,0.50)
-		ZygorGuidesViewerFrame_Border_MiniButton.htx:SetTexCoord(0.125,0.250,0.50,0.75)
+		ZygorGuidesViewerFrame_Border_MiniButton.ntx:SetTexCoord(0.125, 0.250, 0.00, 0.25)
+		ZygorGuidesViewerFrame_Border_MiniButton.ptx:SetTexCoord(0.125, 0.250, 0.25, 0.50)
+		ZygorGuidesViewerFrame_Border_MiniButton.htx:SetTexCoord(0.125, 0.250, 0.50, 0.75)
 	end
 end
 
 function me:StopFlashAnimation()
-	if not self.stepframes[1] then return end
-	for s=1,20 do
-		for i=1,20,1 do
+	if not self.stepframes[1] then
+		return
+	end
+	for s = 1, 20 do
+		for i = 1, 20, 1 do
 			local anim_w2g = self.stepframes[s].lines[i].anim_w2g
-			if not anim_w2g then break end
+			if not anim_w2g then
+				break
+			end
 			anim_w2g:Stop()
 		end
 	end
@@ -818,36 +935,54 @@ end
 
 function me:UpdateCooldowns()
 	--self:Debug("UpdateCooldowns")
-	if not self.CurrentStep then return end
+	if not self.CurrentStep then
+		return
+	end
 	local stepframe = self.stepframes[self.CurrentStepframeNum]
-	if not stepframe then return end
-	for i=1,20,1 do
-		local cooldown = _G["ZygorGuidesViewerFrame_Act"..i.."ActionCooldown"]
-		if not cooldown then return end
+	if not stepframe then
+		return
+	end
+	for i = 1, 20, 1 do
+		local cooldown = _G["ZygorGuidesViewerFrame_Act" .. i .. "ActionCooldown"]
+		if not cooldown then
+			return
+		end
 		local goal = stepframe.lines[i].goal
 		if goal and goal:IsActionable() then
 			--cooldown:Show()
 			--self:Debug("goal "..i.." actionable")
 			if goal.castspell or goal.castspellid then
-				local start,dur,en = GetSpellCooldown(goal.castspellid or goal.castspell)
+				local start, dur, en = GetSpellCooldown(goal.castspellid or goal.castspell)
 				CooldownFrame_SetTimer(cooldown, start, dur, en)
-				if start>0 then cooldown:Show() else cooldown:Hide() end
+				if start > 0 then
+					cooldown:Show()
+				else
+					cooldown:Hide()
+				end
 				--self:Debug(("spell: %d,%d,%d"):format(start,dur,en))
 			elseif goal.useitem or goal.useitemid then
-				local start,dur,en = GetItemCooldown(goal.useitemid or goal.useitem)
+				local start, dur, en = GetItemCooldown(goal.useitemid or goal.useitem)
 				CooldownFrame_SetTimer(cooldown, start, dur, en)
-				if start>0 then cooldown:Show() else cooldown:Hide() end
+				if start > 0 then
+					cooldown:Show()
+				else
+					cooldown:Hide()
+				end
 				--self:Debug(("item: %d,%d,%d"):format(start,dur,en))
 			elseif goal.petaction then
-				local num,name,x,tex
-				if type(goal.petaction)=="number" then
+				local num, name, x, tex
+				if type(goal.petaction) == "number" then
 					num = goal.petaction
 				else
-					num,name,x,tex = FindPetActionInfo(goal.petaction)
+					num, name, x, tex = FindPetActionInfo(goal.petaction)
 				end
-				local start,dur,en = GetPetActionCooldown(num)
+				local start, dur, en = GetPetActionCooldown(num)
 				CooldownFrame_SetTimer(cooldown, start, dur, en)
-				if start>0 then cooldown:Show() else cooldown:Hide() end
+				if start > 0 then
+					cooldown:Show()
+				else
+					cooldown:Hide()
+				end
 			end
 		else
 			cooldown:Hide()
@@ -855,24 +990,24 @@ function me:UpdateCooldowns()
 	end
 end
 
-local function gradient(a,b,p)
-	return a+(b-a)*p
+local function gradient(a, b, p)
+	return a + (b - a) * p
 end
 
 local function fromRGBA(ob)
-	return ob.r,ob.g,ob.b,ob.a
+	return ob.r, ob.g, ob.b, ob.a
 end
 
-local function fromRGB_a(ob,a)
-	return ob.r,ob.g,ob.b,a
+local function fromRGB_a(ob, a)
+	return ob.r, ob.g, ob.b, a
 end
 
-local function fromRGBmul_a(ob,mul,a)
-	return ob.r*mul,ob.g*mul,ob.b*mul,a
+local function fromRGBmul_a(ob, mul, a)
+	return ob.r * mul, ob.g * mul, ob.b * mul, a
 end
 
 local function fromRGB(ob)
-	return ob.r,ob.g,ob.b
+	return ob.r, ob.g, ob.b
 end
 
 --local function gradientRGBA(f,t,p)  --removed
@@ -880,35 +1015,48 @@ end
 --function me:
 
 function me:SetDisplayMode(mode)
-	self.db.profile.displaymode=mode
+	self.db.profile.displaymode = mode
 	self:UpdateFrame(true)
 end
 
-local Tpi=6.2832
-local cardinals = {"N","NW","W","SW","S","SE","E","NE","N"}
+local Tpi = 6.2832
+local cardinals = { "N", "NW", "W", "SW", "S", "SE", "E", "NE", "N" }
 local function GetCardinalDirName(angle)
-	for i=1,9 do
-		if Tpi*((i*2)-1)/16>angle then return cardinals[i] end
+	for i = 1, 9 do
+		if Tpi * ((i * 2) - 1) / 16 > angle then
+			return cardinals[i]
+		end
 	end
 end
 function GetCardinalDirNum(angle)
-	while angle<0 do angle=angle+Tpi end
-	while angle>Tpi do angle=angle-Tpi end
-	local ret=1
-	for i=1,16 do
-		if Tpi*((i*2)-1)/32>angle then ret=i break end
+	while angle < 0 do
+		angle = angle + Tpi
+	end
+	while angle > Tpi do
+		angle = angle - Tpi
+	end
+	local ret = 1
+	for i = 1, 16 do
+		if Tpi * ((i * 2) - 1) / 32 > angle then
+			ret = i
+			break
+		end
 	end
 	return ret
 end
 
-local itemsources={"vendor","drop","ore","herb","skin"}
+local itemsources = { "vendor", "drop", "ore", "herb", "skin" }
 
-local gold_ox,gold_oy=0,0
+local gold_ox, gold_oy = 0, 0
 
-function me:UpdateFrame(full,onupdate)
-	if full then self.stepchanged=true end
+function me:UpdateFrame(full, onupdate)
+	if full then
+		self.stepchanged = true
+	end
 
-	if not self.Frame or not self.Frame:IsVisible() then return end
+	if not self.Frame or not self.Frame:IsVisible() then
+		return
+	end
 
 	--if InCombatLockdown() then return end
 	--[[
@@ -926,26 +1074,32 @@ function me:UpdateFrame(full,onupdate)
 	local minh = 0
 
 	if self.loading then
-
 		ZygorGuidesViewerFrame_Border_SectionTitle:SetText()
 		ZygorGuidesViewerFrame_MissingText:Show()
-		ZygorGuidesViewerFrame_MissingText:SetText(L['miniframe_loading']:format((self.loadprogress or 0)*100))
-
-	elseif self.db.profile.displaymode=="guide" then
+		ZygorGuidesViewerFrame_MissingText:SetText(L["miniframe_loading"]:format((self.loadprogress or 0) * 100))
+	elseif self.db.profile.displaymode == "guide" then
 		if self.CurrentGuide and self.CurrentGuide.steps then
-
 			-- hide spot frames, if visible
-			if self.spotframes[1] and self.spotframes[1]:IsVisible() then for i,spotframe in ipairs(self.spotframes) do spotframe:Hide() end end
+			if self.spotframes[1] and self.spotframes[1]:IsVisible() then
+				for i, spotframe in ipairs(self.spotframes) do
+					spotframe:Hide()
+				end
+			end
 
 			if self.db.profile.showallsteps then
-				if ZygorGuidesViewerFrameScrollScrollBar:GetValue()<1 then ZygorGuidesViewerFrameScrollScrollBar:SetValue(self.CurrentStepNum) end
+				if ZygorGuidesViewerFrameScrollScrollBar:GetValue() < 1 then
+					ZygorGuidesViewerFrameScrollScrollBar:SetValue(self.CurrentStepNum)
+				end
 				ZygorGuidesViewerFrameScrollScrollBar:Show()
 			else
 				ZygorGuidesViewerFrameScrollScrollBar:Hide()
 			end
 
 			if full then
-				ZygorGuidesViewerFrameScrollScrollBar:SetMinMaxValues(1,#self.CurrentGuide.steps>0 and #self.CurrentGuide.steps or 1)
+				ZygorGuidesViewerFrameScrollScrollBar:SetMinMaxValues(
+					1,
+					#self.CurrentGuide.steps > 0 and #self.CurrentGuide.steps or 1
+				)
 				ZygorGuidesViewerFrame_Skipper_Step:SetText(self.CurrentStepNum)
 				ZygorGuidesViewerFrame_Border_SectionTitle:SetText(self.CurrentGuide.title_short)
 			end
@@ -962,122 +1116,148 @@ function me:UpdateFrame(full,onupdate)
 			local totalheight = 0
 
 			local frame
-			local stepnum,stepdata
+			local stepnum, stepdata
 
-			local firststep = self.db.profile.showallsteps and math.floor(ZygorGuidesViewerFrameScrollScrollBar:GetValue()) or self.CurrentStepNum
-			if firststep<1 then firststep=1 end
-			local laststep = self.db.profile.showallsteps and #self.CurrentGuide.steps or self.CurrentStepNum+self.db.profile.showcountsteps-1
+			local firststep = self.db.profile.showallsteps
+					and math.floor(ZygorGuidesViewerFrameScrollScrollBar:GetValue())
+				or self.CurrentStepNum
+			if firststep < 1 then
+				firststep = 1
+			end
+			local laststep = self.db.profile.showallsteps and #self.CurrentGuide.steps
+				or self.CurrentStepNum + self.db.profile.showcountsteps - 1
 
 			--self:Debug("first step "..firststep..", last step "..laststep)
 			-- run through buttons and assign steps for them
 
-			local nomoredisplayed=false
-			
-			for stepbuttonnum = 1,self.StepLimit do repeat
-				--frame = _G['ZygorGuidesViewerFrame_Step'..stepbuttonnum]
-				frame = self.stepframes[stepbuttonnum]
-				
-				stepnum = firststep + stepbuttonnum - 1
-				
-				-- show this button at all?
-				if stepnum>=firststep and stepnum<=laststep and stepnum<=#self.CurrentGuide.steps then
-					local stepdata = self.CurrentGuide.steps[stepnum]
-					assert(stepdata,"UpdateFrame: No data for step "..stepnum)
+			local nomoredisplayed = false
 
-					if nomoredisplayed then
-						frame:Hide()
-						break --continue
-					end
+			for stepbuttonnum = 1, self.StepLimit do
+				repeat
+					--frame = _G['ZygorGuidesViewerFrame_Step'..stepbuttonnum]
+					frame = self.stepframes[stepbuttonnum]
 
-					--[[
+					stepnum = firststep + stepbuttonnum - 1
+
+					-- show this button at all?
+					if stepnum >= firststep and stepnum <= laststep and stepnum <= #self.CurrentGuide.steps then
+						local stepdata = self.CurrentGuide.steps[stepnum]
+						assert(stepdata, "UpdateFrame: No data for step " .. stepnum)
+
+						if nomoredisplayed then
+							frame:Hide()
+							break --continue
+						end
+
+						--[[
 					if not self.stepchanged and not stepdata:NeedsUpdating() or (nomoredisplayed and not frame:IsVisible()) then
 						break --continue
 					end
 					--]]
-					--print("Displaying step "..stepnum)
+						--print("Displaying step "..stepnum)
 
-					frame.stepnum = stepnum
-					frame.step = stepdata
+						frame.stepnum = stepnum
+						frame.step = stepdata
 
-					--#### position step frame
+						--#### position step frame
 
-					frame:SetWidth(self.db.profile.showallsteps and ZygorGuidesViewerFrameScrollChild:GetWidth() or ZygorGuidesViewerFrameScroll:GetWidth()) -- this is needed so the text lines below can access proper widths
+						frame:SetWidth(
+							self.db.profile.showallsteps and ZygorGuidesViewerFrameScrollChild:GetWidth()
+								or ZygorGuidesViewerFrameScroll:GetWidth()
+						) -- this is needed so the text lines below can access proper widths
 
-					-- out of screen space? bail.
-					-- but only in all steps mode!
-					local top=frame:GetTop()
-					local bottom=ZygorGuidesViewerFrameScroll:GetBottom()
-					if self.db.profile.showallsteps and top and bottom and top<bottom then
-						frame:Hide()
-						nomoredisplayed=true
-						break --continue!
-					end
+						-- out of screen space? bail.
+						-- but only in all steps mode!
+						local top = frame:GetTop()
+						local bottom = ZygorGuidesViewerFrameScroll:GetBottom()
+						if self.db.profile.showallsteps and top and bottom and top < bottom then
+							frame:Hide()
+							nomoredisplayed = true
+							break --continue!
+						end
 
-					--#### fill it with text
+						--#### fill it with text
 
-					local changed,dirty = stepdata:Translate()
-					if dirty then
-						self.frameNeedsUpdating=true
-						self:SetWaypoint()
-					end
+						local changed, dirty = stepdata:Translate()
+						if dirty then
+							self.frameNeedsUpdating = true
+							self:SetWaypoint()
+						end
 
-					local line=1
+						local line = 1
 
-					if stepdata.requirement or self.db.profile.stepnumbers then
-						local numbertext = self.db.profile.stepnumbers and L['step_num']:format(stepnum)
-						local reqtext = stepdata.requirement and ((stepdata:AreRequirementsMet() and "|cff44aa44" or "|cffbb0000") .. "(" .. (table.concat(stepdata.requirement,L["stepreqor"])):gsub("!([a-zA-Z ]+)",L["req_not"]:format("%1")) .. ")")
-						local leveltext = (stepdata.level and stepdata.level>0 and self.db.profile.stepnumbers) and L['step_level']:format(stepdata.level or "?")
+						if stepdata.requirement or self.db.profile.stepnumbers then
+							local numbertext = self.db.profile.stepnumbers and L["step_num"]:format(stepnum)
+							local reqtext = stepdata.requirement
+								and (
+									(stepdata:AreRequirementsMet() and "|cff44aa44" or "|cffbb0000")
+									.. "("
+									.. (table.concat(stepdata.requirement, L["stepreqor"])):gsub(
+										"!([a-zA-Z ]+)",
+										L["req_not"]:format("%1")
+									)
+									.. ")"
+								)
+							local leveltext = (stepdata.level and stepdata.level > 0 and self.db.profile.stepnumbers)
+								and L["step_level"]:format(stepdata.level or "?")
 
-						frame.lines[line].label:SetPoint("TOPLEFT")
-						frame.lines[line].label:SetPoint("TOPRIGHT")
-						frame.lines[line].label:SetText((numbertext or "")..(leveltext or "")..(reqtext or ""))
-						--frame.lines[line].label:SetMultilineIndent(1)
-						frame.lines[line].goal = nil
-						frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsecsize))
-						line=line+1
-					else
-						frame.lines[line].label:SetPoint("TOPLEFT",ZGV.ICON_INDENT,0)
-						frame.lines[line].label:SetPoint("TOPRIGHT")
-						frame.lines[line].label:SetFont(FONT,self.db.profile.fontsize)
-					end
+							frame.lines[line].label:SetPoint("TOPLEFT")
+							frame.lines[line].label:SetPoint("TOPRIGHT")
+							frame.lines[line].label:SetText((numbertext or "") .. (leveltext or "") .. (reqtext or ""))
+							--frame.lines[line].label:SetMultilineIndent(1)
+							frame.lines[line].goal = nil
+							frame.lines[line].label:SetFont(FONT, round(self.db.profile.fontsecsize))
+							line = line + 1
+						else
+							frame.lines[line].label:SetPoint("TOPLEFT", ZGV.ICON_INDENT, 0)
+							frame.lines[line].label:SetPoint("TOPRIGHT")
+							frame.lines[line].label:SetFont(FONT, self.db.profile.fontsize)
+						end
 
-					if stepdata:AreRequirementsMet() or self.db.profile.showwrongsteps then
-						--#### insert goals
+						if stepdata:AreRequirementsMet() or self.db.profile.showwrongsteps then
+							--#### insert goals
 
-						for i,goal in ipairs(stepdata.goals) do
+							for i, goal in ipairs(stepdata.goals) do
+								if goal:GetStatus() ~= "hidden" then
+									--steptext = steptext .. ("  "):rep(goal.indent or 0) .. goal:GetText() .. "|n"
+									local indent = ("  "):rep(goal.indent or 0)
+									--local goaltxt = goal:GetText(stepnum>=self.CurrentStepNum)
+									local goaltxt = goal:GetText(true)
+									if goaltxt ~= "?" or (goal.action == "info") then
+										if goal.action == "info" then
+											frame.lines[line].label:SetFont(FONT, round(self.db.profile.fontsecsize))
+											frame.lines[line].label:SetText(indent .. "|cffeeeecc" .. goal.info .. "|r")
+											frame.lines[line].goal = nil
+										else
+											local link = (
+												(goal.tooltip and not self.db.profile.tooltipsbelow)
+												or (goal.x and not self.db.profile.windowlocked)
+												or goal.image
+											)
+													and " |cffdd44ff*|r"
+												or ""
 
-							if goal:GetStatus()~="hidden" then
-								--steptext = steptext .. ("  "):rep(goal.indent or 0) .. goal:GetText() .. "|n"
-								local indent = ("  "):rep(goal.indent or 0)
-								--local goaltxt = goal:GetText(stepnum>=self.CurrentStepNum)
-								local goaltxt = goal:GetText(true)
-								if goaltxt~="?" or (goal.action=="info") then
-									if goal.action=="info" then
-										frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsecsize))
-										frame.lines[line].label:SetText(indent.."|cffeeeecc"..goal.info.."|r")
-										frame.lines[line].goal = nil
-									else
-										local link = ((goal.tooltip and not self.db.profile.tooltipsbelow) or (goal.x and not self.db.profile.windowlocked) or goal.image) and " |cffdd44ff*|r" or ""
-
-										frame.lines[line].label:SetFont(FONT,self.db.profile.fontsize)
-										frame.lines[line].label:SetText(indent..goaltxt..link)
-										frame.lines[line].goal = goal
-									end
-									line=line+1
-									--frame.lines[line].label:SetMultilineIndent(1)
-
-									if self.db.profile.tooltipsbelow and goal.tooltip then
-										frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsecsize))
-										frame.lines[line].label:SetText(indent.."|cffeeeecc"..goal.tooltip.."|r")
+											frame.lines[line].label:SetFont(FONT, self.db.profile.fontsize)
+											frame.lines[line].label:SetText(indent .. goaltxt .. link)
+											frame.lines[line].goal = goal
+										end
+										line = line + 1
 										--frame.lines[line].label:SetMultilineIndent(1)
-										frame.lines[line].goal = nil
-										line=line+1
-									end
-								end -- no text, no line!
 
-								-- 'or' between or-positive goals
-								-- not anymore
-								--[[
+										if self.db.profile.tooltipsbelow and goal.tooltip then
+											frame.lines[line].label:SetFont(FONT, round(self.db.profile.fontsecsize))
+											frame.lines[line].label:SetText(
+												indent .. "|cffeeeecc" .. goal.tooltip .. "|r"
+											)
+											--frame.lines[line].label:SetMultilineIndent(1)
+											frame.lines[line].goal = nil
+											line = line + 1
+										end
+									end -- no text, no line!
+
+									-- 'or' between or-positive goals
+									-- not anymore
+									--[[
 								if goal.orlogic and i<#stepdata.goals and stepdata.goals[i+1].orlogic then
 									frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsecsize))
 									frame.lines[line].label:SetText(indent.."|cffeeeecc"..L['stepgoal_or'].."|r")
@@ -1086,10 +1266,10 @@ function me:UpdateFrame(full,onupdate)
 									line=line+1
 								end
 								--]]
+								end
 							end
-						end
 
-						--[[ -- no more
+							--[[ -- no more
 						-- info line
 						if stepdata.info then
 							frame.lines[line].label:SetText("|cffeeeecc"..stepdata.info.."|r")
@@ -1100,109 +1280,124 @@ function me:UpdateFrame(full,onupdate)
 						end
 						--]]
 
-						-- (level #)
-						--[[
+							-- (level #)
+							--[[
 						if self.db.profile.showsteplevels then
 							frame.lines[line].label:SetText()
 							frame.lines[line].goal = nil
 							line=line+1
 						end
 						--]]
-					end
+						end
 
-					local TMP_TRUNCATE = true
-					local heightleft = 400
-					if self.db.profile.showallsteps and TMP_TRUNCATE then
-						if stepbuttonnum>1 then
-							local stepbottom = self.stepframes[stepbuttonnum-1]:GetBottom()
-							local scrollbottom = ZygorGuidesViewerFrameScroll:GetBottom()
-							if stepbottom and scrollbottom then
-								heightleft = stepbottom-scrollbottom - 2*self.STEPMARGIN_Y - 5
-							else
-								heightleft = 0
-								self:Debug("Error in step height calculation! step "..stepbuttonnum.." stepbottom="..tostring(stepbottom).." scrollbottom="..tostring(scrollbottom)..", forcing update")
-								self.frameNeedsUpdating=true
+						local TMP_TRUNCATE = true
+						local heightleft = 400
+						if self.db.profile.showallsteps and TMP_TRUNCATE then
+							if stepbuttonnum > 1 then
+								local stepbottom = self.stepframes[stepbuttonnum - 1]:GetBottom()
+								local scrollbottom = ZygorGuidesViewerFrameScroll:GetBottom()
+								if stepbottom and scrollbottom then
+									heightleft = stepbottom - scrollbottom - 2 * self.STEPMARGIN_Y - 5
+								else
+									heightleft = 0
+									self:Debug(
+										"Error in step height calculation! step "
+											.. stepbuttonnum
+											.. " stepbottom="
+											.. tostring(stepbottom)
+											.. " scrollbottom="
+											.. tostring(scrollbottom)
+											.. ", forcing update"
+									)
+									self.frameNeedsUpdating = true
+								end
+							end
+
+							if heightleft < self.MIN_STEP_HEIGHT then
+								frame:Hide()
+								nomoredisplayed = true
+								break --continue
 							end
 						end
-					
-						if heightleft<self.MIN_STEP_HEIGHT then
-							frame:Hide()
-							nomoredisplayed=true
-							break --continue
-						end
-					end
 
-					local height=0
-					--frame.goallines={}
-					local textheight
-					frame.truncated=nil
-					local abort
-					for l=1,20 do
-						local lineframe = frame.lines[l]
-						local text = lineframe.label
-						if l<line and not frame.truncated then
-							text:SetWidth(frame:GetWidth()-ICON_INDENT-2*ZGV.STEPMARGIN_X)
-							textheight = text:GetHeight()
-							height = height + (height>0 and STEP_LINE_SPACING or 0) + textheight
-							--text:SetWidth(ZygorGuidesViewerFrameScroll:GetWidth()-30)
+						local height = 0
+						--frame.goallines={}
+						local textheight
+						frame.truncated = nil
+						local abort
+						for l = 1, 20 do
+							local lineframe = frame.lines[l]
+							local text = lineframe.label
+							if l < line and not frame.truncated then
+								text:SetWidth(frame:GetWidth() - ICON_INDENT - 2 * ZGV.STEPMARGIN_X)
+								textheight = text:GetHeight()
+								height = height + (height > 0 and STEP_LINE_SPACING or 0) + textheight
+								--text:SetWidth(ZygorGuidesViewerFrameScroll:GetWidth()-30)
 
-							if TMP_TRUNCATE and self.db.profile.showallsteps and height>heightleft then
-								lineframe.goal=nil
-								if l<=2 then
-									abort=true
-									break
+								if TMP_TRUNCATE and self.db.profile.showallsteps and height > heightleft then
+									lineframe.goal = nil
+									if l <= 2 then
+										abort = true
+										break
+									else
+										frame.truncated = true
+										frame.lines[l - 1].label:SetText("   . . .")
+										frame.lines[l - 1].goal = nil
+										lineframe:Hide()
+										height = height - textheight - STEP_LINE_SPACING
+									end
 								else
-									frame.truncated=true
-									frame.lines[l-1].label:SetText("   . . .")
-									frame.lines[l-1].goal=nil
-									lineframe:Hide()
-									height=height-textheight-STEP_LINE_SPACING
+									lineframe:Show()
+									--if lineframe.goal then frame.goallines[lineframe.goal.num]=lineframe end
+									lineframe:SetHeight(textheight + STEP_LINE_SPACING)
 								end
 							else
-								lineframe:Show()
-								--if lineframe.goal then frame.goallines[lineframe.goal.num]=lineframe end
-								lineframe:SetHeight(textheight+STEP_LINE_SPACING)
+								lineframe:Hide()
+								lineframe.goal = nil
 							end
-
-						else
-							lineframe:Hide()
-							lineframe.goal = nil
 						end
-					end
 
-					if abort then
-						frame:Hide()
-						nomoredisplayed=true
-						break --continue
-					end
+						if abort then
+							frame:Hide()
+							nomoredisplayed = true
+							break --continue
+						end
 
+						--#### display it properly
 
-					--#### display it properly
+						if height < self.MIN_STEP_HEIGHT then
+							frame.lines[1]:SetPoint(
+								"TOPLEFT",
+								ZGV.STEPMARGIN_X,
+								-(self.MIN_STEP_HEIGHT - height) / 2 - 0.6
+							)
+							frame.lines[1]:SetPoint(
+								"TOPRIGHT",
+								-ZGV.STEPMARGIN_X,
+								-(self.MIN_STEP_HEIGHT - height) / 2 - 0.6
+							)
+							height = self.MIN_STEP_HEIGHT
+						else
+							frame.lines[1]:SetPoint("TOPLEFT", frame, ZGV.STEPMARGIN_X, -ZGV.STEPMARGIN_Y)
+							frame.lines[1]:SetPoint("TOPRIGHT", frame, -ZGV.STEPMARGIN_X, -ZGV.STEPMARGIN_Y)
+						end
 
-					if height<self.MIN_STEP_HEIGHT then
-						frame.lines[1]:SetPoint("TOPLEFT",ZGV.STEPMARGIN_X,-(self.MIN_STEP_HEIGHT-height)/2-0.6)
-						frame.lines[1]:SetPoint("TOPRIGHT",-ZGV.STEPMARGIN_X,-(self.MIN_STEP_HEIGHT-height)/2-0.6)
-						height=self.MIN_STEP_HEIGHT
-					else
-						frame.lines[1]:SetPoint("TOPLEFT",frame,ZGV.STEPMARGIN_X,-ZGV.STEPMARGIN_Y)
-						frame.lines[1]:SetPoint("TOPRIGHT",frame,-ZGV.STEPMARGIN_X,-ZGV.STEPMARGIN_Y)
-					end
+						if not frame.truncated or not TMP_TRUNCATE then
+							frame:SetHeight(height + 3 * self.STEPMARGIN_Y)
+						else
+							frame:SetHeight(heightleft + 2 * self.STEPMARGIN_Y)
+						end
 
-					if not frame.truncated or not TMP_TRUNCATE then
-						frame:SetHeight(height + 3*self.STEPMARGIN_Y)
-					else
-						frame:SetHeight(heightleft + 2*self.STEPMARGIN_Y)
-					end
+						--end
 
-					--end
+						-- current step stuff
 
+						if stepbuttonnum > 1 then
+							totalheight = totalheight + STEP_SPACING
+						end
+						totalheight = totalheight + frame:GetHeight()
 
-					-- current step stuff
-
-					if stepbuttonnum>1 then totalheight = totalheight + STEP_SPACING end
-					totalheight = totalheight + frame:GetHeight()
-
-					--[[
+						--[[
 					if self.db.profile.showallsteps and totalheight>ZygorGuidesViewerFrameScroll:GetHeight() then
 						nomoredisplayed=true
 						frame:Hide()
@@ -1210,94 +1405,104 @@ function me:UpdateFrame(full,onupdate)
 					end
 					--]]
 
-					if self.db.profile.showallsteps and frame.truncated then
-						nomoredisplayed=true
-					end
-
-
-					--oookay, frame is visible, let's fill it for real
-					frame:Show()
-
-					if stepdata~=self.CurrentStep then
-						for l=1,20 do
-							frame.lines[l].back:Hide()
-							frame.lines[l].icon:Hide()
+						if self.db.profile.showallsteps and frame.truncated then
+							nomoredisplayed = true
 						end
-					end
 
-					if stepnum==self.CurrentStepNum then
+						--oookay, frame is visible, let's fill it for real
+						frame:Show()
+
+						if stepdata ~= self.CurrentStep then
+							for l = 1, 20 do
+								frame.lines[l].back:Hide()
+								frame.lines[l].icon:Hide()
+							end
+						end
+
+						if stepnum == self.CurrentStepNum then
 						--frame:EnableMouse(0)
 						--frame:SetScript("OnClick",nil)
-					else
-						--frame:EnableMouse(1)
-					end
-
-					if self.db.profile.showallsteps then
-						frame:SetAlpha(stepnum<self.CurrentStepNum and 0.4 or 1.0)
-					else
-						if stepbuttonnum==1 then
-							frame:SetAlpha(1.0)
 						else
-							frame:SetAlpha(0.8-0.4*((stepbuttonnum-1)/(self.db.profile.showcountsteps-1)))
+							--frame:EnableMouse(1)
 						end
-					end
 
-					if self.db.profile.disableBackDrop then
-						frame.border:SetBackdrop(nil)
-					elseif stepnum==self.CurrentStepNum then
-						frame.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border_active", edgeSize = 16 })
-					else
-						frame.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border", edgeSize = 16 })
-					end
-					if stepdata:AreRequirementsMet() then
-						if stepdata:IsComplete() then
-							frame:SetBackdropColor(fromRGBmul_a(self.db.profile.goalbackcomplete,0.5,self.db.profile.stepbackalpha))
-							--frame:SetBackdropColor(0,0.7,0,0.5)
-							frame.border:SetBackdropBorderColor(1,1,1,1)
-						elseif (self.db.profile.showobsolete and stepdata:IsObsolete()) then
-							frame:SetBackdropColor(fromRGBmul_a(self.db.profile.goalbackobsolete,0.5,self.db.profile.stepbackalpha))
-							frame.border:SetBackdropBorderColor(1,1,1,1)
-						elseif (self.db.profile.skipauxsteps and stepdata:IsAuxiliarySkippable()) then
-							frame:SetBackdropColor(fromRGBmul_a(self.db.profile.goalbackaux,0.5,self.db.profile.stepbackalpha))
-							frame.border:SetBackdropBorderColor(1,1,1,1)
+						if self.db.profile.showallsteps then
+							frame:SetAlpha(stepnum < self.CurrentStepNum and 0.4 or 1.0)
 						else
-							frame:SetBackdropColor(0.0,0.0,0.0,self.db.profile.stepbackalpha)
-							frame.border:SetBackdropBorderColor(1,1,1,1)
+							if stepbuttonnum == 1 then
+								frame:SetAlpha(1.0)
+							else
+								frame:SetAlpha(0.8 - 0.4 * ((stepbuttonnum - 1) / (self.db.profile.showcountsteps - 1)))
+							end
 						end
-					else
-						frame:SetBackdropColor(0.5,0.0,0.0,self.db.profile.stepbackalpha)
-						frame.border:SetBackdropBorderColor(0.5,0.0,0.0,0.5)
-					end
 
-					if self.db.profile.hidestepborders then
-						frame.border:Hide()
-					else
-						frame.border:Show()
-					end
+						if self.db.profile.disableBackDrop then
+							frame.border:SetBackdrop(nil)
+						elseif stepnum == self.CurrentStepNum then
+							frame.border:SetBackdrop({
+								edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border_active",
+								edgeSize = 16,
+							})
+						else
+							frame.border:SetBackdrop({
+								edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border",
+								edgeSize = 16,
+							})
+						end
+						if stepdata:AreRequirementsMet() then
+							if stepdata:IsComplete() then
+								frame:SetBackdropColor(
+									fromRGBmul_a(self.db.profile.goalbackcomplete, 0.5, self.db.profile.stepbackalpha)
+								)
+								--frame:SetBackdropColor(0,0.7,0,0.5)
+								frame.border:SetBackdropBorderColor(1, 1, 1, 1)
+							elseif self.db.profile.showobsolete and stepdata:IsObsolete() then
+								frame:SetBackdropColor(
+									fromRGBmul_a(self.db.profile.goalbackobsolete, 0.5, self.db.profile.stepbackalpha)
+								)
+								frame.border:SetBackdropBorderColor(1, 1, 1, 1)
+							elseif self.db.profile.skipauxsteps and stepdata:IsAuxiliarySkippable() then
+								frame:SetBackdropColor(
+									fromRGBmul_a(self.db.profile.goalbackaux, 0.5, self.db.profile.stepbackalpha)
+								)
+								frame.border:SetBackdropBorderColor(1, 1, 1, 1)
+							else
+								frame:SetBackdropColor(0.0, 0.0, 0.0, self.db.profile.stepbackalpha)
+								frame.border:SetBackdropBorderColor(1, 1, 1, 1)
+							end
+						else
+							frame:SetBackdropColor(0.5, 0.0, 0.0, self.db.profile.stepbackalpha)
+							frame.border:SetBackdropBorderColor(0.5, 0.0, 0.0, 0.5)
+						end
+
+						if self.db.profile.hidestepborders then
+							frame.border:Hide()
+						else
+							frame.border:Show()
+						end
 
 					--text:Show()
-
-				else	-- not showing this one
-
-					if frame then
-						frame:Hide()
-						--[[
+					else -- not showing this one
+						if frame then
+							frame:Hide()
+							--[[
 						local prename = "ZygorGuidesViewerFrame_Step"..stepnum.."_Text"
 						for line=1,10 do
 							local text = _G[prename..line]
 							text:SetHeight(0.1)
 						end
 						--]]
-						--[[
+							--[[
 						frame:SetHeight(0)
 						frame:ClearAllPoints()
 						frame:SetPoint("TOPLEFT")
 						--]]
+						end
 					end
-				end
-			until true end
+				until true
+			end
 
-			self.stepchanged=false
+			self.stepchanged = false
 
 			-- set minimum frame size to one step
 			minh = self.stepframes[1]:GetHeight() + 40
@@ -1305,14 +1510,12 @@ function me:UpdateFrame(full,onupdate)
 			self:UpdateFrameCurrent()
 
 			ZygorGuidesViewerFrame_Skipper:Show()
-			ZygorGuidesViewerFrame_Skipper.mustbevisible=true
+			ZygorGuidesViewerFrame_Skipper.mustbevisible = true
 
 			--self:HighlightCurrentStep()
 
 			-- steps displayed, clear the remaining slots
-
 		else -- no current guide?
-
 			ZygorGuidesViewerFrame_Border_SectionTitle:SetText()
 
 			--ZygorGuidesViewerFrame_LocationLabel:Hide()
@@ -1322,51 +1525,64 @@ function me:UpdateFrame(full,onupdate)
 			--ZygorGuidesViewerFrame_Divider2:Hide()
 
 			local guides = self:GetGuides()
-			if #guides>0 then
-				ZygorGuidesViewerFrame_MissingText:SetText(L['miniframe_notselected'])
+			if #guides > 0 then
+				ZygorGuidesViewerFrame_MissingText:SetText(L["miniframe_notselected"])
 			else
-				ZygorGuidesViewerFrame_MissingText:SetText(L['miniframe_notloaded'])
+				ZygorGuidesViewerFrame_MissingText:SetText(L["miniframe_notloaded"])
+			end
+		end
+	elseif self.db.profile.displaymode == "gold" then
+		local x, y = GetPlayerMapPosition("player")
+		local d = GetPlayerFacing()
+		if x == gold_ox and y == gold_oy and d == gold_od and not full then
+			return
+		end
+		gold_ox, gold_oy, gold_od = x, y, d
+
+		-- get rid of tooltips, before they get messed up
+		if ZGV.hasTooltipOverSpotLink then
+			GameTooltip:Hide()
+			ZGV.hasTooltipOverSpotLink = nil
+		end
+
+		-- hide step frames, if visible
+		if self.stepframes[1]:IsVisible() then
+			for i, stepframe in ipairs(self.stepframes) do
+				stepframe:Hide()
 			end
 		end
 
-	elseif self.db.profile.displaymode=="gold" then
-
-		local x,y = GetPlayerMapPosition("player")
-		local d = GetPlayerFacing()
-		if x==gold_ox and y==gold_oy and d==gold_od and not full then return end
-		gold_ox,gold_oy,gold_od = x,y,d
-
-		-- get rid of tooltips, before they get messed up
-		if ZGV.hasTooltipOverSpotLink then GameTooltip:Hide() ZGV.hasTooltipOverSpotLink=nil end
-
-		-- hide step frames, if visible
-		if self.stepframes[1]:IsVisible() then for i,stepframe in ipairs(self.stepframes) do stepframe:Hide() end end
-
 		local spots
-		if self.db.profile.golddistmode==1 then spots = ZGV:GetMapSpotsInRange()
-		elseif self.db.profile.golddistmode==2 then spots = ZGV:GetMapSpotsInZone()
-		else spots = ZGV:GetAllMapSpots()
+		if self.db.profile.golddistmode == 1 then
+			spots = ZGV:GetMapSpotsInRange()
+		elseif self.db.profile.golddistmode == 2 then
+			spots = ZGV:GetMapSpotsInZone()
+		else
+			spots = ZGV:GetAllMapSpots()
 		end
 
-		if #spots>0 then
+		if #spots > 0 then
 			if full then
 				ZygorGuidesViewerFrameScroll:Show()
 				ZygorGuidesViewerFrame_MissingText:Hide()
-				if ZygorGuidesViewerFrameScrollScrollBar:GetValue()<1 then ZygorGuidesViewerFrameScrollScrollBar:SetValue(1) end
+				if ZygorGuidesViewerFrameScrollScrollBar:GetValue() < 1 then
+					ZygorGuidesViewerFrameScrollScrollBar:SetValue(1)
+				end
 				ZygorGuidesViewerFrameScrollScrollBar:Show()
-				ZygorGuidesViewerFrameScrollScrollBar:SetMinMaxValues(1,#spots)
-				if ZygorGuidesViewerFrame_Skipper then ZygorGuidesViewerFrame_Skipper:Hide() end
+				ZygorGuidesViewerFrameScrollScrollBar:SetMinMaxValues(1, #spots)
+				if ZygorGuidesViewerFrame_Skipper then
+					ZygorGuidesViewerFrame_Skipper:Hide()
+				end
 				ZygorGuidesViewerFrame_Border_SectionTitle:SetText("Gold Spots")
 			end
-
 		else -- no gold guides or no spots in range
 			ZygorGuidesViewerFrameScroll:Hide()
 			ZygorGuidesViewerFrame_MissingText:Show()
 
-			if #self.registeredmapspotsets>0 then
-				ZygorGuidesViewerFrame_MissingText:SetText(L['gold_missing_nospotsinrange'])
+			if #self.registeredmapspotsets > 0 then
+				ZygorGuidesViewerFrame_MissingText:SetText(L["gold_missing_nospotsinrange"])
 			else
-				ZygorGuidesViewerFrame_MissingText:SetText(L['gold_missing_noguidesloaded'])
+				ZygorGuidesViewerFrame_MissingText:SetText(L["gold_missing_noguidesloaded"])
 			end
 		end
 
@@ -1376,103 +1592,120 @@ function me:UpdateFrame(full,onupdate)
 		local spotnum
 
 		local firstspot = math.floor(ZygorGuidesViewerFrameScrollScrollBar:GetValue())
-		if firstspot<1 then firstspot=1 end
+		if firstspot < 1 then
+			firstspot = 1
+		end
 		local lastspot = #spots
 
 		--self:Debug("first step "..firststep..", last step "..laststep)
 		-- run through buttons and assign steps for them
 
-		local nomoredisplayed=false
-		
-		for spotbuttonnum = 1,self.StepLimit do repeat
-			--frame = _G['ZygorGuidesViewerFrame_Step'..stepbuttonnum]
-			frame = self.spotframes[spotbuttonnum]
-			assert(frame,"Out of spot frames at "..spotbuttonnum)
-			
-			spotnum = firstspot + spotbuttonnum - 1
-			
-			-- show this button at all?
-			if spotnum>=firstspot and spotnum<=lastspot and spotnum<=#spots then
-				local spotdata = spots[spotnum]
-				assert(spotdata,"UpdateFrame: No data for spot "..spotnum)
+		local nomoredisplayed = false
 
-				if nomoredisplayed then
-					frame:Hide()
-					break --continue
-				end
+		for spotbuttonnum = 1, self.StepLimit do
+			repeat
+				--frame = _G['ZygorGuidesViewerFrame_Step'..stepbuttonnum]
+				frame = self.spotframes[spotbuttonnum]
+				assert(frame, "Out of spot frames at " .. spotbuttonnum)
 
-				frame.spotnum = spotnum
-				frame.spot = spotdata
+				spotnum = firstspot + spotbuttonnum - 1
 
-				--#### position step frame
+				-- show this button at all?
+				if spotnum >= firstspot and spotnum <= lastspot and spotnum <= #spots then
+					local spotdata = spots[spotnum]
+					assert(spotdata, "UpdateFrame: No data for spot " .. spotnum)
 
-				frame:SetWidth(ZygorGuidesViewerFrameScrollChild:GetWidth()) -- this is needed so the text lines below can access proper widths
+					if nomoredisplayed then
+						frame:Hide()
+						break --continue
+					end
 
-				-- out of screen space? bail.
-				-- but only in all steps mode!
-				local top=frame:GetTop()
-				local bottom=ZygorGuidesViewerFrameScroll:GetBottom()
-				if top and bottom and top<bottom then
-					frame:Hide()
-					nomoredisplayed=true
-					break --continue!
-				end
+					frame.spotnum = spotnum
+					frame.spot = spotdata
 
-				--#### fill it with text
+					--#### position step frame
 
-				-- no translation here
-				--[[
+					frame:SetWidth(ZygorGuidesViewerFrameScrollChild:GetWidth()) -- this is needed so the text lines below can access proper widths
+
+					-- out of screen space? bail.
+					-- but only in all steps mode!
+					local top = frame:GetTop()
+					local bottom = ZygorGuidesViewerFrameScroll:GetBottom()
+					if top and bottom and top < bottom then
+						frame:Hide()
+						nomoredisplayed = true
+						break --continue!
+					end
+
+					--#### fill it with text
+
+					-- no translation here
+					--[[
 				local changed,dirty = stepdata:Translate()
 				if dirty then self.frameNeedsUpdating=true end
 				--]]
 
-				local line=1
+					local line = 1
 
-				assert(frame.lines[line],"Out of lines ("..line..") in spot frame "..spotbuttonnum)
+					assert(frame.lines[line], "Out of lines (" .. line .. ") in spot frame " .. spotbuttonnum)
 
-				frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsize))
-				
-				-- cardinal names
-				--frame.lines[line].label:SetText(("|cffffbb00%s|r (%s %s)"):format(spotdata.title or "?",ZGV.FormatDistance(spotdata.waypoint.minimapFrame.dist),GetCardinalDirName(Astrolabe:GetDirectionToIcon(spotdata.waypoint.minimapFrame))))
+					frame.lines[line].label:SetFont(FONT, round(self.db.profile.fontsize))
 
-				-- icons
-				local dirnum=GetCardinalDirNum(-Astrolabe:GetDirectionToIcon(spotdata.waypoint.minimapFrame) + GetPlayerFacing())-1 --:30:30:0:0:32:32:0:0:0:0
-				local dirnum2=dirnum>8 and 16-dirnum or dirnum
-				local arrow = ("|Tinterface\\addons\\ZygorGuidesViewer\\skin\\arrow-mini-multi:20:20:0:0:32:512:%d:%d:%d:%d|t"):format(dirnum>8 and 32 or 0,dirnum>8 and 0 or 32,dirnum2*32,(dirnum2+1)*32)
-				frame.lines[line].label:SetText(("%s |cffffbb00%s|r (%s)"):format(arrow, spotdata.title or "?",ZGV.FormatDistance(spotdata.waypoint.minimapFrame.dist)))
-				
-				line=line+1
+					-- cardinal names
+					--frame.lines[line].label:SetText(("|cffffbb00%s|r (%s %s)"):format(spotdata.title or "?",ZGV.FormatDistance(spotdata.waypoint.minimapFrame.dist),GetCardinalDirName(Astrolabe:GetDirectionToIcon(spotdata.waypoint.minimapFrame))))
 
-				--[[
+					-- icons
+					local dirnum = GetCardinalDirNum(
+						-Astrolabe:GetDirectionToIcon(spotdata.waypoint.minimapFrame) + GetPlayerFacing()
+					) - 1 --:30:30:0:0:32:32:0:0:0:0
+					local dirnum2 = dirnum > 8 and 16 - dirnum or dirnum
+					local arrow = ("|Tinterface\\addons\\ZygorGuidesViewer\\skin\\arrow-mini-multi:20:20:0:0:32:512:%d:%d:%d:%d|t"):format(
+						dirnum > 8 and 32 or 0,
+						dirnum > 8 and 0 or 32,
+						dirnum2 * 32,
+						(dirnum2 + 1) * 32
+					)
+					frame.lines[line].label:SetText(
+						("%s |cffffbb00%s|r (%s)"):format(
+							arrow,
+							spotdata.title or "?",
+							ZGV.FormatDistance(spotdata.waypoint.minimapFrame.dist)
+						)
+					)
+
+					line = line + 1
+
+					--[[
 				frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsize))
 				frame.lines[line].label:SetText(("|cffffff00%s %s,%s|r"):format(spotdata.map,spotdata.x,spotdata.y))
 				line=line+1
 				--]]
 
-				if (spotdata.desc) then
-					frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsize))
-					frame.lines[line].label:SetText(("%s"):format(spotdata.desc))
-					line=line+1
-				end
+					if spotdata.desc then
+						frame.lines[line].label:SetFont(FONT, round(self.db.profile.fontsize))
+						frame.lines[line].label:SetText(("%s"):format(spotdata.desc))
+						line = line + 1
+					end
 
-
-				if spotdata.objects then
-					for s,source in ipairs(itemsources) do
-						local objs = spotdata:GetObjectsOfType(source,true)
-						if objs then
-							local mobs = source=="drop" and spotdata.mobs
-							local mobtext
-							if mobs then
-								mobtext = ""
-								for i,mob in ipairs(spotdata.mobs) do
-									if #mobtext>0 then mobtext = mobtext .. ", " end
-									mobtext = mobtext .. mob.name
+					if spotdata.objects then
+						for s, source in ipairs(itemsources) do
+							local objs = spotdata:GetObjectsOfType(source, true)
+							if objs then
+								local mobs = source == "drop" and spotdata.mobs
+								local mobtext
+								if mobs then
+									mobtext = ""
+									for i, mob in ipairs(spotdata.mobs) do
+										if #mobtext > 0 then
+											mobtext = mobtext .. ", "
+										end
+										mobtext = mobtext .. mob.name
+									end
+								elseif spotdata.vendorid then
+									mobtext = spotdata.vendor
 								end
-							elseif spotdata.vendorid then
-								mobtext = spotdata.vendor
-							end
-							
-							--[[
+
+								--[[
 							-- all in one line; tidy but impractical
 							local header = L['gold_header_'..source]:format(mobtext or "mob")
 							local str=""
@@ -1494,182 +1727,205 @@ function me:UpdateFrame(full,onupdate)
 							end
 							--]]
 
-							local goodobjs = {}
-							for o,obj in ipairs(objs) do
-								if not obj.hidden then
-									tinsert(goodobjs,obj)
-								end
-							end
-
-							if #goodobjs then
-								frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsize))
-								--frame.lines[line].label:SetText("<html><body><p>"..("|cffdddd66%s |r%s"):format(header,str).."</p></body></html>")
-								frame.lines[line].label:SetText(("|cffdddd66%s|r"):format(L['gold_header_'..source]:format(mobtext or "mob")))
-								line=line+1
-
-								for o,obj in ipairs(goodobjs) do
-									local str
-									if obj.item.id then
-										str = "|Hitem:"..obj.item.id.."|h"..(obj.icon or "item").." "..(obj.string or "?").."|h "
-									else
-										str = obj.item.name
+								local goodobjs = {}
+								for o, obj in ipairs(objs) do
+									if not obj.hidden then
+										tinsert(goodobjs, obj)
 									end
+								end
 
-									if obj.toohard then str = "|cffff0000"..str.."|r" end
+								if #goodobjs then
+									frame.lines[line].label:SetFont(FONT, round(self.db.profile.fontsize))
+									--frame.lines[line].label:SetText("<html><body><p>"..("|cffdddd66%s |r%s"):format(header,str).."</p></body></html>")
+									frame.lines[line].label:SetText(
+										("|cffdddd66%s|r"):format(L["gold_header_" .. source]:format(mobtext or "mob"))
+									)
+									line = line + 1
 
-									frame.lines[line].label:SetFont(FONT,round(self.db.profile.fontsize*1.0))
-									frame.lines[line].label:SetText(str)
-									frame.lines[line].label:SetHyperlinksEnabled(false)
-									frame.lines[line].label.reenableHyperlinks=true
-									line=line+1
+									for o, obj in ipairs(goodobjs) do
+										local str
+										if obj.item.id then
+											str = "|Hitem:"
+												.. obj.item.id
+												.. "|h"
+												.. (obj.icon or "item")
+												.. " "
+												.. (obj.string or "?")
+												.. "|h "
+										else
+											str = obj.item.name
+										end
 
+										if obj.toohard then
+											str = "|cffff0000" .. str .. "|r"
+										end
+
+										frame.lines[line].label:SetFont(FONT, round(self.db.profile.fontsize * 1.0))
+										frame.lines[line].label:SetText(str)
+										frame.lines[line].label:SetHyperlinksEnabled(false)
+										frame.lines[line].label.reenableHyperlinks = true
+										line = line + 1
+									end
 								end
 							end
 						end
 					end
-				end
 
-				local TMP_TRUNCATE = true
-				local heightleft = 400
-				if TMP_TRUNCATE then
-					if spotbuttonnum>1 then
-						local spotbottom = self.spotframes[spotbuttonnum-1]:GetBottom()
-						local scrollbottom = ZygorGuidesViewerFrameScroll:GetBottom()
-						if spotbottom and scrollbottom then
-							heightleft = spotbottom-scrollbottom - 2*self.STEPMARGIN_Y - 5
-						else
-							heightleft = 0
-							self:Debug("Error in spot height calculation! spot "..spotbuttonnum.." spotbottom="..tostring(spotbottom).." scrollbottom="..tostring(scrollbottom)..", forcing update")
-							--self.frameNeedsUpdating=true
+					local TMP_TRUNCATE = true
+					local heightleft = 400
+					if TMP_TRUNCATE then
+						if spotbuttonnum > 1 then
+							local spotbottom = self.spotframes[spotbuttonnum - 1]:GetBottom()
+							local scrollbottom = ZygorGuidesViewerFrameScroll:GetBottom()
+							if spotbottom and scrollbottom then
+								heightleft = spotbottom - scrollbottom - 2 * self.STEPMARGIN_Y - 5
+							else
+								heightleft = 0
+								self:Debug(
+									"Error in spot height calculation! spot "
+										.. spotbuttonnum
+										.. " spotbottom="
+										.. tostring(spotbottom)
+										.. " scrollbottom="
+										.. tostring(scrollbottom)
+										.. ", forcing update"
+								)
+								--self.frameNeedsUpdating=true
+							end
+						end
+
+						if heightleft < self.MIN_STEP_HEIGHT then
+							frame:Hide()
+							nomoredisplayed = true
+							break --continue
 						end
 					end
-				
-					if heightleft<self.MIN_STEP_HEIGHT then
+
+					local height = 0
+					--frame.goallines={}
+					local textheight
+					frame.truncated = nil
+					local abort
+
+					for l = 1, 20 do
+						local lineframe = frame.lines[l]
+						local text = lineframe.label
+						if l < line and not frame.truncated then
+							text:SetWidth(frame:GetWidth() - ICON_INDENT - 2 * ZGV.STEPMARGIN_X)
+
+							-- old non-HTML stuff
+							--textheight = text:GetHeight()
+							textheight = text:GetRegions():GetHeight()
+							text:SetHeight(textheight)
+
+							height = height + (height > 0 and STEP_LINE_SPACING or 0) + textheight
+							--text:SetWidth(ZygorGuidesViewerFrameScroll:GetWidth()-30)
+
+							if TMP_TRUNCATE and height > heightleft then
+								if l <= 2 then
+									abort = true
+									break
+								else
+									frame.truncated = true
+									frame.lines[l - 1].label:SetText("   . . .")
+									lineframe:Hide()
+									height = height - textheight - STEP_LINE_SPACING
+								end
+							else
+								lineframe:Show()
+								--if lineframe.goal then frame.goallines[lineframe.goal.num]=lineframe end
+								lineframe:SetHeight(textheight + STEP_LINE_SPACING)
+							end
+						else
+							lineframe:Hide()
+						end
+					end
+
+					if abort then
 						frame:Hide()
-						nomoredisplayed=true
+						nomoredisplayed = true
 						break --continue
 					end
-				end
 
-				local height=0
-				--frame.goallines={}
-				local textheight
-				frame.truncated=nil
-				local abort
+					--self:Print(("spot %d, height %s"):format(spotbuttonnum,height))
 
-				for l=1,20 do
-					local lineframe = frame.lines[l]
-					local text = lineframe.label
-					if l<line and not frame.truncated then
-						text:SetWidth(frame:GetWidth()-ICON_INDENT-2*ZGV.STEPMARGIN_X)
-						
-						-- old non-HTML stuff
-						--textheight = text:GetHeight()
-						textheight = text:GetRegions():GetHeight()
-						text:SetHeight(textheight)
+					--#### display it properly
 
-						height = height + (height>0 and STEP_LINE_SPACING or 0) + textheight
-						--text:SetWidth(ZygorGuidesViewerFrameScroll:GetWidth()-30)
+					if height < self.MIN_STEP_HEIGHT then
+						frame.lines[1]:SetPoint("TOPLEFT", ZGV.STEPMARGIN_X, -(self.MIN_STEP_HEIGHT - height) / 2 - 0.6)
+						frame.lines[1]:SetPoint(
+							"TOPRIGHT",
+							-ZGV.STEPMARGIN_X,
+							-(self.MIN_STEP_HEIGHT - height) / 2 - 0.6
+						)
+						height = self.MIN_STEP_HEIGHT
+					else
+						frame.lines[1]:SetPoint("TOPLEFT", frame, ZGV.STEPMARGIN_X, -ZGV.STEPMARGIN_Y)
+						frame.lines[1]:SetPoint("TOPRIGHT", frame, -ZGV.STEPMARGIN_X, -ZGV.STEPMARGIN_Y)
+					end
 
-						if TMP_TRUNCATE and height>heightleft then
-							if l<=2 then
-								abort=true
-								break
-							else
-								frame.truncated=true
-								frame.lines[l-1].label:SetText("   . . .")
-								lineframe:Hide()
-								height=height-textheight-STEP_LINE_SPACING
-							end
+					if not frame.truncated or not TMP_TRUNCATE then
+						frame:SetHeight(height + 3 * self.STEPMARGIN_Y)
+					else
+						frame:SetHeight(heightleft + 2 * self.STEPMARGIN_Y)
+					end
+
+					--end
+
+					if spotbuttonnum > 1 then
+						totalheight = totalheight + STEP_SPACING
+					end
+					totalheight = totalheight + frame:GetHeight()
+
+					if frame.truncated then
+						nomoredisplayed = true
+					end
+
+					--oookay, frame is visible, let's fill it for real
+					frame:Show()
+
+					frame:SetBackdropColor(0.0, 0.0, 0.0, self.db.profile.stepbackalpha)
+
+					if self.db.profile.hidestepborders then
+						frame.border:Hide()
+					else
+						frame.border:Show()
+						if self.db.profile.disableBackDrop then
+							frame.border:SetBackdrop(nil)
 						else
-							lineframe:Show()
-							--if lineframe.goal then frame.goallines[lineframe.goal.num]=lineframe end
-							lineframe:SetHeight(textheight+STEP_LINE_SPACING)
+							frame.border:SetBackdrop({
+								edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border_active",
+								edgeSize = 16,
+							})
 						end
-
-					else
-						lineframe:Hide()
+						frame.border:SetBackdropBorderColor(1, 1, 1, 1)
 					end
-				end
 
-				if abort then
-					frame:Hide()
-					nomoredisplayed=true
-					break --continue
-				end
-
-				--self:Print(("spot %d, height %s"):format(spotbuttonnum,height))
-
-				--#### display it properly
-
-				if height<self.MIN_STEP_HEIGHT then
-					frame.lines[1]:SetPoint("TOPLEFT",ZGV.STEPMARGIN_X,-(self.MIN_STEP_HEIGHT-height)/2-0.6)
-					frame.lines[1]:SetPoint("TOPRIGHT",-ZGV.STEPMARGIN_X,-(self.MIN_STEP_HEIGHT-height)/2-0.6)
-					height=self.MIN_STEP_HEIGHT
-				else
-					frame.lines[1]:SetPoint("TOPLEFT",frame,ZGV.STEPMARGIN_X,-ZGV.STEPMARGIN_Y)
-					frame.lines[1]:SetPoint("TOPRIGHT",frame,-ZGV.STEPMARGIN_X,-ZGV.STEPMARGIN_Y)
-				end
-
-				if not frame.truncated or not TMP_TRUNCATE then
-					frame:SetHeight(height + 3*self.STEPMARGIN_Y)
-				else
-					frame:SetHeight(heightleft + 2*self.STEPMARGIN_Y)
-				end
-
-				--end
-
-				if spotbuttonnum>1 then totalheight = totalheight + STEP_SPACING end
-				totalheight = totalheight + frame:GetHeight()
-
-
-				if frame.truncated then
-					nomoredisplayed=true
-				end
-
-				--oookay, frame is visible, let's fill it for real
-				frame:Show()
-
-				frame:SetBackdropColor(0.0,0.0,0.0,self.db.profile.stepbackalpha)
-
-				if self.db.profile.hidestepborders then
-					frame.border:Hide()
-				else
-					frame.border:Show()
-					if self.db.profile.disableBackDrop then
-						frame.border:SetBackdrop(nil)
-					else
-						frame.border:SetBackdrop({ edgeFile = "Interface\\Addons\\ZygorGuidesViewer\\skin\\popup_border_active", edgeSize = 16 })
-					end
-					frame.border:SetBackdropBorderColor(1,1,1,1)
-				end
-
-				ZygorGuidesViewerFrame_Skipper:Hide()
-				ZygorGuidesViewerFrame_Skipper.mustbevisible=false
+					ZygorGuidesViewerFrame_Skipper:Hide()
+					ZygorGuidesViewerFrame_Skipper.mustbevisible = false
 
 				--text:Show()
-
-			else	-- not showing this one
-
-				if frame then
-					frame:Hide()
-					--[[
+				else -- not showing this one
+					if frame then
+						frame:Hide()
+						--[[
 					local prename = "ZygorGuidesViewerFrame_Step"..stepnum.."_Text"
 					for line=1,10 do
 						local text = _G[prename..line]
 						text:SetHeight(0.1)
 					end
 					--]]
-					--[[
+						--[[
 					frame:SetHeight(0)
 					frame:ClearAllPoints()
 					frame:SetPoint("TOPLEFT")
 					--]]
+					end
 				end
-			end
-		until true end
+			until true
+		end
 
-		self.stepchanged=false
+		self.stepchanged = false
 
 		-- set minimum frame size to one step
 		minh = self.spotframes[1]:GetHeight() + 40
@@ -1678,34 +1934,38 @@ function me:UpdateFrame(full,onupdate)
 
 		-- steps displayed, clear the remaining slots
 
-	
 		--ZygorGuidesViewerFrame_Border_TitleBar_PrevButton:Show()
 		--ZygorGuidesViewerFrame_Border_TitleBar_NextButton:Show()
 		--ZygorGuidesViewerFrame_Border_TitleBar_Step:Show()
 		--ZygorGuidesViewerFrame_Border_TitleBar_StepText:SetText(self.CurrentStepNum)
 		--ZygorGuidesViewerFrame_Border_TitleBar_StepText:Show()
-
 	end
 
-	if minh<100 then minh=100 end
-	self.Frame:SetMinResize(260,minh)
-	if self.Frame:GetHeight()<minh-0.01 then self.Frame:SetHeight(minh) end
+	if minh < 100 then
+		minh = 100
+	end
+	self.Frame:SetMinResize(260, minh)
+	if self.Frame:GetHeight() < minh - 0.01 then
+		self.Frame:SetHeight(minh)
+	end
 
 	self:ResizeFrame()
 
-	if self.delayFlash and self.delayFlash>0 then
-		self.delayFlash=2 --ready to flash!
+	if self.delayFlash and self.delayFlash > 0 then
+		self.delayFlash = 2 --ready to flash!
 		--ZygorGuidesViewerFrame_bdflash:StartRGB(1,1,1,1,0,1,0,1)
 	end
 end
 
 function me:ClearFrameCurrent()
-	if InCombatLockdown() then return end
-	for i=1,20 do
-		local actname = "ZygorGuidesViewerFrame_Act"..i
-		local action = _G[actname..'Action']
-		local petaction = _G[actname..'PetAction']
-		local cooldown = _G[actname..'ActionCooldown']
+	if InCombatLockdown() then
+		return
+	end
+	for i = 1, 20 do
+		local actname = "ZygorGuidesViewerFrame_Act" .. i
+		local action = _G[actname .. "Action"]
+		local petaction = _G[actname .. "PetAction"]
+		local cooldown = _G[actname .. "ActionCooldown"]
 
 		action:Hide()
 		petaction:Hide()
@@ -1713,27 +1973,29 @@ function me:ClearFrameCurrent()
 	end
 end
 
-local actionicon={
-	["accept"]=5,
-	["turnin"]=6,
-	["kill"]=7,
-	["get"]=8,
-	["collect"]=8,
-	["buy"]=8,
-	["goal"]=9,
-	["home"]=10,
-	["fpath"]=11,
-	["goto"]=12,
-	["talk"]=13
+local actionicon = {
+	["accept"] = 5,
+	["turnin"] = 6,
+	["kill"] = 7,
+	["get"] = 8,
+	["collect"] = 8,
+	["buy"] = 8,
+	["goal"] = 9,
+	["home"] = 10,
+	["fpath"] = 11,
+	["goto"] = 12,
+	["talk"] = 13,
 }
-setmetatable(actionicon,{__index=function() return 2 end})
-
+setmetatable(actionicon, {
+	__index = function()
+		return 2
+	end,
+})
 
 function me:UpdateFrameCurrent()
 	-- current step!
 
-	if self.CurrentStep then	-- hey, it may be missing, if the whole guide is for another class
-
+	if self.CurrentStep then -- hey, it may be missing, if the whole guide is for another class
 		--local mapped = self.CurrentStep.x
 
 		--[[
@@ -1753,7 +2015,7 @@ function me:UpdateFrameCurrent()
 							    tile = true, tileSize = 16, edgeSize = 16, 
 							    insets = { left = 4, right = 4, top = 4, bottom = 4 }})
 		--]]
-		
+
 		--[[
 		if self.CurrentStep.requirement then
 			ZygorGuidesViewerFrame_ActiveStep_Line0:SetText((self.CurrentStep:AreRequirementsMet() and "|cff88cc88" or "|cffbb0000") .. "(" .. table.concat(self.CurrentStep.requirement,L["stepreqor"]) .. ")")
@@ -1770,13 +2032,15 @@ function me:UpdateFrameCurrent()
 		end
 		--]]
 
-		local name, line,label,icon,back,clicker,anim_w2g,anim_w2r,action,petaction,cooldown, lastlabel
+		local name, line, label, icon, back, clicker, anim_w2g, anim_w2r, action, petaction, cooldown, lastlabel
 		local height = 0
 
-		if not self.stepframes[1].stepnum then return end
+		if not self.stepframes[1].stepnum then
+			return
+		end
 
 		local framenum = (self.CurrentStepNum - self.stepframes[1].stepnum + 1)
-		if framenum<1 or framenum>self.StepLimit then
+		if framenum < 1 or framenum > self.StepLimit then
 			self.CurrentStepframeNum = nil
 			return self:ClearFrameCurrent()
 		else
@@ -1797,14 +2061,18 @@ function me:UpdateFrameCurrent()
 		--textline(1):SetPoint("TOPRIGHT",stepframe,"TOPRIGHT",0,self.CurrentStep.requirement and -textline(1):GetHeight()-STEP_LINE_SPACING or 0)
 
 		if self.BUTTONS_INLINE then
-			if not InCombatLockdown() then self.actionsvisible = false end
+			if not InCombatLockdown() then
+				self.actionsvisible = false
+			end
 		end
 
-		for i=1,20,1 do  -- update all lines
+		for i = 1, 20, 1 do -- update all lines
 			--local linenum = (self.CurrentStep.requirement and i+1 or i)
 
 			line = stepframe.lines[i]
-			if not line then break end
+			if not line then
+				break
+			end
 			label = line.label
 			icon = line.icon
 			back = line.back
@@ -1813,13 +2081,12 @@ function me:UpdateFrameCurrent()
 			anim_w2r = line.anim_w2r
 
 			-- don't even touch this in combat.
-			local actname = "ZygorGuidesViewerFrame_Act"..i
-			action = _G[actname..'Action']
-			petaction = _G[actname..'PetAction']
-			cooldown = _G[actname..'ActionCooldown']
+			local actname = "ZygorGuidesViewerFrame_Act" .. i
+			action = _G[actname .. "Action"]
+			petaction = _G[actname .. "PetAction"]
+			cooldown = _G[actname .. "ActionCooldown"]
 
 			if line.goal then
-
 				local goal = line.goal
 
 				lastlabel = label
@@ -1843,40 +2110,49 @@ function me:UpdateFrameCurrent()
 						end
 
 						if goal.castspell and goal.castspellid then
-							action:SetAttribute("type1","spell")
-							action:SetAttribute("spell1",goal.castspell)
+							action:SetAttribute("type1", "spell")
+							action:SetAttribute("spell1", goal.castspell)
 							action.spellid = goal.castspellid
-							_G[actname.."ActionIcon"]:SetTexture(select(3, GetSpellInfo(goal.castspellid or goal.castspell)) or "Interface\\Icons\\Spell_Nature_FaerieFire")
+							_G[actname .. "ActionIcon"]:SetTexture(
+								select(3, GetSpellInfo(goal.castspellid or goal.castspell))
+									or "Interface\\Icons\\Spell_Nature_FaerieFire"
+							)
 							--action:SetScript("OnClick",function(self) PetActionButton_OnClick(self,"LeftButton") end)
-							vis=true
+							vis = true
 							--	local start,dur,en = GetSpellCooldown(goal.castspellid or goal.castspell)
 							--DoCooldown(cooldown,start,dur,en)
-
 						elseif goal.useitem or goal.useitemid then
-							action:SetAttribute("type1","item")
-							action:SetAttribute("item1",goal.useitemid and "item:"..goal.useitemid  or  goal.useitem)
-							_G[actname.."ActionIcon"]:SetTexture(select(10, GetItemInfo(goal.useitemid or goal.useitem)) or "Interface\\Icons\\INV_Misc_Bag_08")
-							vis=true
+							action:SetAttribute("type1", "item")
+							action:SetAttribute("item1", goal.useitemid and "item:" .. goal.useitemid or goal.useitem)
+							_G[actname .. "ActionIcon"]:SetTexture(
+								select(10, GetItemInfo(goal.useitemid or goal.useitem))
+									or "Interface\\Icons\\INV_Misc_Bag_08"
+							)
+							vis = true
 							--local start,dur,en = GetItemCooldown(goal.useitemid or goal.useitem)
 							--DoCooldown(cooldown,start,dur,en)
-
 						elseif goal.script then
-							action:SetAttribute("type1","macro")
-							action:SetAttribute("macro","ZygorGuidesMacro"..goal.num)
-							_G[actname.."ActionIcon"]:SetTexture(select(2,GetMacroInfo(goal.macro)))
-							vis=true
-
+							action:SetAttribute("type1", "macro")
+							action:SetAttribute("macro", "ZygorGuidesMacro" .. goal.num)
+							_G[actname .. "ActionIcon"]:SetTexture(select(2, GetMacroInfo(goal.macro)))
+							vis = true
 						elseif goal.petaction then
-							local num,name,subtext,tex = FindPetActionInfo(goal.petaction)
+							local num, name, subtext, tex = FindPetActionInfo(goal.petaction)
 							if num then
 								petaction:SetID(num)
-								petaction.tooltipName=name
-								petaction.tooltipSubtext=subtext
+								petaction.tooltipName = name
+								petaction.tooltipSubtext = subtext
 								--action:SetScript("OnClick",function(self) PetActionButton_OnClick(self,"LeftButton") end)
-								_G[actname.."PetActionIcon"]:SetTexture(tex)
+								_G[actname .. "PetActionIcon"]:SetTexture(tex)
 								petaction:Show()
 								petaction:ClearAllPoints()
-								petaction:SetPoint("CENTER",UIParent,"BOTTOMLEFT",icon:GetLeft()+8,icon:GetBottom()+8)
+								petaction:SetPoint(
+									"CENTER",
+									UIParent,
+									"BOTTOMLEFT",
+									icon:GetLeft() + 8,
+									icon:GetBottom() + 8
+								)
 								petaction:SetScale(self.db.profile.framescale)
 							else
 								petaction:Hide()
@@ -1897,11 +2173,17 @@ function me:UpdateFrameCurrent()
 							if self.BUTTONS_INLINE then
 								action:SetParent(clicker)
 								action:ClearAllPoints()
-								action:SetPoint("CENTER",clicker,"LEFT",8,0)
+								action:SetPoint("CENTER", clicker, "LEFT", 8, 0)
 								self.actionsvisible = true
 							else
 								action:ClearAllPoints()
-								action:SetPoint("CENTER",UIParent,"BOTTOMLEFT",(icon:GetLeft() or 0) +8,(icon:GetBottom() or 0)+8)
+								action:SetPoint(
+									"CENTER",
+									UIParent,
+									"BOTTOMLEFT",
+									(icon:GetLeft() or 0) + 8,
+									(icon:GetBottom() or 0) + 8
+								)
 							end
 						end
 
@@ -1913,12 +2195,12 @@ function me:UpdateFrameCurrent()
 					end
 
 					-- cooldown flasher
-					local DoCooldown = function (cooldown,start,dur,en)
+					local DoCooldown = function(cooldown, start, dur, en)
 						CooldownFrame_SetTimer(cooldown, start, dur, en)
 
 						-- is this useless or what
 						if not InCombatLockdown() then
-							if dur>0 then
+							if dur > 0 then
 								--cooldown:Show()
 								--self.recentCooldownsPulsing[goal] = nil
 								--self.recentCooldownsStarted[goal] = 1
@@ -1944,100 +2226,119 @@ function me:UpdateFrameCurrent()
 					end
 				end
 
-				local status,detail = goal:GetStatus()
+				local status, detail = goal:GetStatus()
 
-				if status=="passive" then
-
-					if goal.action=="talk" then
+				if status == "passive" then
+					if goal.action == "talk" then
 						icon:SetIcon(actionicon[goal.action])
 					else
 						icon:SetIcon(1)
 					end
 					icon:SetDesaturated(false)
-					back:SetVertexColor(0.0,0.0,0.0,0)
+					back:SetVertexColor(0.0, 0.0, 0.0, 0)
+				elseif status == "incomplete" then
+					local progress = type(detail) == "number" and detail or 0
 
-				elseif status=="incomplete" then
-				
-					local progress = type(detail)=="number" and detail or 0
-
-					local inc=self.db.profile.goalbackincomplete
-					local pro=self.db.profile.goalbackprogressing
-					local com=self.db.profile.goalbackcomplete
+					local inc = self.db.profile.goalbackincomplete
+					local pro = self.db.profile.goalbackprogressing
+					local com = self.db.profile.goalbackcomplete
 					local a = self.db.profile.goalbackincomplete.a
-					local r,g,b = self.gradient3(self.db.profile.goalbackprogress and progress*0.7 or 0,  inc.r,inc.g,inc.b, pro.r,pro.g,pro.b, com.r,com.g,com.b, 0.5)
+					local r, g, b = self.gradient3(
+						self.db.profile.goalbackprogress and progress * 0.7 or 0,
+						inc.r,
+						inc.g,
+						inc.b,
+						pro.r,
+						pro.g,
+						pro.b,
+						com.r,
+						com.g,
+						com.b,
+						0.5
+					)
 
 					--local r,g,b,a = gradientRGBA(self.db.profile.goalbackincomplete,self.db.profile.goalbackcomplete,self.db.profile.goalbackprogress and progress*0.7 or 0)
 
-					if goal.action~="goto" and progress>(self.recentGoalProgress[goal] or 1) then
-						if self.db.profile.goalupdateflash and self.frameNeedsResizing==0 then
-							anim_w2r.r,anim_w2r.g,anim_w2r.b,anim_w2r.a = r,g,b,a
+					if goal.action ~= "goto" and progress > (self.recentGoalProgress[goal] or 1) then
+						if self.db.profile.goalupdateflash and self.frameNeedsResizing == 0 then
+							anim_w2r.r, anim_w2r.g, anim_w2r.b, anim_w2r.a = r, g, b, a
 							anim_w2r:Play()
-							self:Debug("Progress: "..goal:GetText())
+							self:Debug("Progress: " .. goal:GetText())
 						end
 					end
 					icon:SetIcon(actionicon[goal.action])
 					icon:SetDesaturated(false)
 					if anim_w2r:IsDone() or not anim_w2r:IsPlaying() then
-						back:SetVertexColor(r,g,b,a)
+						back:SetVertexColor(r, g, b, a)
 					end
 					self.recentGoalProgress[goal] = progress
-
-				elseif status=="complete" then
-
+				elseif status == "complete" then
 					if not self.recentlyCompletedGoals[goal] then
-						self.recentlyCompletedGoals[goal]=true
-						if self.db.profile.goalcompletionflash or self.db.profile.goalupdateflash and self.frameNeedsResizing==0 then
+						self.recentlyCompletedGoals[goal] = true
+						if
+							self.db.profile.goalcompletionflash
+							or self.db.profile.goalupdateflash and self.frameNeedsResizing == 0
+						then
 							anim_w2g:Play()
-							self:Debug("Completion: "..goal:GetText())
+							self:Debug("Completion: " .. goal:GetText())
 						end
 
 						-- if a goal just completed, unpause.
-						self.pause=nil
+						self.pause = nil
 					end
 					icon:SetIcon(3)
 					icon:SetDesaturated(false)
 					if anim_w2g:IsDone() or not anim_w2g:IsPlaying() then
 						back:SetVertexColor(fromRGBA(self.db.profile.goalbackcomplete))
 					end
-
-				elseif status=="impossible" then
-
+				elseif status == "impossible" then
 					--impossible!
 					icon:SetIcon(actionicon[goal.action])
 					icon:SetDesaturated(true)
 					back:SetVertexColor(fromRGBA(self.db.profile.goalbackimpossible))
-
-				elseif status=="obsolete" then
-					
+				elseif status == "obsolete" then
 					--icon:SetIcon(actionicon[goal.action])
 					--icon:SetDesaturated(false)
 					back:SetVertexColor(fromRGBA(self.db.profile.goalbackobsolete))
-				
 				end
 
-				icon:SetWidth(self.db.profile.fontsize*1.4)
-				icon:SetHeight(self.db.profile.fontsize*1.4)
-				if self.db.profile.goalbackgrounds then back:Show() else back:Hide() end
-				if self.db.profile.goalicons then icon:Show() icon:SetAlpha(1.0) else icon:Hide() end
+				icon:SetWidth(self.db.profile.fontsize * 1.4)
+				icon:SetHeight(self.db.profile.fontsize * 1.4)
+				if self.db.profile.goalbackgrounds then
+					back:Show()
+				else
+					back:Hide()
+				end
+				if self.db.profile.goalicons then
+					icon:Show()
+					icon:SetAlpha(1.0)
+				else
+					icon:Hide()
+				end
 
 				if self.BUTTONS_INLINE then
-					if action:IsShown() then icon:Hide() end
+					if action:IsShown() then
+						icon:Hide()
+					end
 				end
-				
+
 				--clicker:Show()
 
 				--height = height + line:GetHeight()
 			else
 				icon:Hide()
 				back:Hide()
-				if not InCombatLockdown() then action:Hide() petaction:Hide() end
+				if not InCombatLockdown() then
+					action:Hide()
+					petaction:Hide()
+				end
 				cooldown:Hide()
 				--label:SetText("")
 				--label:SetHeight(0)
-				
+
 				--line:SetHeight(0)  -- NO. This breaks stuff.
 				-- but... it's necessary..!
-				
+
 				--line:SetHeight(0)
 				--cooldown:Hide()
 			end
@@ -2065,7 +2366,6 @@ function me:UpdateFrameCurrent()
 		--]]
 
 		-- aaand anchor it.
-
 
 		--ZygorGuidesViewerFrame_ActiveStep:SetHeight(height)
 
@@ -2108,13 +2408,13 @@ function me:ReanchorFrame()
 	if upsideup then
 		--frame:SetPoint("TOP",nil,"TOP",(left+right)/2-(uiwidth/2/scale),top-uiheight/scale)
 		--frame:SetPoint("TOP",frame:GetParent(),"BOTTOMLEFT",left+width/2,top)
-		frame:SetPoint("TOPLEFT",framemaster,"TOPLEFT",0,0)
-		frame:SetClampRectInsets(0,0,-25,0)
+		frame:SetPoint("TOPLEFT", framemaster, "TOPLEFT", 0, 0)
+		frame:SetClampRectInsets(0, 0, -25, 0)
 	else
 		--frame:SetPoint("BOTTOM",nil,"BOTTOM",(left+right)/2-(uiwidth/2/scale),bottom)
 		--frame:SetPoint("BOTTOM",frame:GetParent(),"BOTTOMLEFT",left+width/2,bottom)
-		frame:SetPoint("BOTTOMLEFT",framemaster,"BOTTOMLEFT",0,0)
-		frame:SetClampRectInsets(0,0,0,25)
+		frame:SetPoint("BOTTOMLEFT", framemaster, "BOTTOMLEFT", 0, 0)
+		frame:SetClampRectInsets(0, 0, 0, 25)
 	end
 end
 
@@ -2171,66 +2471,125 @@ function me:AlignFrame()
 	local UP_BOTTOMRIGHT = upsideup and "BOTTOMRIGHT" or "TOPRIGHT"
 	local UP = upsideup and 1 or -1
 
-	local UPcoords = function(x1,x2,y1,y2)
+	local UPcoords = function(x1, x2, y1, y2)
 		if upsideup then
-			return x1,x2,y1,y2
+			return x1, x2, y1, y2
 		else
-			return x1,x2,y2,y1
+			return x1, x2, y2, y1
 		end
 	end
 
 	local minimized = self.db.profile.hideborder and self.borderfadedout
 
 	if upsideup then
-		framemaster:SetClampRectInsets(0,(width-40)*scale,-45*scale,(-height+55)*scale)
+		framemaster:SetClampRectInsets(0, (width - 40) * scale, -45 * scale, (-height + 55) * scale)
 	else
-		framemaster:SetClampRectInsets(0,(width-40)*scale,-height*scale,40*scale)
+		framemaster:SetClampRectInsets(0, (width - 40) * scale, -height * scale, 40 * scale)
 	end
 
 	ZygorGuidesViewerFrame_Border:SetBackdrop({
 		--bgFile="Interface\\AddOns\\ZygorGuidesViewer\\Skin\\leavesofsteel_bgr",  -- 3.3.3 BLIZZARD TEXTURE FAIL
 		bgFile = self.db.profile.bgfileback, --instead
-		tileSize=128,
-		tile=true,
-		insets={top=(upsideup and 20 or 0) + self.db.profile.skinbacktopoff,right=0,left=0,bottom=upsideup and 0 or 0}
+		tileSize = 128,
+		tile = true,
+		insets = {
+			top = (upsideup and 20 or 0) + self.db.profile.skinbacktopoff,
+			right = 0,
+			left = 0,
+			bottom = upsideup and 0 or 0,
+		},
 	})
 
 	-- fix for evil background... wtf.
-	ZygorGuidesViewerFrame_Border:SetBackdropColor(self.db.profile.skincolors.back[1],self.db.profile.skincolors.back[2],self.db.profile.skincolors.back[3],self.db.profile.backopacity)
+	ZygorGuidesViewerFrame_Border:SetBackdropColor(
+		self.db.profile.skincolors.back[1],
+		self.db.profile.skincolors.back[2],
+		self.db.profile.skincolors.back[3],
+		self.db.profile.backopacity
+	)
 
 	ZygorGuidesViewerFrame_Skipper:ClearAllPoints()
-	ZygorGuidesViewerFrame_Skipper:SetPoint(UP_TOPLEFT,self.Frame,-23,-27*UP)
+	ZygorGuidesViewerFrame_Skipper:SetPoint(UP_TOPLEFT, self.Frame, -23, -27 * UP)
 
 	ZygorGuidesViewerFrame_Border_SectionTitle:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_SectionTitle:SetPoint(UP_TOPLEFT,ZygorGuidesViewerFrame_Border_Top,UP_TOPLEFT,30,-5*UP+1)
-	ZygorGuidesViewerFrame_Border_SectionTitle:SetPoint(UP_BOTTOMRIGHT,ZygorGuidesViewerFrame_Border_Top,UP_BOTTOMRIGHT,-30,10*UP+1)
+	ZygorGuidesViewerFrame_Border_SectionTitle:SetPoint(
+		UP_TOPLEFT,
+		ZygorGuidesViewerFrame_Border_Top,
+		UP_TOPLEFT,
+		30,
+		-5 * UP + 1
+	)
+	ZygorGuidesViewerFrame_Border_SectionTitle:SetPoint(
+		UP_BOTTOMRIGHT,
+		ZygorGuidesViewerFrame_Border_Top,
+		UP_BOTTOMRIGHT,
+		-30,
+		10 * UP + 1
+	)
 
 	ZygorGuidesViewerFrame_Border_TitleBar:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_TitleBar:SetPoint(UP_TOPLEFT,ZygorGuidesViewerFrame_Border,UP_TOPLEFT,0,11*UP)
-	ZygorGuidesViewerFrame_Border_TitleBar:SetPoint(UP_BOTTOMRIGHT,ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,0,-25*UP)
+	ZygorGuidesViewerFrame_Border_TitleBar:SetPoint(UP_TOPLEFT, ZygorGuidesViewerFrame_Border, UP_TOPLEFT, 0, 11 * UP)
+	ZygorGuidesViewerFrame_Border_TitleBar:SetPoint(
+		UP_BOTTOMRIGHT,
+		ZygorGuidesViewerFrame_Border,
+		UP_TOPRIGHT,
+		0,
+		-25 * UP
+	)
 
-	ZygorGuidesViewerFrame_Border_LockButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPLEFT,self.db.profile.Boarder_Lock_offsetX,self.db.profile.Boarder_Lock_offsetY*UP)
-	ZygorGuidesViewerFrame_Border_MiniButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,self.db.profile.Boarder_Mini_topright_offsetX,self.db.profile.Boarder_Mini_topright_offsetY*UP)
+	ZygorGuidesViewerFrame_Border_LockButton:SetPoint(
+		"CENTER",
+		ZygorGuidesViewerFrame_Border,
+		UP_TOPLEFT,
+		self.db.profile.Boarder_Lock_offsetX,
+		self.db.profile.Boarder_Lock_offsetY * UP
+	)
+	ZygorGuidesViewerFrame_Border_MiniButton:SetPoint(
+		"CENTER",
+		ZygorGuidesViewerFrame_Border,
+		UP_TOPRIGHT,
+		self.db.profile.Boarder_Mini_topright_offsetX,
+		self.db.profile.Boarder_Mini_topright_offsetY * UP
+	)
 	local anchor = UP_TOPLEFT -- Default for not invalid text
 	local dbanchor = self.db.profile.Boarder_Settings_anchor
+	-- TODO : Put this in a map
 	if dbanchor == "TOPRIGHT" then
 		anchor = UP_TOPRIGHT
 	end
-	ZygorGuidesViewerFrame_Border_SettingsButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,anchor,self.db.profile.Boarder_Settings_anchor_offsetX,self.db.profile.Boarder_Settings_anchor_offsetY*UP)
-	ZygorGuidesViewerFrame_Border_CloseButton:SetPoint("CENTER",ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,self.db.profile.Boarder_Close_topright_offsetX,self.db.profile.Boarder_Close_topright_offsetY*UP)
-	
+	ZygorGuidesViewerFrame_Border_SettingsButton:SetPoint(
+		"CENTER",
+		ZygorGuidesViewerFrame_Border,
+		anchor,
+		self.db.profile.Boarder_Settings_anchor_offsetX,
+		self.db.profile.Boarder_Settings_anchor_offsetY * UP
+	)
+	ZygorGuidesViewerFrame_Border_CloseButton:SetPoint(
+		"CENTER",
+		ZygorGuidesViewerFrame_Border,
+		UP_TOPRIGHT,
+		self.db.profile.Boarder_Close_topright_offsetX,
+		self.db.profile.Boarder_Close_topright_offsetY * UP
+	)
+
 	--ntx:SetTexCoord(731/1024,850/1024,76/512,145/512)
 	--ptx:SetTexCoord(731/1024,850/1024,211/512,280/512)
 	--htx:SetTexCoord(731/1024,850/1024,346/512,415/512)
 	ZygorGuidesViewerFrame_Border_GuideButton.upsideup = upsideup
 	ZygorGuidesViewerFrame_Border_GuideButton:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_GuideButton:SetPoint(UP_BOTTOM,ZygorGuidesViewerFrame_Border,UP_TOPRIGHT,self.db.profile.Boarder_Guide_topright_offsetX,self.db.profile.Boarder_Guide_topright_offsetY*UP)
-	
+	ZygorGuidesViewerFrame_Border_GuideButton:SetPoint(
+		UP_BOTTOM,
+		ZygorGuidesViewerFrame_Border,
+		UP_TOPRIGHT,
+		self.db.profile.Boarder_Guide_topright_offsetX,
+		self.db.profile.Boarder_Guide_topright_offsetY * UP
+	)
+
 	if minimized then
 		ZygorGuidesViewerFrame_Skipper:Hide()
 		ZygorGuidesViewerFrame_Border:Hide()
 	else
-		if self.db.profile.displaymode=="guide" then
+		if self.db.profile.displaymode == "guide" then
 			ZygorGuidesViewerFrame_Skipper:Show()
 		else
 			ZygorGuidesViewerFrame_Skipper:Hide()
@@ -2238,232 +2597,322 @@ function me:AlignFrame()
 		ZygorGuidesViewerFrame_Border:Show()
 	end
 
-
 	--ZygorGuidesViewerFrame_TitleBar_SectionTitle:SetPoint(TOPLEFT,60,-4*UP)
 	--ZygorGuidesViewerFrame_TitleBar_SectionTitle:SetPoint(BOTTOMRIGHT,-60,0)
 
 	-- first line according to up/down orientation, the rest follows
 	ZygorGuidesViewerFrameScroll:ClearAllPoints()
-	ZygorGuidesViewerFrameScroll:SetPoint(UP_TOPLEFT,self.Frame,UP_TOPLEFT,10,-28*UP)
-	ZygorGuidesViewerFrameScroll:SetPoint(UP_BOTTOMRIGHT,self.Frame,-10,10*UP)
+	ZygorGuidesViewerFrameScroll:SetPoint(UP_TOPLEFT, self.Frame, UP_TOPLEFT, 10, -28 * UP)
+	ZygorGuidesViewerFrameScroll:SetPoint(UP_BOTTOMRIGHT, self.Frame, -10, 10 * UP)
 
 	-- resizers
 	ZygorGuidesViewerFrame_ResizerBottom:ClearAllPoints()
-	ZygorGuidesViewerFrame_ResizerBottom:SetPoint(UP_BOTTOMLEFT,10,0)
-	ZygorGuidesViewerFrame_ResizerBottom:SetPoint(UP_TOPRIGHT,self.Frame,UP_BOTTOMRIGHT,-10,10*UP)
+	ZygorGuidesViewerFrame_ResizerBottom:SetPoint(UP_BOTTOMLEFT, 10, 0)
+	ZygorGuidesViewerFrame_ResizerBottom:SetPoint(UP_TOPRIGHT, self.Frame, UP_BOTTOMRIGHT, -10, 10 * UP)
 	ZygorGuidesViewerFrame_ResizerBottomLeft:ClearAllPoints()
-	ZygorGuidesViewerFrame_ResizerBottomLeft:SetPoint(UP_BOTTOMLEFT,0,0)
+	ZygorGuidesViewerFrame_ResizerBottomLeft:SetPoint(UP_BOTTOMLEFT, 0, 0)
 	ZygorGuidesViewerFrame_ResizerBottomRight:ClearAllPoints()
-	ZygorGuidesViewerFrame_ResizerBottomRight:SetPoint(UP_BOTTOMRIGHT,0,0)
+	ZygorGuidesViewerFrame_ResizerBottomRight:SetPoint(UP_BOTTOMRIGHT, 0, 0)
 
 	--local back=ZygorGuidesViewerFrame_Border:GetRegions()
 
 	-- textures
 	ZygorGuidesViewerFrame_Border_TopLeft:SetWidth(100)
-	ZygorGuidesViewerFrame_Border_TopLeft:SetHeight(100*1.225)
+	ZygorGuidesViewerFrame_Border_TopLeft:SetHeight(100 * 1.225)
 	ZygorGuidesViewerFrame_Border_TopLeft:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_TopLeft:SetPoint(UP_TOPLEFT,-35,16*UP)
-	ZygorGuidesViewerFrame_Border_TopLeft:SetTexCoord(UPcoords(0.095703125,0.2900390625,0.12109375,0.59765625))
+	ZygorGuidesViewerFrame_Border_TopLeft:SetPoint(UP_TOPLEFT, -35, 16 * UP)
+	ZygorGuidesViewerFrame_Border_TopLeft:SetTexCoord(UPcoords(0.095703125, 0.2900390625, 0.12109375, 0.59765625))
 
 	ZygorGuidesViewerFrame_Border_Gear1:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Gear1:SetPoint("CENTER",ZygorGuidesViewerFrame_Skipper,UP_TOPLEFT,10,-32*UP)
+	ZygorGuidesViewerFrame_Border_Gear1:SetPoint("CENTER", ZygorGuidesViewerFrame_Skipper, UP_TOPLEFT, 10, -32 * UP)
 	ZygorGuidesViewerFrame_Border_Gear2:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Gear2:SetPoint("CENTER",ZygorGuidesViewerFrame_Skipper,UP_TOPLEFT,4,-15*UP)
+	ZygorGuidesViewerFrame_Border_Gear2:SetPoint("CENTER", ZygorGuidesViewerFrame_Skipper, UP_TOPLEFT, 4, -15 * UP)
 	ZygorGuidesViewerFrame_Border_Gear3:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Gear3:SetPoint("CENTER",ZygorGuidesViewerFrame_Skipper,UP_TOPLEFT,20,-56*UP)
+	ZygorGuidesViewerFrame_Border_Gear3:SetPoint("CENTER", ZygorGuidesViewerFrame_Skipper, UP_TOPLEFT, 20, -56 * UP)
 
 	ZygorGuidesViewerFrame_Border_TopRight:SetWidth(100)
-	ZygorGuidesViewerFrame_Border_TopRight:SetHeight(100*1.225)
+	ZygorGuidesViewerFrame_Border_TopRight:SetHeight(100 * 1.225)
 	ZygorGuidesViewerFrame_Border_TopRight:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_TopRight:SetPoint(UP_TOPRIGHT,35,16*UP)
-	ZygorGuidesViewerFrame_Border_TopRight:SetTexCoord(UPcoords(0.515625,0.7099609375,0.12109375,0.59765625))
+	ZygorGuidesViewerFrame_Border_TopRight:SetPoint(UP_TOPRIGHT, 35, 16 * UP)
+	ZygorGuidesViewerFrame_Border_TopRight:SetTexCoord(UPcoords(0.515625, 0.7099609375, 0.12109375, 0.59765625))
 
 	ZygorGuidesViewerFrame_Border_BottomLeft:SetWidth(22)
 	ZygorGuidesViewerFrame_Border_BottomLeft:SetHeight(22)
 	ZygorGuidesViewerFrame_Border_BottomLeft:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_BottomLeft:SetPoint(UP_BOTTOMLEFT,-3,-4*UP)
-	ZygorGuidesViewerFrame_Border_BottomLeft:SetTexCoord(UPcoords(161/1024,204/1024,385/512,428/512))
+	ZygorGuidesViewerFrame_Border_BottomLeft:SetPoint(UP_BOTTOMLEFT, -3, -4 * UP)
+	ZygorGuidesViewerFrame_Border_BottomLeft:SetTexCoord(UPcoords(161 / 1024, 204 / 1024, 385 / 512, 428 / 512))
 
 	ZygorGuidesViewerFrame_Border_BottomRight:SetWidth(22)
 	ZygorGuidesViewerFrame_Border_BottomRight:SetHeight(22)
 	ZygorGuidesViewerFrame_Border_BottomRight:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_BottomRight:SetPoint(UP_BOTTOMRIGHT,3,-4*UP)
-	ZygorGuidesViewerFrame_Border_BottomRight:SetTexCoord(UPcoords(204/1024,161/1024,385/512,428/512))
+	ZygorGuidesViewerFrame_Border_BottomRight:SetPoint(UP_BOTTOMRIGHT, 3, -4 * UP)
+	ZygorGuidesViewerFrame_Border_BottomRight:SetTexCoord(UPcoords(204 / 1024, 161 / 1024, 385 / 512, 428 / 512))
 
 	ZygorGuidesViewerFrame_Border_Top:ClearAllPoints()
 	ZygorGuidesViewerFrame_Border_Top:SetHeight(35)
-	ZygorGuidesViewerFrame_Border_Top:SetPoint(UP_TOPLEFT,self.db.profile.Boarder_topleft_offsetX,self.db.profile.Boarder_topleft_offsetY*UP)
-	ZygorGuidesViewerFrame_Border_Top:SetPoint(UP_TOPRIGHT,self.db.profile.Boarder_topright_offsetX,self.db.profile.Boarder_topright_offsetX*UP)
+	ZygorGuidesViewerFrame_Border_Top:SetPoint(
+		UP_TOPLEFT,
+		self.db.profile.Boarder_topleft_offsetX,
+		self.db.profile.Boarder_topleft_offsetY * UP
+	)
+	ZygorGuidesViewerFrame_Border_Top:SetPoint(
+		UP_TOPRIGHT,
+		self.db.profile.Boarder_topright_offsetX,
+		self.db.profile.Boarder_topright_offsetX * UP
+	)
 	local tx = ZygorGuidesViewerFrame_Border_Top:GetTexture()
 	ZygorGuidesViewerFrame_Border_Top:SetTexture(1)
-	ZygorGuidesViewerFrame_Border_Top:SetTexture(tx,true)
-	ZygorGuidesViewerFrame_Border_Top:SetTexCoord(UPcoords(0,1,0,1))
+	ZygorGuidesViewerFrame_Border_Top:SetTexture(tx, true)
+	ZygorGuidesViewerFrame_Border_Top:SetTexCoord(UPcoords(0, 1, 0, 1))
 
 	ZygorGuidesViewerFrame_Border_Left:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Left:SetPoint(UP_TOPLEFT,-1,-85*UP)
-	ZygorGuidesViewerFrame_Border_Left:SetPoint(UP_BOTTOMRIGHT,self.Frame,UP_BOTTOMLEFT,9,10*UP)
+	ZygorGuidesViewerFrame_Border_Left:SetPoint(UP_TOPLEFT, -1, -85 * UP)
+	ZygorGuidesViewerFrame_Border_Left:SetPoint(UP_BOTTOMRIGHT, self.Frame, UP_BOTTOMLEFT, 9, 10 * UP)
 	tx = ZygorGuidesViewerFrame_Border_Left:GetTexture()
 	ZygorGuidesViewerFrame_Border_Left:SetTexture(1)
-	ZygorGuidesViewerFrame_Border_Left:SetTexture(tx,true)
+	ZygorGuidesViewerFrame_Border_Left:SetTexture(tx, true)
 
 	ZygorGuidesViewerFrame_Border_Right:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Right:SetPoint(UP_TOPRIGHT,1,-35*UP)
-	ZygorGuidesViewerFrame_Border_Right:SetPoint(UP_BOTTOMLEFT,self.Frame,UP_BOTTOMRIGHT,-9,10*UP)
+	ZygorGuidesViewerFrame_Border_Right:SetPoint(UP_TOPRIGHT, 1, -35 * UP)
+	ZygorGuidesViewerFrame_Border_Right:SetPoint(UP_BOTTOMLEFT, self.Frame, UP_BOTTOMRIGHT, -9, 10 * UP)
 	ZygorGuidesViewerFrame_Border_Right:SetTexture(1)
-	ZygorGuidesViewerFrame_Border_Right:SetTexture(tx,true)
+	ZygorGuidesViewerFrame_Border_Right:SetTexture(tx, true)
 
 	ZygorGuidesViewerFrame_Border_Bottom:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Bottom:SetPoint(UP_TOPLEFT,self.Frame,UP_BOTTOMLEFT,13,10*UP)
-	ZygorGuidesViewerFrame_Border_Bottom:SetPoint(UP_BOTTOMRIGHT,-13,-5*UP)
+	ZygorGuidesViewerFrame_Border_Bottom:SetPoint(UP_TOPLEFT, self.Frame, UP_BOTTOMLEFT, 13, 10 * UP)
+	ZygorGuidesViewerFrame_Border_Bottom:SetPoint(UP_BOTTOMRIGHT, -13, -5 * UP)
 	ZygorGuidesViewerFrame_Border_Bottom:SetTexture(1)
-	ZygorGuidesViewerFrame_Border_Bottom:SetTexture(tx,true)
+	ZygorGuidesViewerFrame_Border_Bottom:SetTexture(tx, true)
 
 	ZygorGuidesViewerFrame_Border_Logo:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Logo:SetPoint("CENTER",ZygorGuidesViewerFrame_Border_Bottom,"CENTER",0,0)
+	ZygorGuidesViewerFrame_Border_Logo:SetPoint("CENTER", ZygorGuidesViewerFrame_Border_Bottom, "CENTER", 0, 0)
 
 	-- flash stuff... this is a royal PITA.
 	ZygorGuidesViewerFrame_Border_Flash_Top:ClearAllPoints()
 	ZygorGuidesViewerFrame_Border_Flash_Top:SetHeight(80)
-	ZygorGuidesViewerFrame_Border_Flash_Top:SetPoint(UP_BOTTOMLEFT,ZygorGuidesViewerFrame_Border_Top,UP_BOTTOMLEFT,10,-8*UP)
-	ZygorGuidesViewerFrame_Border_Flash_Top:SetPoint(UP_BOTTOMRIGHT,ZygorGuidesViewerFrame_Border_Top,UP_BOTTOMRIGHT,0,-8*UP)
+	ZygorGuidesViewerFrame_Border_Flash_Top:SetPoint(
+		UP_BOTTOMLEFT,
+		ZygorGuidesViewerFrame_Border_Top,
+		UP_BOTTOMLEFT,
+		10,
+		-8 * UP
+	)
+	ZygorGuidesViewerFrame_Border_Flash_Top:SetPoint(
+		UP_BOTTOMRIGHT,
+		ZygorGuidesViewerFrame_Border_Top,
+		UP_BOTTOMRIGHT,
+		0,
+		-8 * UP
+	)
 	local tx = ZygorGuidesViewerFrame_Border_Flash_Top:GetTexture()
 	ZygorGuidesViewerFrame_Border_Flash_Top:SetTexture(1)
-	ZygorGuidesViewerFrame_Border_Flash_Top:SetTexture(tx,true)
-	ZygorGuidesViewerFrame_Border_Flash_Top:SetTexCoord(UPcoords(0,1,0,1))
+	ZygorGuidesViewerFrame_Border_Flash_Top:SetTexture(tx, true)
+	ZygorGuidesViewerFrame_Border_Flash_Top:SetTexCoord(UPcoords(0, 1, 0, 1))
 
 	ZygorGuidesViewerFrame_Border_Flash_TopLeft:SetWidth(125)
 	ZygorGuidesViewerFrame_Border_Flash_TopLeft:SetHeight(139)
 	ZygorGuidesViewerFrame_Border_Flash_TopLeft:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Flash_TopLeft:SetPoint(UP_BOTTOMRIGHT,ZygorGuidesViewerFrame_Border_TopLeft,UP_BOTTOMRIGHT,7,3*UP)
-	ZygorGuidesViewerFrame_Border_Flash_TopLeft:SetTexCoord(UPcoords(62/1024,311/1024,23/512,300/512))
+	ZygorGuidesViewerFrame_Border_Flash_TopLeft:SetPoint(
+		UP_BOTTOMRIGHT,
+		ZygorGuidesViewerFrame_Border_TopLeft,
+		UP_BOTTOMRIGHT,
+		7,
+		3 * UP
+	)
+	ZygorGuidesViewerFrame_Border_Flash_TopLeft:SetTexCoord(UPcoords(62 / 1024, 311 / 1024, 23 / 512, 300 / 512))
 
 	ZygorGuidesViewerFrame_Border_Flash_TopRight:SetWidth(130)
 	ZygorGuidesViewerFrame_Border_Flash_TopRight:SetHeight(90)
 	ZygorGuidesViewerFrame_Border_Flash_TopRight:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Flash_TopRight:SetPoint(UP_BOTTOMLEFT,ZygorGuidesViewerFrame_Border_TopRight,UP_BOTTOMLEFT,-13,51*UP)
-	ZygorGuidesViewerFrame_Border_Flash_TopRight:SetTexCoord(UPcoords(505/1024,760/1024,28/512,200/512))
+	ZygorGuidesViewerFrame_Border_Flash_TopRight:SetPoint(
+		UP_BOTTOMLEFT,
+		ZygorGuidesViewerFrame_Border_TopRight,
+		UP_BOTTOMLEFT,
+		-13,
+		51 * UP
+	)
+	ZygorGuidesViewerFrame_Border_Flash_TopRight:SetTexCoord(UPcoords(505 / 1024, 760 / 1024, 28 / 512, 200 / 512))
 
 	ZygorGuidesViewerFrame_Border_Flash_BottomLeft:SetWidth(64)
 	ZygorGuidesViewerFrame_Border_Flash_BottomLeft:SetHeight(64)
 	ZygorGuidesViewerFrame_Border_Flash_BottomLeft:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Flash_BottomLeft:SetPoint(UP_TOPRIGHT,ZygorGuidesViewerFrame_Border_BottomLeft,UP_TOPRIGHT,20,20*UP)
-	ZygorGuidesViewerFrame_Border_Flash_BottomLeft:SetTexCoord(UPcoords(121/1024,244/1024,345/512,468/512))
+	ZygorGuidesViewerFrame_Border_Flash_BottomLeft:SetPoint(
+		UP_TOPRIGHT,
+		ZygorGuidesViewerFrame_Border_BottomLeft,
+		UP_TOPRIGHT,
+		20,
+		20 * UP
+	)
+	ZygorGuidesViewerFrame_Border_Flash_BottomLeft:SetTexCoord(UPcoords(121 / 1024, 244 / 1024, 345 / 512, 468 / 512))
 
 	ZygorGuidesViewerFrame_Border_Flash_BottomRight:SetWidth(64)
 	ZygorGuidesViewerFrame_Border_Flash_BottomRight:SetHeight(64)
 	ZygorGuidesViewerFrame_Border_Flash_BottomRight:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Flash_BottomRight:SetPoint(UP_TOPLEFT,ZygorGuidesViewerFrame_Border_BottomRight,UP_TOPLEFT,-20,20*UP)
-	ZygorGuidesViewerFrame_Border_Flash_BottomRight:SetTexCoord(UPcoords(244/1024,121/1024,345/512,468/512))
+	ZygorGuidesViewerFrame_Border_Flash_BottomRight:SetPoint(
+		UP_TOPLEFT,
+		ZygorGuidesViewerFrame_Border_BottomRight,
+		UP_TOPLEFT,
+		-20,
+		20 * UP
+	)
+	ZygorGuidesViewerFrame_Border_Flash_BottomRight:SetTexCoord(UPcoords(244 / 1024, 121 / 1024, 345 / 512, 468 / 512))
 
 	ZygorGuidesViewerFrame_Border_Flash_Left:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Flash_Left:SetPoint(UP_TOPLEFT,-17,-85*UP)
-	ZygorGuidesViewerFrame_Border_Flash_Left:SetPoint(UP_BOTTOMRIGHT,self.Frame,UP_BOTTOMLEFT,9,10*UP)
+	ZygorGuidesViewerFrame_Border_Flash_Left:SetPoint(UP_TOPLEFT, -17, -85 * UP)
+	ZygorGuidesViewerFrame_Border_Flash_Left:SetPoint(UP_BOTTOMRIGHT, self.Frame, UP_BOTTOMLEFT, 9, 10 * UP)
 
 	ZygorGuidesViewerFrame_Border_Flash_Right:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Flash_Right:SetPoint(UP_TOPLEFT,self.Frame,UP_TOPRIGHT,-10,-35*UP)
-	ZygorGuidesViewerFrame_Border_Flash_Right:SetPoint(UP_BOTTOMRIGHT,self.Frame,UP_BOTTOMRIGHT,16,10*UP)
-	ZygorGuidesViewerFrame_Border_Flash_Right:SetTexCoord(1,0, 1,1, 0,0, 0,1)
+	ZygorGuidesViewerFrame_Border_Flash_Right:SetPoint(UP_TOPLEFT, self.Frame, UP_TOPRIGHT, -10, -35 * UP)
+	ZygorGuidesViewerFrame_Border_Flash_Right:SetPoint(UP_BOTTOMRIGHT, self.Frame, UP_BOTTOMRIGHT, 16, 10 * UP)
+	ZygorGuidesViewerFrame_Border_Flash_Right:SetTexCoord(1, 0, 1, 1, 0, 0, 0, 1)
 
 	ZygorGuidesViewerFrame_Border_Flash_Bottom:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Flash_Bottom:SetPoint(UP_TOPLEFT,self.Frame,UP_BOTTOMLEFT,13,9*UP)
-	ZygorGuidesViewerFrame_Border_Flash_Bottom:SetPoint(UP_BOTTOMRIGHT,self.Frame,UP_BOTTOMRIGHT,-13,-15*UP)
+	ZygorGuidesViewerFrame_Border_Flash_Bottom:SetPoint(UP_TOPLEFT, self.Frame, UP_BOTTOMLEFT, 13, 9 * UP)
+	ZygorGuidesViewerFrame_Border_Flash_Bottom:SetPoint(UP_BOTTOMRIGHT, self.Frame, UP_BOTTOMRIGHT, -13, -15 * UP)
 	--	ZygorGuidesViewerFrame_Border_Flash_Bottom:SetTexCoord(UPcoords(1,0,0,0,1,1,0,1))
 	if upsideup then
-		ZygorGuidesViewerFrame_Border_Flash_Bottom:SetTexCoord(1,0,0,0,1,1,0,1)
+		ZygorGuidesViewerFrame_Border_Flash_Bottom:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1)
 	else
-		ZygorGuidesViewerFrame_Border_Flash_Bottom:SetTexCoord(0,0,1,0,0,1,1,1)
+		ZygorGuidesViewerFrame_Border_Flash_Bottom:SetTexCoord(0, 0, 1, 0, 0, 1, 1, 1)
 	end
 
 	ZygorGuidesViewerFrame_Border_Flash_Logo:ClearAllPoints()
-	ZygorGuidesViewerFrame_Border_Flash_Logo:SetPoint("CENTER",ZygorGuidesViewerFrame_Border_Logo,"CENTER")
-end
-
-function me:DumpPoint(Frame_To_dump)
-	local savedPoints = {}
-	-- Save current points
-	savedPoints.num = Frame_To_dump:GetNumPoints()
-	for i = 1, savedPoints.num do
-		local point, relativeTo, relativePoint, xOfs, yOfs = Frame_To_dump:GetPoint(i)
-		savedPoints[i] = {
-			point = point,
-			relativeTo = relativeTo and relativeTo:GetName(), -- store the frame name if it has one
-			relativePoint = relativePoint,
-			xOfs = xOfs,
-			yOfs = yOfs,
-		}
-		print(string.format(
-			"Saved Point %d: point=%s, relativeTo=%s, relativePoint=%s, xOfs=%d, yOfs=%d",
-			i,
-			tostring(point),
-			tostring(savedPoints[i].relativeTo),
-			tostring(relativePoint),
-			xOfs or 0,
-			yOfs or 0
-		))
-	end
+	ZygorGuidesViewerFrame_Border_Flash_Logo:SetPoint("CENTER", ZygorGuidesViewerFrame_Border_Logo, "CENTER")
 end
 
 function me:UpdateSkin()
-	SKINDIR = DIR.."\\Skin\\"..self.db.profile.skin
+	SKINDIR = DIR .. "\\Skin\\" .. self.db.profile.skin
 
-	ZygorGuidesViewerFrame_Border_GuideButton.ntx:SetTexture(SKINDIR.."\\leavesofsteel_dropdown_up")
-	ZygorGuidesViewerFrame_Border_GuideButton.ptx:SetTexture(SKINDIR.."\\leavesofsteel_dropdown_down")
-	ZygorGuidesViewerFrame_Border_GuideButton.htx:SetTexture(SKINDIR.."\\leavesofsteel_dropdown_hi")
+	ZygorGuidesViewerFrame_Border_GuideButton.ntx:SetTexture(SKINDIR .. "\\leavesofsteel_dropdown_up")
+	ZygorGuidesViewerFrame_Border_GuideButton.ptx:SetTexture(SKINDIR .. "\\leavesofsteel_dropdown_down")
+	ZygorGuidesViewerFrame_Border_GuideButton.htx:SetTexture(SKINDIR .. "\\leavesofsteel_dropdown_hi")
 
-	ZygorGuidesViewerFrame_Border_TopLeft:SetTexture(SKINDIR.."\\leavesofsteel")
-	ZygorGuidesViewerFrame_Border_TopRight:SetTexture(SKINDIR.."\\leavesofsteel")
-	ZygorGuidesViewerFrame_Border_BottomLeft:SetTexture(SKINDIR.."\\leavesofsteel")
-	ZygorGuidesViewerFrame_Border_BottomRight:SetTexture(SKINDIR.."\\leavesofsteel")
+	ZygorGuidesViewerFrame_Border_TopLeft:SetTexture(SKINDIR .. "\\leavesofsteel")
+	ZygorGuidesViewerFrame_Border_TopRight:SetTexture(SKINDIR .. "\\leavesofsteel")
+	ZygorGuidesViewerFrame_Border_BottomLeft:SetTexture(SKINDIR .. "\\leavesofsteel")
+	ZygorGuidesViewerFrame_Border_BottomRight:SetTexture(SKINDIR .. "\\leavesofsteel")
 
 	choice = self.skin_choice[self.db.profile.skin]
 	if choice then
-		choice()
+		LoadSkin(choice)
 	else
 		--LoadDefault()
-		self.print("Load skin Error!")
+		self:Print("Load skin Error!")
 	end
 
-	ZygorGuidesViewerFrame_Skipper_PrevButton.ntx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Skipper_PrevButton.ptx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Skipper_PrevButton.htx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Skipper_NextButton.ntx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Skipper_NextButton.ptx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Skipper_NextButton.htx:SetTexture(SKINDIR.."\\titlebuttons")
+	ZygorGuidesViewerFrame_Skipper_PrevButton.ntx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Skipper_PrevButton.ptx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Skipper_PrevButton.htx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Skipper_NextButton.ntx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Skipper_NextButton.ptx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Skipper_NextButton.htx:SetTexture(SKINDIR .. "\\titlebuttons")
 
-	ZygorGuidesViewerFrame_Border_CloseButton.ntx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Border_CloseButton.ptx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Border_CloseButton.htx:SetTexture(SKINDIR.."\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_CloseButton.ntx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_CloseButton.ptx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_CloseButton.htx:SetTexture(SKINDIR .. "\\titlebuttons")
 
-	ZygorGuidesViewerFrame_Border_MiniButton.ntx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Border_MiniButton.ptx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Border_MiniButton.htx:SetTexture(SKINDIR.."\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_MiniButton.ntx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_MiniButton.ptx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_MiniButton.htx:SetTexture(SKINDIR .. "\\titlebuttons")
 
-	ZygorGuidesViewerFrame_Border_LockButton.ntx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Border_LockButton.ptx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Border_LockButton.htx:SetTexture(SKINDIR.."\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_LockButton.ntx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_LockButton.ptx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_LockButton.htx:SetTexture(SKINDIR .. "\\titlebuttons")
 
-	ZygorGuidesViewerFrame_Border_SettingsButton.ntx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Border_SettingsButton.ptx:SetTexture(SKINDIR.."\\titlebuttons")
-	ZygorGuidesViewerFrame_Border_SettingsButton.htx:SetTexture(SKINDIR.."\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_SettingsButton.ntx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_SettingsButton.ptx:SetTexture(SKINDIR .. "\\titlebuttons")
+	ZygorGuidesViewerFrame_Border_SettingsButton.htx:SetTexture(SKINDIR .. "\\titlebuttons")
 
-	ZygorGuidesViewerMapIcon.ntx:SetTexture(SKINDIR.."\\zglogo")
-	ZygorGuidesViewerMapIcon.ptx:SetTexture(SKINDIR.."\\zglogo")
-	ZygorGuidesViewerMapIcon.htx:SetTexture(SKINDIR.."\\zglogo")
+	ZygorGuidesViewerMapIcon.ntx:SetTexture(SKINDIR .. "\\zglogo")
+	ZygorGuidesViewerMapIcon.ptx:SetTexture(SKINDIR .. "\\zglogo")
+	ZygorGuidesViewerMapIcon.htx:SetTexture(SKINDIR .. "\\zglogo")
 
-	ZygorGuidesViewerFrame_Border_Top:SetTexture(SKINDIR.."\\leavesofsteel_top")
+	ZygorGuidesViewerFrame_Border_Top:SetTexture(SKINDIR .. "\\leavesofsteel_top")
 
 	ZygorGuidesViewerFrame_Border_SectionTitle:SetTextColor(unpack(self.db.profile.skincolors.text))
 
-	ZygorGuidesViewerFrameScrollScrollBarScrollUpButton:SetNormalTexture		(CreateTextureWithCoords(ZygorGuidesViewerFrameScrollScrollBarScrollUpButton,	SKINDIR.."\\titlebuttons",0.750,0.875,0.00,0.25))
-	ZygorGuidesViewerFrameScrollScrollBarScrollUpButton:SetPushedTexture		(CreateTextureWithCoords(ZygorGuidesViewerFrameScrollScrollBarScrollUpButton,	SKINDIR.."\\titlebuttons",0.750,0.875,0.25,0.50))
-	ZygorGuidesViewerFrameScrollScrollBarScrollUpButton:SetDisabledTexture		(CreateTextureWithCoords(ZygorGuidesViewerFrameScrollScrollBarScrollUpButton,	SKINDIR.."\\titlebuttons",0.750,0.875,0.75,1.00))
-	ZygorGuidesViewerFrameScrollScrollBarScrollUpButton:SetHighlightTexture		(CreateTextureWithCoords(ZygorGuidesViewerFrameScrollScrollBarScrollUpButton,	SKINDIR.."\\titlebuttons",0.750,0.875,0.50,0.75))
-	ZygorGuidesViewerFrameScrollScrollBarScrollDownButton:SetNormalTexture		(CreateTextureWithCoords(ZygorGuidesViewerFrameScrollScrollBarScrollDownButton,	SKINDIR.."\\titlebuttons",0.875,1.000,0.00,0.25))
-	ZygorGuidesViewerFrameScrollScrollBarScrollDownButton:SetPushedTexture		(CreateTextureWithCoords(ZygorGuidesViewerFrameScrollScrollBarScrollDownButton,	SKINDIR.."\\titlebuttons",0.875,1.000,0.25,0.50))
-	ZygorGuidesViewerFrameScrollScrollBarScrollDownButton:SetDisabledTexture	(CreateTextureWithCoords(ZygorGuidesViewerFrameScrollScrollBarScrollDownButton,	SKINDIR.."\\titlebuttons",0.875,1.000,0.75,1.00))
-	ZygorGuidesViewerFrameScrollScrollBarScrollDownButton:SetHighlightTexture	(CreateTextureWithCoords(ZygorGuidesViewerFrameScrollScrollBarScrollDownButton,	SKINDIR.."\\titlebuttons",0.875,1.000,0.50,0.75))
-	ZygorGuidesViewerFrameScrollScrollBarThumbTexture:SetTexture(SKINDIR.."\\leavesofsteel")
-	ZygorGuidesViewerFrameScrollScrollBarTrackerTexture:SetTexture(SKINDIR.."\\leavesofsteel")
+	ZygorGuidesViewerFrameScrollScrollBarScrollUpButton:SetNormalTexture(
+		CreateTextureWithCoords(
+			ZygorGuidesViewerFrameScrollScrollBarScrollUpButton,
+			SKINDIR .. "\\titlebuttons",
+			0.750,
+			0.875,
+			0.00,
+			0.25
+		)
+	)
+	ZygorGuidesViewerFrameScrollScrollBarScrollUpButton:SetPushedTexture(
+		CreateTextureWithCoords(
+			ZygorGuidesViewerFrameScrollScrollBarScrollUpButton,
+			SKINDIR .. "\\titlebuttons",
+			0.750,
+			0.875,
+			0.25,
+			0.50
+		)
+	)
+	ZygorGuidesViewerFrameScrollScrollBarScrollUpButton:SetDisabledTexture(
+		CreateTextureWithCoords(
+			ZygorGuidesViewerFrameScrollScrollBarScrollUpButton,
+			SKINDIR .. "\\titlebuttons",
+			0.750,
+			0.875,
+			0.75,
+			1.00
+		)
+	)
+	ZygorGuidesViewerFrameScrollScrollBarScrollUpButton:SetHighlightTexture(
+		CreateTextureWithCoords(
+			ZygorGuidesViewerFrameScrollScrollBarScrollUpButton,
+			SKINDIR .. "\\titlebuttons",
+			0.750,
+			0.875,
+			0.50,
+			0.75
+		)
+	)
+	ZygorGuidesViewerFrameScrollScrollBarScrollDownButton:SetNormalTexture(
+		CreateTextureWithCoords(
+			ZygorGuidesViewerFrameScrollScrollBarScrollDownButton,
+			SKINDIR .. "\\titlebuttons",
+			0.875,
+			1.000,
+			0.00,
+			0.25
+		)
+	)
+	ZygorGuidesViewerFrameScrollScrollBarScrollDownButton:SetPushedTexture(
+		CreateTextureWithCoords(
+			ZygorGuidesViewerFrameScrollScrollBarScrollDownButton,
+			SKINDIR .. "\\titlebuttons",
+			0.875,
+			1.000,
+			0.25,
+			0.50
+		)
+	)
+	ZygorGuidesViewerFrameScrollScrollBarScrollDownButton:SetDisabledTexture(
+		CreateTextureWithCoords(
+			ZygorGuidesViewerFrameScrollScrollBarScrollDownButton,
+			SKINDIR .. "\\titlebuttons",
+			0.875,
+			1.000,
+			0.75,
+			1.00
+		)
+	)
+	ZygorGuidesViewerFrameScrollScrollBarScrollDownButton:SetHighlightTexture(
+		CreateTextureWithCoords(
+			ZygorGuidesViewerFrameScrollScrollBarScrollDownButton,
+			SKINDIR .. "\\titlebuttons",
+			0.875,
+			1.000,
+			0.50,
+			0.75
+		)
+	)
+	ZygorGuidesViewerFrameScrollScrollBarThumbTexture:SetTexture(SKINDIR .. "\\leavesofsteel")
+	ZygorGuidesViewerFrameScrollScrollBarTrackerTexture:SetTexture(SKINDIR .. "\\leavesofsteel")
 
 	self:UpdateLocking()
 	self:AlignFrame()
@@ -2473,98 +2922,115 @@ function me:ResizeFrame()
 	--autosize
 	--if (self.db.profile.autosize) then
 	--print("resize")
-	if self.frameNeedsResizing and self.frameNeedsResizing>0 then self.frameNeedsResizing = self.frameNeedsResizing - 1 end
-	if self.frameNeedsResizing>0 then return nil end
-	if not self.db then return end
+	if self.frameNeedsResizing and self.frameNeedsResizing > 0 then
+		self.frameNeedsResizing = self.frameNeedsResizing - 1
+	end
+	if self.frameNeedsResizing > 0 then
+		return nil
+	end
+	if not self.db then
+		return
+	end
 
 	if ZygorGuidesViewerFrame_Border_Bottom:GetRect() then
-		local xsize = select(3,ZygorGuidesViewerFrame_Border_Bottom:GetRect())/200
-		local ysize = select(4,ZygorGuidesViewerFrame_Border_Left:GetRect())/100
-		local ysize2 = select(4,ZygorGuidesViewerFrame_Border_Right:GetRect())/100
-		ZygorGuidesViewerFrame_Border_Left:SetTexCoord(0.2,0.8,0,1*ysize)
-		ZygorGuidesViewerFrame_Border_Right:SetTexCoord(0.2,0.8,0,1*ysize2)
-		ZygorGuidesViewerFrame_Border_Bottom:SetTexCoord(0,-xsize,1,-xsize,0,xsize,1,xsize)
+		local xsize = select(3, ZygorGuidesViewerFrame_Border_Bottom:GetRect()) / 200
+		local ysize = select(4, ZygorGuidesViewerFrame_Border_Left:GetRect()) / 100
+		local ysize2 = select(4, ZygorGuidesViewerFrame_Border_Right:GetRect()) / 100
+		ZygorGuidesViewerFrame_Border_Left:SetTexCoord(0.2, 0.8, 0, 1 * ysize)
+		ZygorGuidesViewerFrame_Border_Right:SetTexCoord(0.2, 0.8, 0, 1 * ysize2)
+		ZygorGuidesViewerFrame_Border_Bottom:SetTexCoord(0, -xsize, 1, -xsize, 0, xsize, 1, xsize)
 	end
-	
-	ZygorGuidesViewerFrame_Border:SetBackdropColor(self.db.profile.skincolors.back[1],self.db.profile.skincolors.back[2],self.db.profile.skincolors.back[3],self.db.profile.backopacity)
 
+	ZygorGuidesViewerFrame_Border:SetBackdropColor(
+		self.db.profile.skincolors.back[1],
+		self.db.profile.skincolors.back[2],
+		self.db.profile.skincolors.back[3],
+		self.db.profile.backopacity
+	)
 
 	--self:Debug("resizing from "..tostring(ZygorGuidesViewerFrame:GetHeight()))
 
-	if self.db.profile.showallsteps or self.db.profile.displaymode=="gold" then
+	if self.db.profile.showallsteps or self.db.profile.displaymode == "gold" then
 		ZygorGuidesViewerFrameScrollScrollBar:Show()
 	else
 		-- only autoresize when showing ONE step. If we have many steps, the user handles resizing.
 		ZygorGuidesViewerFrameScrollScrollBar:Hide()
 		--if not self.CurrentStepNum or not _G['ZygorGuidesViewerFrame_Step'..self.CurrentStepNum] then return end
 		local height = 0
-		for i=1,self.db.profile.showcountsteps do
-			if i>1 then height = height + STEP_SPACING end
+		for i = 1, self.db.profile.showcountsteps do
+			if i > 1 then
+				height = height + STEP_SPACING
+			end
 			height = height + self.stepframes[i]:GetHeight()
 		end
 
 		height = height + 40
 		--self:Debug("Height "..height.."  min "..MIN_HEIGHT)
-		if height < MIN_HEIGHT then height=MIN_HEIGHT end
+		if height < MIN_HEIGHT then
+			height = MIN_HEIGHT
+		end
 		self.Frame:SetHeight(height)
 	end
 
-
 	--self:Debug(("%d %d"):format(left,bottom))
---		ZygorGuidesViewerFrame:SetHeight(ZygorGuidesViewerFrame_Text:GetHeight()+35)
-	
+	--		ZygorGuidesViewerFrame:SetHeight(ZygorGuidesViewerFrame_Text:GetHeight()+35)
 
---	if ZygorGuidesViewerFrame_ActiveStep_Line1:GetTop() then
-		--ZygorGuidesViewerFrame_Resize.max = ZygorGuidesViewerFrame_Line1:GetTop()-ZygorGuidesViewerFrame_TextInfo2:GetBottom()+35
-		--ZygorGuidesViewerFrame_Resize:Stop()
-		--ZygorGuidesViewerFrame_Resize:Play()
+	--	if ZygorGuidesViewerFrame_ActiveStep_Line1:GetTop() then
+	--ZygorGuidesViewerFrame_Resize.max = ZygorGuidesViewerFrame_Line1:GetTop()-ZygorGuidesViewerFrame_TextInfo2:GetBottom()+35
+	--ZygorGuidesViewerFrame_Resize:Stop()
+	--ZygorGuidesViewerFrame_Resize:Play()
 
---		ZygorGuidesViewerFrame:SetHeight(ZygorGuidesViewerFrame_ActiveStep_Line1:GetTop()-ZygorGuidesViewerFrame_TextInfo2:GetBottom()+35)
---	end
+	--		ZygorGuidesViewerFrame:SetHeight(ZygorGuidesViewerFrame_ActiveStep_Line1:GetTop()-ZygorGuidesViewerFrame_TextInfo2:GetBottom()+35)
+	--	end
 
---	end
+	--	end
 end
 
 function me:GoalProgress(goal)
 	return "epic fail"
 end
 
-
 function me:ScrollToCurrentStep()
---	if self.ForceScrollToCurrentStep and self.CurrentStep then
---		self.ForceScrollToCurrentStep = false
-		if self.CurrentStep and self.db.profile.displaymode=="guide" then
-
-			local height=0
-			local step
-			if self.db.profile.showallsteps then
-				local topstep = self.stepframes[1].stepnum
-				if not topstep then return end
-				if self.stepframes[1].stepnum>self.CurrentStepNum --above
-				or (topstep+self.StepLimit-1<self.CurrentStepNum) --way below
---				or (ZygorGuidesViewerFrame_Step1:GetTop()-_G['ZygorGuidesViewerFrame_Step'..(self.CurrentStepNum-topstep+1)]:GetBottom()+STEP_SPACING>ZygorGuidesViewerFrameScroll:GetHeight()) --barely offscreen
-				or not self.stepframes[self.CurrentStepNum-topstep+1]:IsShown()
-				or self.stepframes[self.CurrentStepNum-topstep+1].truncated
-				then
-					ZygorGuidesViewerFrameScrollScrollBar:SetValue(self.CurrentStepNum)
-					ZygorGuidesViewerFrameScrollScrollBar:Show()
-				end
-			else
-				ZygorGuidesViewerFrameScrollScrollBar:Hide()
+	--	if self.ForceScrollToCurrentStep and self.CurrentStep then
+	--		self.ForceScrollToCurrentStep = false
+	if self.CurrentStep and self.db.profile.displaymode == "guide" then
+		local height = 0
+		local step
+		if self.db.profile.showallsteps then
+			local topstep = self.stepframes[1].stepnum
+			if not topstep then
+				return
 			end
+			if
+				self.stepframes[1].stepnum > self.CurrentStepNum --above
+				or (topstep + self.StepLimit - 1 < self.CurrentStepNum) --way below
+				--				or (ZygorGuidesViewerFrame_Step1:GetTop()-_G['ZygorGuidesViewerFrame_Step'..(self.CurrentStepNum-topstep+1)]:GetBottom()+STEP_SPACING>ZygorGuidesViewerFrameScroll:GetHeight()) --barely offscreen
+				or not self.stepframes[self.CurrentStepNum - topstep + 1]:IsShown()
+				or self.stepframes[self.CurrentStepNum - topstep + 1].truncated
+			then
+				ZygorGuidesViewerFrameScrollScrollBar:SetValue(self.CurrentStepNum)
+				ZygorGuidesViewerFrameScrollScrollBar:Show()
+			end
+		else
+			ZygorGuidesViewerFrameScrollScrollBar:Hide()
 		end
---	else
---		self.ForceScrollToCurrentStep = true
---	end
+	end
+	--	else
+	--		self.ForceScrollToCurrentStep = true
+	--	end
 end
 
 function me:IsVisible()
 	return self.Frame:IsVisible()
 end
 
-function me:SetVisible(info,onoff)
-	if not onoff and self:IsVisible() then self:ToggleFrame() end
-	if onoff and not self:IsVisible() then self:ToggleFrame() end
+function me:SetVisible(info, onoff)
+	if not onoff and self:IsVisible() then
+		self:ToggleFrame()
+	end
+	if onoff and not self:IsVisible() then
+		self:ToggleFrame()
+	end
 end
 
 function me:ToggleFrame()
@@ -2577,81 +3043,99 @@ end
 
 function me:IsDefaultFitting(default)
 	-- deprecated?
-	local _,race = UnitRace("player")
-	local _,class = UnitClass("player")
-	if (class=="DEATHKNIGHT") then race=class end
-	default=default:upper()
-	race=race:upper()
-	class=class:upper()
-	return race==default or class==default or race.." "..class==default
+	local _, race = UnitRace("player")
+	local _, class = UnitClass("player")
+	if class == "DEATHKNIGHT" then
+		race = class
+	end
+	default = default:upper()
+	race = race:upper()
+	class = class:upper()
+	return race == default or class == default or race .. " " .. class == default
 end
 
 --- Checks if the player's race/class matches the requirements.
 -- @param requirement May be a string or a table of strings (which are then ORed).
 -- @return true if matching, false if not.
-function me:RaceClassMatch(fit,dkfix)
-	if type(fit)=="table" then
-		for i,v in ipairs(fit) do if self:RaceClassMatch(v) then return true end end
+function me:RaceClassMatch(fit, dkfix)
+	if type(fit) == "table" then
+		for i, v in ipairs(fit) do
+			if self:RaceClassMatch(v) then
+				return true
+			end
+		end
 		return false --otherwise
 	end
 
-	local _,race = UnitRace("player")
-	local _,class = UnitClass("player")
-	race=race:upper()
-	class=class:upper()
-	if dkfix and class=="DEATHKNIGHT" then race="BLAH" end
-	fit=fit:upper()
-	local neg=false
-	if fit:sub(1,1)=="!" then
-		neg=true
-		fit=fit:sub(2)
+	local _, race = UnitRace("player")
+	local _, class = UnitClass("player")
+	race = race:upper()
+	class = class:upper()
+	if dkfix and class == "DEATHKNIGHT" then
+		race = "BLAH"
 	end
-	local ret = (race==fit or class==fit or race.." "..class==fit)
-	if neg then return not ret else return ret end
+	fit = fit:upper()
+	local neg = false
+	if fit:sub(1, 1) == "!" then
+		neg = true
+		fit = fit:sub(2)
+	end
+	local ret = (race == fit or class == fit or race .. " " .. class == fit)
+	if neg then
+		return not ret
+	else
+		return ret
+	end
 end
 
 function me:RaceClassMatchList(list)
-	list=list..","
-	local st,en=1
+	list = list .. ","
+	local st, en = 1
 	for fit in list:gmatch("(.-),") do
-		if self:RaceClassMatch(fit) then return true end
+		if self:RaceClassMatch(fit) then
+			return true
+		end
 	end
 end
 
-function me:SkipStep(delta,fast)
-	if not self.CurrentGuide then return end
+function me:SkipStep(delta, fast)
+	if not self.CurrentGuide then
+		return
+	end
 
-	local skipped=0
+	local skipped = 0
 	local atstart = false
 
-	if self.completioninterval > self.completionintervallong then self.completioninterval = self.completionintervallong end
+	if self.completioninterval > self.completionintervallong then
+		self.completioninterval = self.completionintervallong
+	end
 
-	self.completionelapsed=0
+	self.completionelapsed = 0
 	repeat
-		self:Debug("SkipStep "..delta.." "..(fast and 'fast' or ''))
-		local i = self.CurrentStepNum+delta
-		if i<1 then
+		self:Debug("SkipStep " .. delta .. " " .. (fast and "fast" or ""))
+		local i = self.CurrentStepNum + delta
+		if i < 1 then
 			--if self.CurrentGuideName==1 then return end		-- first section? bail.
-			if self.CurrentGuide.defaultfor then 
-				atstart=true
+			if self.CurrentGuide.defaultfor then
+				atstart = true
 				break
-			end		-- no skipping back from a starter section.
+			end -- no skipping back from a starter section.
 
 			--local default = self:FindDefaultGuide()
 
-			if self.CurrentGuide['prev'] then
-				self:SetGuide(self.CurrentGuide['prev'])
+			if self.CurrentGuide["prev"] then
+				self:SetGuide(self.CurrentGuide["prev"])
 			else
 				local founddef = false
-				for i,v in ipairs(self.registeredguides) do
-					if v.next==self.CurrentGuideName and (not v.defaultfor or self:RaceClassMatch(v.defaultfor)) then
+				for i, v in ipairs(self.registeredguides) do
+					if v.next == self.CurrentGuideName and (not v.defaultfor or self:RaceClassMatch(v.defaultfor)) then
 						self:SetGuide(i)
-						founddef=true
+						founddef = true
 						break
 					end
 				end
 				if not founddef then
-					atstart=true
+					atstart = true
 					break
 				end
 			end
@@ -2661,96 +3145,117 @@ function me:SkipStep(delta,fast)
 				self:SetGuide(default)
 			end
 			--]]
-			i=#(self.CurrentGuide["steps"])
+			i = #self.CurrentGuide["steps"]
 		end
-		if i>#self.CurrentGuide["steps"] or (delta>0 and self.CurrentStep.finish) then
-			if self.CurrentGuide['next'] then
-				self:SetGuide(self.CurrentGuide['next'])
-				i=1
+		if i > #self.CurrentGuide["steps"] or (delta > 0 and self.CurrentStep.finish) then
+			if self.CurrentGuide["next"] then
+				self:SetGuide(self.CurrentGuide["next"])
+				i = 1
 			else
 				-- no next? capping
 				if self.CurrentStep.finish then
 					-- capped
-					self.pause=true
+					self.pause = true
 					return
 				else
 					-- cap it
-					self.CurrentStep = { num=self.CurrentStepNum+1, parentGuide=self.CurrentStep.parentGuide, finish=true }
-					self.CurrentStep.goals={ [1]={ num=1, action="", text="This guide is now complete.", parentStep=self.CurrentStep } }
-					setmetatable(self.CurrentStep,ZGV.StepProto_mt)
-					setmetatable(self.CurrentStep.goals[1],ZGV.GoalProto_mt)
-					tinsert(self.CurrentGuide.steps,self.CurrentStep)
+					self.CurrentStep =
+						{ num = self.CurrentStepNum + 1, parentGuide = self.CurrentStep.parentGuide, finish = true }
+					self.CurrentStep.goals = {
+						[1] = {
+							num = 1,
+							action = "",
+							text = "This guide is now complete.",
+							parentStep = self.CurrentStep,
+						},
+					}
+					setmetatable(self.CurrentStep, ZGV.StepProto_mt)
+					setmetatable(self.CurrentStep.goals[1], ZGV.GoalProto_mt)
+					tinsert(self.CurrentGuide.steps, self.CurrentStep)
 				end
 			end
 		end
-		
-		self.pause=not fast
-		self.fastforward=fast
-		
+
+		self.pause = not fast
+		self.fastforward = fast
+
 		self.LastSkip = delta
 		--self:Debug("LastSkip "..self.LastSkip)
 
 		self:FocusStepQuiet(i) --quiet!
-		skipped=skipped+1
-		if skipped>10000 then error("Looping on skipping! guide "..self.CurrentGuideName.." step "..i) end
+		skipped = skipped + 1
+		if skipped > 10000 then
+			error("Looping on skipping! guide " .. self.CurrentGuideName .. " step " .. i)
+		end
 	until self.CurrentStep:AreRequirementsMet()
 
 	if atstart then
-		self.pause=true
-		self.fastforward=false
+		self.pause = true
+		self.fastforward = false
 	end
 
 	self:FocusStep(self.CurrentStepNum)
 end
 
 function me:Print(s)
-	ChatFrame1:AddMessage(L['name']..": "..tostring(s))
+	ChatFrame1:AddMessage(L["name"] .. ": " .. tostring(s))
 end
 
 function me:AnimateGears()
 	if ZygorGuidesViewerFrame_Border:IsVisible() then
 		ZygorGuidesViewerFrame_Border_Gear1_turn2:Stop()
 		--ZygorGuidesViewerFrame_Border_Gear1_turn2:GetAnimations():SetSmoothing(ZygorGuidesViewerFrame_Border_Gear1_turn2:IsPlaying() and "OUT" or "IN_OUT")
-		ZygorGuidesViewerFrame_Border_Gear1.tangle = self.CurrentStepNum*(-11)
+		ZygorGuidesViewerFrame_Border_Gear1.tangle = self.CurrentStepNum * -11
 		ZygorGuidesViewerFrame_Border_Gear1_turn2:Play()
 
 		ZygorGuidesViewerFrame_Border_Gear2_turn2:Stop()
 		--ZygorGuidesViewerFrame_Border_Gear2_turn2:GetAnimations():SetSmoothing(ZygorGuidesViewerFrame_Border_Gear2_turn2:IsPlaying() and "OUT" or "IN_OUT")
-		ZygorGuidesViewerFrame_Border_Gear2.tangle = self.CurrentStepNum*(65)
+		ZygorGuidesViewerFrame_Border_Gear2.tangle = self.CurrentStepNum * 65
 		ZygorGuidesViewerFrame_Border_Gear2_turn2:Play()
 
 		ZygorGuidesViewerFrame_Border_Gear3_turn2:Stop()
 		--ZygorGuidesViewerFrame_Border_Gear3_turn2:GetAnimations():SetSmoothing(ZygorGuidesViewerFrame_Border_Gear3_turn2:IsPlaying() and "OUT" or "IN_OUT")
-		ZygorGuidesViewerFrame_Border_Gear3.tangle = self.CurrentStepNum*(85)
+		ZygorGuidesViewerFrame_Border_Gear3.tangle = self.CurrentStepNum * 85
 		ZygorGuidesViewerFrame_Border_Gear3_turn2:Play()
 	end
 end
 
-
 local function dumpquest(quest)
-	local s = ("%d. \"%s\" ##%d (lv=%d%s):\n"):format(quest.index,quest.title,quest.id,quest.level,quest.complete and ", complete" or "")
-	for i,goal in ipairs(quest.goals) do
-		s = s .. ("... %d. \"%s\" (%s, %s/%s%s)\n"):format(i,goal.leaderboard,goal.type,goal.num,goal.needed,goal.complete and ", complete" or "")
+	local s = ('%d. "%s" ##%d (lv=%d%s):\n'):format(
+		quest.index,
+		quest.title,
+		quest.id,
+		quest.level,
+		quest.complete and ", complete" or ""
+	)
+	for i, goal in ipairs(quest.goals) do
+		s = s
+			.. ('... %d. "%s" (%s, %s/%s%s)\n'):format(
+				i,
+				goal.leaderboard,
+				goal.type,
+				goal.num,
+				goal.needed,
+				goal.complete and ", complete" or ""
+			)
 	end
 	return s
 end
 
-
-
-function me:UNIT_INVENTORY_CHANGED(event,unit)
-	if unit=="player" then
+function me:UNIT_INVENTORY_CHANGED(event, unit)
+	if unit == "player" then
 		self:TryToCompleteStep(true)
 	end
 end
 
-local blobstate=nil
+local blobstate = nil
 function me:PLAYER_REGEN_DISABLED()
 	--ZygorGuidesViewerFrame_Cover:Show()
 	--ZygorGuidesViewerFrame_Cover:EnableMouse(true)
 	self:UpdateCooldowns()
 	if self.db.profile.hideincombat then
 		if self.Frame:IsVisible() then
-			UIFrameFadeOut(self.Frame,0.5,1.0,0.0)
+			UIFrameFadeOut(self.Frame, 0.5, 1.0, 0.0)
 			self.hiddenincombat = true
 		end
 	end
@@ -2759,18 +3264,24 @@ function me:PLAYER_REGEN_DISABLED()
 	WorldMapBlobFrame:SetParent(nil)
 	--WorldMapBlobFrame:ClearAllPoints()
 	WorldMapBlobFrame:Hide()
-	WorldMapBlobFrame.Hide = function() blobstate=nil end
-	WorldMapBlobFrame.Show = function() blobstate=true end
+	WorldMapBlobFrame.Hide = function()
+		blobstate = nil
+	end
+	WorldMapBlobFrame.Show = function()
+		blobstate = true
+	end
 end
 
 function me:PLAYER_REGEN_ENABLED()
 	--ZygorGuidesViewerFrame_Cover:Hide()
 	--ZygorGuidesViewerFrame_Cover:EnableMouse(false)
-	if self.CurrentStep then self.CurrentStep:PrepareCompletion() end
+	if self.CurrentStep then
+		self.CurrentStep:PrepareCompletion()
+	end
 	self:UpdateFrameCurrent()
 	self:UpdateCooldowns()
 	if self.hiddenincombat then
-		UIFrameFadeIn(self.Frame,0.5,0.0,1.0)
+		UIFrameFadeIn(self.Frame, 0.5, 0.0, 1.0)
 	end
 	self.hiddenincombat = nil
 
@@ -2780,7 +3291,9 @@ function me:PLAYER_REGEN_ENABLED()
 	--WorldMapBlobFrame:SetAllPoints(WorldMapDetailFrame)
 	WorldMapBlobFrame.Hide = nil
 	WorldMapBlobFrame.Show = nil
-	if blobstate then WorldMapBlobFrame:Show() end
+	if blobstate then
+		WorldMapBlobFrame:Show()
+	end
 end
 
 function me:SPELL_UPDATE_COOLDOWN()
@@ -2794,15 +3307,23 @@ function me:PLAYER_CONTROL_GAINED()
 	self:TryToCompleteStep(true)
 end
 
-function me:FindData(array,what,data)
-	if not (type(array)=="table") then return nil end
-	local i,d
-	for i,d in pairs(array) do if d[what]==data then return d end end
+function me:FindData(array, what, data)
+	if not (type(array) == "table") then
+		return nil
+	end
+	local i, d
+	for i, d in pairs(array) do
+		if d[what] == data then
+			return d
+		end
+	end
 end
 
-function me:NewQuestEvent(questTitle,id)
-	self:Debug("New Quest: "..(questTitle or "?").." id "..(id or "?"))
-	if not id or not questTitle then return end
+function me:NewQuestEvent(questTitle, id)
+	self:Debug("New Quest: " .. (questTitle or "?") .. " id " .. (id or "?"))
+	if not id or not questTitle then
+		return
+	end
 	--[[
 	if self.db.profile.debug then
 		for index,quest in pairs(self.quests) do if quest.title==questTitle then
@@ -2811,14 +3332,16 @@ function me:NewQuestEvent(questTitle,id)
 	end
 	--]]
 
-	self.recentlyAcceptedQuests[questTitle]=true
-	self.recentlyAcceptedQuests[id]=true
+	self.recentlyAcceptedQuests[questTitle] = true
+	self.recentlyAcceptedQuests[id] = true
 
-	if self.Writer then self.Writer:NotifyQuest("NEW",id,questTitle) end
+	if self.Writer then
+		self.Writer:NotifyQuest("NEW", id, questTitle)
+	end
 end
 
-function me:CompletedQuestEvent(questTitle,id,daily)
-	self:Debug("Completed Quest: "..tostring(questTitle)..", id: "..tostring(id))
+function me:CompletedQuestEvent(questTitle, id, daily)
+	self:Debug("Completed Quest: " .. tostring(questTitle) .. ", id: " .. tostring(id))
 
 	--[[
 	if not id then
@@ -2831,24 +3354,30 @@ function me:CompletedQuestEvent(questTitle,id,daily)
 	self.completingQuest = nil
 
 	if id then
-		self.completedQuests[id]=true
+		self.completedQuests[id] = true
 		--self.recentlyCompletedQuests[id]=true
 		--if daily then self.db.char.completedDailies[id]=time() end
 
-		if self.CurrentGuide and self.CurrentGuide.daily and daily then self.db.char.permaCompletedDailies[id]=true end
+		if self.CurrentGuide and self.CurrentGuide.daily and daily then
+			self.db.char.permaCompletedDailies[id] = true
+		end
 	else
-		self.completedQuestTitles[questTitle]=true
+		self.completedQuestTitles[questTitle] = true
 		QueryQuestsCompleted() -- start a re-fetch, just in case
 		--self.recentlyCompletedQuests[questTitle]=true
 		--if daily then self.db.char.completedDailies[questTitle]=time() end
 	end
-	
-	if self.Writer then self.Writer:NotifyQuest("COMPLETED",id,questTitle) end
+
+	if self.Writer then
+		self.Writer:NotifyQuest("COMPLETED", id, questTitle)
+	end
 end
 
-function me:LostQuestEvent(questTitle,id,surelyComplete)
-	self:Debug("Lost Quest: "..tostring(questTitle)..", id: "..tostring(id)..", complete: "..tostring(surelyComplete))
-	
+function me:LostQuestEvent(questTitle, id, surelyComplete)
+	self:Debug(
+		"Lost Quest: " .. tostring(questTitle) .. ", id: " .. tostring(id) .. ", complete: " .. tostring(surelyComplete)
+	)
+
 	-- NO sure-completing. A quest may well be abandoned while complete.
 	surelyComplete = false
 
@@ -2860,10 +3389,10 @@ function me:LostQuestEvent(questTitle,id,surelyComplete)
 	end
 	--]]
 
-	if self.Writer then self.Writer:NotifyQuest("LOST",id,questTitle) end
+	if self.Writer then
+		self.Writer:NotifyQuest("LOST", id, questTitle)
+	end
 end
-
-
 
 function me:Frame_OnShow()
 	PlaySound("igQuestLogOpen")
@@ -2888,89 +3417,132 @@ function me:Frame_OnHide()
 	PlaySound("igQuestLogClose")
 	self.db.profile.visible = not not self.Frame:IsVisible()
 	if not InCombatLockdown() then
-		for i=1,20,1 do
-			local action = _G["ZygorGuidesViewerFrame_Act"..i.."Action"]
-			if action then action:Hide() end
-			local cooldown = _G["ZygorGuidesViewerFrame_Act"..i.."ActionCooldown"]
-			if cooldown then cooldown:Hide() end
+		for i = 1, 20, 1 do
+			local action = _G["ZygorGuidesViewerFrame_Act" .. i .. "Action"]
+			if action then
+				action:Hide()
+			end
+			local cooldown = _G["ZygorGuidesViewerFrame_Act" .. i .. "ActionCooldown"]
+			if cooldown then
+				cooldown:Hide()
+			end
 		end
 	end
 
 	-- this is a HELL ugly hack.
 	-- "Do not hide when it's the World Map that hid us".
-	if self.db.profile.hidearrowwithguide
-	and not WorldMapFrame.blockWorldMapUpdate -- this would mean we're enlarging the small map
-	and not debugstack():find("TOGGLEWORLDMAP") -- UGLY hack
+	if
+		self.db.profile.hidearrowwithguide
+		and not WorldMapFrame.blockWorldMapUpdate -- this would mean we're enlarging the small map
+		and not debugstack():find("TOGGLEWORLDMAP") -- UGLY hack
 	then
 		self:Debug("Hiding arrow with guide")
 		self:SetWaypoint(false)
 	end
 end
 
-
-function me:GoalOnClick(goalframe,button)
+function me:GoalOnClick(goalframe, button)
 	local stepframe = goalframe:GetParent():GetParent()
-	if not self.db.profile.showallsteps and stepframe.step~=self.CurrentStep then return end -- no clicking on non-current steps in compact mode
+	if not self.db.profile.showallsteps and stepframe.step ~= self.CurrentStep then
+		return
+	end -- no clicking on non-current steps in compact mode
 	--if stepframe:GetScript("OnClick") then stepframe:GetScript("OnClick")(stepframe,button) end
 
 	local goal = goalframe:GetParent().goal
-	if not goal then return end
+	if not goal then
+		return
+	end
 	--local num=goalframe.goalnum
-	self:Debug("goal clicked "..tostring(goal.num))
+	self:Debug("goal clicked " .. tostring(goal.num))
 	--local goal = self.CurrentStep.goals[num]
-	if button=="LeftButton" then
+	if button == "LeftButton" then
 		if goal.x and not goal.force_noway then
 			self:SetWaypoint(goal.num)
 		elseif goal.questid then
 			--if InCombatLockdown() then return end
 			if self.questsbyid[goal.questid] and WorldMap_OpenToQuest then -- 3.3.0
 				WorldMap_OpenToQuest(goal.questid)
-				local done,posX,posY,obj = QuestPOIGetIconInfo(goal.questid)
+				local done, posX, posY, obj = QuestPOIGetIconInfo(goal.questid)
 				if posX or posY then
 					local q = self.questsbyid[goal.questid]
 					local title
-					if q then title=q.title end
-					self:Debug("Setting waypoint to POI: "..posX.." "..posY)
-					self:SetWaypoint(posX*100,posY*100,title)
+					if q then
+						title = q.title
+					end
+					self:Debug("Setting waypoint to POI: " .. posX .. " " .. posY)
+					self:SetWaypoint(posX * 100, posY * 100, title)
 				end
 			end
 			local max = self.maxQuestLevels[goal.questid]
-			self:Print("Quest \""..goal.quest.."\" (#"..tostring(goal.questid).."): done at level "..tostring(goal.parentStep.level)..", reaches to level "..tostring(max))
+			self:Print(
+				'Quest "'
+					.. goal.quest
+					.. '" (#'
+					.. tostring(goal.questid)
+					.. "): done at level "
+					.. tostring(goal.parentStep.level)
+					.. ", reaches to level "
+					.. tostring(max)
+			)
 			local mentioned = me:GetMentionedFollowups(goal.questid)
-			if #mentioned>1 then
-				local s=""
-				for i=2,#mentioned do
-					if #s>0 then s=s.."\n" end
-					s=s.."\""..(me:GetQuestData(mentioned[i][1]) or "?").."\" (#"..tostring(mentioned[i][1])..") at level "..mentioned[i][2]
+			if #mentioned > 1 then
+				local s = ""
+				for i = 2, #mentioned do
+					if #s > 0 then
+						s = s .. "\n"
+					end
+					s = s
+						.. '"'
+						.. (me:GetQuestData(mentioned[i][1]) or "?")
+						.. '" (#'
+						.. tostring(mentioned[i][1])
+						.. ") at level "
+						.. mentioned[i][2]
 				end
-				self:Print("Follow-ups:\n"..s)
+				self:Print("Follow-ups:\n" .. s)
 			else
 				self:Print("No follow-ups.")
 			end
 		end
 	else
 		if self.recentlyCompletedGoals[goal] then
-			self.recentlyCompletedGoals[goal]=false
-			self.recentlyStickiedGoals[goal]=false
-			self.recentlyVisitedCoords[goal]=false
+			self.recentlyCompletedGoals[goal] = false
+			self.recentlyStickiedGoals[goal] = false
+			self.recentlyVisitedCoords[goal] = false
 			if goal.quest and IsShiftKeyDown() then
-				self.completedQuests[goal.quest]=nil
-				if goal.questid then self.completedQuests[goal.questid]=nil end
-				self:Print("Marking quest '"..goal.quest.."'"..(goal.questid and " (#"..goal.questid..")" or "").." as not completed.")
+				self.completedQuests[goal.quest] = nil
+				if goal.questid then
+					self.completedQuests[goal.questid] = nil
+				end
+				self:Print(
+					"Marking quest '"
+						.. goal.quest
+						.. "'"
+						.. (goal.questid and " (#" .. goal.questid .. ")" or "")
+						.. " as not completed."
+				)
 			else
 				self:Print("Marking step as incomplete.")
 			end
 		else
 			--self.recentlyCompletedGoals[goal]=true
-			self.recentlyStickiedGoals[goal]=true
+			self.recentlyStickiedGoals[goal] = true
 			if goal.quest and IsShiftKeyDown() then
-				self.completedQuests[goal.quest]=true
-				if goal.questid then self.completedQuests[goal.questid]=true end
-				self:Print("Marking quest '"..goal.quest.."'"..(goal.questid and " (#"..goal.questid..")" or "").." as completed.")
+				self.completedQuests[goal.quest] = true
+				if goal.questid then
+					self.completedQuests[goal.questid] = true
+				end
+				self:Print(
+					"Marking quest '"
+						.. goal.quest
+						.. "'"
+						.. (goal.questid and " (#" .. goal.questid .. ")" or "")
+						.. " as completed."
+				)
 			end
 		end
-		self.pause=nil
-		self.LastSkip=1
+		self.pause = nil
+		self.LastSkip = 1
 		--self.AutoskipTemp = true
 		self:UpdateFrame()
 	end
@@ -2978,42 +3550,48 @@ end
 
 function me:GoalOnEnter(goalframe)
 	local goal = goalframe:GetParent().goal
-	if not goal then return end
+	if not goal then
+		return
+	end
 
-	local wayline,infoline,image
+	local wayline, infoline, image
 
 	if goal.tooltip and not self.db.profile.tooltipsbelow then
-		infoline = "|cff00ff00"..goal.tooltip.."|r"
+		infoline = "|cff00ff00" .. goal.tooltip .. "|r"
 	end
 	if goal.x and goal.y and goal.map then
 		-- if locked or force_noway, then no clicking, bare info.
 		if self.db.profile.windowlocked or goal.force_noway then
-			wayline = L['tooltip_waypoint_coords']:format(goal.map.." "..goal.x..";"..goal.y)
+			wayline = L["tooltip_waypoint_coords"]:format(goal.map .. " " .. goal.x .. ";" .. goal.y)
 		else
-			wayline = L['tooltip_waypoint']:format(goal.map.." "..goal.x..";"..goal.y)
+			wayline = L["tooltip_waypoint"]:format(goal.map .. " " .. goal.x .. ";" .. goal.y)
 		end
 	end
 
 	if goal.image then
-		image = DIR.."\\Images\\"..goal.image..".tga"
+		image = DIR .. "\\Images\\" .. goal.image .. ".tga"
 	end
 
 	if infoline or wayline or image then
-		GameTooltip:SetOwner(goalframe,"ANCHOR_TOPRIGHT")
+		GameTooltip:SetOwner(goalframe, "ANCHOR_TOPRIGHT")
 		GameTooltip:ClearAllPoints()
-		GameTooltip:SetPoint("BOTTOM",goalframe,"TOP")
+		GameTooltip:SetPoint("BOTTOM", goalframe, "TOP")
 		GameTooltip:SetText(goal:GetText())
 
-		local lines=1
+		local lines = 1
 		if infoline then
-			GameTooltip:AddLine(infoline,0,1,0)
-			if _G['GameTooltipTextLeft'..lines]:GetWidth()>300 then _G['GameTooltipTextLeft'..lines]:SetWidth(300) end
-			lines=lines+1
+			GameTooltip:AddLine(infoline, 0, 1, 0)
+			if _G["GameTooltipTextLeft" .. lines]:GetWidth() > 300 then
+				_G["GameTooltipTextLeft" .. lines]:SetWidth(300)
+			end
+			lines = lines + 1
 		end
 		if wayline then
-			GameTooltip:AddLine(wayline,0,1,0)
-			if _G['GameTooltipTextLeft'..lines]:GetWidth()>300 then _G['GameTooltipTextLeft'..lines]:SetWidth(300) end
-			lines=lines+1
+			GameTooltip:AddLine(wayline, 0, 1, 0)
+			if _G["GameTooltipTextLeft" .. lines]:GetWidth() > 300 then
+				_G["GameTooltipTextLeft" .. lines]:SetWidth(300)
+			end
+			lines = lines + 1
 		end
 		GameTooltip:Show()
 		if image then
@@ -3029,59 +3607,65 @@ function me:GoalOnEnter(goalframe)
 			GameTooltip:AddLine(" ")
 			GameTooltip:AddTexture(image)
 			img:ClearAllPoints()
-			img:SetPoint("TOPLEFT",_G['GameTooltipTextLeft'..lines],"BOTTOMLEFT")
+			img:SetPoint("TOPLEFT", _G["GameTooltipTextLeft" .. lines], "BOTTOMLEFT")
 			--img:SetTexture(image)
 			img:SetWidth(128)
 			img:SetHeight(128)
 			img:Show()
 			GameTooltip:Show()
-			GameTooltip:SetHeight(150 + lines*20)
+			GameTooltip:SetHeight(150 + lines * 20)
 		end
 	end
 end
 
-function me:GoalOnLeave(goalframe,num)
+function me:GoalOnLeave(goalframe, num)
 	GameTooltip:Hide()
 end
 
-
-local function insert_guides(arr,guides)
+local function insert_guides(arr, guides)
 	local data
-	for i,guide in ipairs(guides) do
+	for i, guide in ipairs(guides) do
 		data = ZGV:GetGuideByTitle(guide.full)
 		local item = {
-			text = guide.step and L['menu_last_entry']:format(guide.short or "?",guide.step) or (guide.short or "?"),
-			checked = function() return ZGV.CurrentGuideName==guide.full end,
-			func = function()  CloseDropDownMenus()  ZGV:SetGuide(guide.full,guide.step) end,
+			text = guide.step and L["menu_last_entry"]:format(guide.short or "?", guide.step) or (guide.short or "?"),
+			checked = function()
+				return ZGV.CurrentGuideName == guide.full
+			end,
+			func = function()
+				CloseDropDownMenus()
+				ZGV:SetGuide(guide.full, guide.step)
+			end,
 			tooltipTitle = data and data.description and guide.short,
 			tooltipText = data and data.description,
 			tooltipOnButton = true,
 		}
-		tinsert(arr,item)
+		tinsert(arr, item)
 	end
 end
 
 local function group_to_array(group)
 	local arr = {}
-	for i,group in ipairs(group.groups) do
+	for i, group in ipairs(group.groups) do
 		local item = {
 			text = group.name,
 			hasArrow = true,
 			menuList = group_to_array(group),
 			keepShownOnClick = true,
-			func = function(self) _G[self:GetName().."Check"]:Hide() end,
+			func = function(self)
+				_G[self:GetName() .. "Check"]:Hide()
+			end,
 			--notCheckable = true
 		}
 		--if #item.menuTable>0 then
-			tinsert(arr,item)
+		tinsert(arr, item)
 		--end
 	end
-	insert_guides(arr,group.guides)
+	insert_guides(arr, group.guides)
 	return arr
 end
 
-local function BuildDropDown_GuideMenu(level,value)
-	local self=ZGV
+local function BuildDropDown_GuideMenu(level, value)
+	local self = ZGV
 	--[[
 	local menu = { }
 
@@ -3098,15 +3682,15 @@ function me:OpenGuideMenu()
 	local menu = group_to_array(self.registered_groups)
 
 	-- history
-	tinsert(menu,{ text=L['menu_last'],isTitle=true })
-	insert_guides(menu,self.db.char.guides_history)
+	tinsert(menu, { text = L["menu_last"], isTitle = true })
+	insert_guides(menu, self.db.char.guides_history)
 
 	-- display!
 	UIDropDownMenu_SetAnchor(ZGVFMenu, -50, 15, "TOPRIGHT", ZygorGuidesViewerFrame_Border_TitleBar, "BOTTOMRIGHT")
 	--local backdrop = DropDownList1:GetBackdrop()
 	--backdrop.edgeSize=16
 	--DropDownList1:SetBackdrop(backdrop)
-	EasyMenu(menu,ZGVFMenu,nil,30,10,"MENU",3)
+	EasyMenu(menu, ZGVFMenu, nil, 30, 10, "MENU", 3)
 	UIDropDownMenu_SetWidth(ZGVFMenu, 300)
 end
 
@@ -3119,34 +3703,50 @@ function me:OpenQuickMenu()
 		},
 		--]]
 		{
-			text = L['opt_hideborder'],
-			tooltipTitle = L['opt_hideborder'],
+			text = L["opt_hideborder"],
+			tooltipTitle = L["opt_hideborder"],
 			tooltipText = L["opt_hideborder_desc"],
-			checked = function() return self.db.profile.hideborder end,
-			func = function() self:SetOption("Display","hideborder") end,
+			checked = function()
+				return self.db.profile.hideborder
+			end,
+			func = function()
+				self:SetOption("Display", "hideborder")
+			end,
 			keepShownOnClick = true,
 		},
 		{
-			text = L['opt_windowlocked'],
-			tooltipTitle = L['opt_windowlocked'],
-			tooltipText = L['opt_windowlocked_desc'],
-			checked = function()  return self.db.profile.windowlocked end,
-			func = function()  self:SetOption("Display","windowlocked")  end,
+			text = L["opt_windowlocked"],
+			tooltipTitle = L["opt_windowlocked"],
+			tooltipText = L["opt_windowlocked_desc"],
+			checked = function()
+				return self.db.profile.windowlocked
+			end,
+			func = function()
+				self:SetOption("Display", "windowlocked")
+			end,
 			keepShownOnClick = true,
 		},
 		{
-			text = L['opt_miniresizeup'],
-			tooltipTitle = L['opt_miniresizeup'],
-			func = function() self:SetOption("Display","resizeup") end,
-			checked = function() return self.db.profile.resizeup end,
+			text = L["opt_miniresizeup"],
+			tooltipTitle = L["opt_miniresizeup"],
+			func = function()
+				self:SetOption("Display", "resizeup")
+			end,
+			checked = function()
+				return self.db.profile.resizeup
+			end,
 			keepShownOnClick = true,
 		},
 		{
-			text = L['opt_hideincombat'],
-			tooltipTitle = L['opt_hideincombat'],
-			tooltipText = L['opt_hideincombat_desc'],
-			checked = function()  return self.db.profile.hideincombat  end,
-			func = function()  self:SetOption("Display","hideincombat")  end,
+			text = L["opt_hideincombat"],
+			tooltipTitle = L["opt_hideincombat"],
+			tooltipText = L["opt_hideincombat_desc"],
+			checked = function()
+				return self.db.profile.hideincombat
+			end,
+			func = function()
+				self:SetOption("Display", "hideincombat")
+			end,
 			keepShownOnClick = true,
 		},
 		--[[
@@ -3162,108 +3762,134 @@ function me:OpenQuickMenu()
 		--]]
 	}
 
-	EasyMenu(menu,ZGVFMenu,"ZygorGuidesViewerFrame_Border_SettingsButton",0,0,"MENU",3)
+	EasyMenu(menu, ZGVFMenu, "ZygorGuidesViewerFrame_Border_SettingsButton", 0, 0, "MENU", 3)
 end
 
 function me:OpenQuickSteps()
 	local menu = {
 		{
-			text=L["opt_showcountsteps"],
+			text = L["opt_showcountsteps"],
 			isTitle = true,
 		},
 		{
-			text=L["opt_showcountsteps_all"],
-			func=function() self:SetOption("Display","showcountsteps 0") end,
-			checked=function() return self.db.profile.showallsteps end,
+			text = L["opt_showcountsteps_all"],
+			func = function()
+				self:SetOption("Display", "showcountsteps 0")
+			end,
+			checked = function()
+				return self.db.profile.showallsteps
+			end,
 		},
 		{
-			text='1',
-			func=function() self:SetOption("Display","showcountsteps 1") end,
-			checked=function() return not self.db.profile.showallsteps and self.db.profile.showcountsteps==1 end,
+			text = "1",
+			func = function()
+				self:SetOption("Display", "showcountsteps 1")
+			end,
+			checked = function()
+				return not self.db.profile.showallsteps and self.db.profile.showcountsteps == 1
+			end,
 		},
 		{
-			text='2',
-			func=function() self:SetOption("Display","showcountsteps 2") end,
-			checked=function() return not self.db.profile.showallsteps and self.db.profile.showcountsteps==2 end,
+			text = "2",
+			func = function()
+				self:SetOption("Display", "showcountsteps 2")
+			end,
+			checked = function()
+				return not self.db.profile.showallsteps and self.db.profile.showcountsteps == 2
+			end,
 		},
 		{
-			text='3',
-			func=function() self:SetOption("Display","showcountsteps 3") end,
-			checked=function() return not self.db.profile.showallsteps and self.db.profile.showcountsteps==3 end,
+			text = "3",
+			func = function()
+				self:SetOption("Display", "showcountsteps 3")
+			end,
+			checked = function()
+				return not self.db.profile.showallsteps and self.db.profile.showcountsteps == 3
+			end,
 		},
 		{
-			text='4',
-			func=function() self:SetOption("Display","showcountsteps 4") end,
-			checked=function() return not self.db.profile.showallsteps and self.db.profile.showcountsteps==4 end,
+			text = "4",
+			func = function()
+				self:SetOption("Display", "showcountsteps 4")
+			end,
+			checked = function()
+				return not self.db.profile.showallsteps and self.db.profile.showcountsteps == 4
+			end,
 		},
 		{
-			text='5',
-			func=function() self:SetOption("Display","showcountsteps 5") end,
-			checked=function() return not self.db.profile.showallsteps and self.db.profile.showcountsteps==5 end,
+			text = "5",
+			func = function()
+				self:SetOption("Display", "showcountsteps 5")
+			end,
+			checked = function()
+				return not self.db.profile.showallsteps and self.db.profile.showcountsteps == 5
+			end,
 		},
 	}
 
-	EasyMenu(menu,ZGVFMenu,"cursor",0,0,"MENU",3)
+	EasyMenu(menu, ZGVFMenu, "cursor", 0, 0, "MENU", 3)
 end
 
-local function split(str,sep)
+local function split(str, sep)
 	local fields = {}
-	str = str..sep
-	str:gsub("(.-)"..sep, function(c) tinsert(fields, c) end)
+	str = str .. sep
+	str:gsub("(.-)" .. sep, function(c)
+		tinsert(fields, c)
+	end)
 	return fields
 end
 
-local function FindGroup(self,title)
-	local path = split(title,"\\")
+local function FindGroup(self, title)
+	local path = split(title, "\\")
 
 	-- create one
-	local group=self
-	for i=1,#path do
+	local group = self
+	for i = 1, #path do
 		local found = false
-		for n,gr in ipairs(group.groups) do
-			if gr.name==path[i] then
-				found=true
-				group=gr
+		for n, gr in ipairs(group.groups) do
+			if gr.name == path[i] then
+				found = true
+				group = gr
 			end
 		end
 		if not found then
-			tinsert(group.groups,{name=path[i],groups={},guides={}})
-			group=group.groups[#group.groups]
+			tinsert(group.groups, { name = path[i], groups = {}, guides = {} })
+			group = group.groups[#group.groups]
 		end
 	end
 	return group
 end
 
-me.registered_groups = { groups={},guides={}}
+me.registered_groups = { groups = {}, guides = {} }
 
-function me:RegisterGuide(title,data,extra)
-	local group,tit = title:match("^(.*)\\+(.-)$")
+function me:RegisterGuide(title, data, extra)
+	local group, tit = title:match("^(.*)\\+(.-)$")
 	if group then
-		group = FindGroup(self.registered_groups,group)
+		group = FindGroup(self.registered_groups, group)
 	else
 		group = self.registered_groups
 	end
 
-	local guide = {['title']=title,['title_short']=tit or title,['rawdata']=data,['extra']=extra}
+	local guide = { ["title"] = title, ["title_short"] = tit or title, ["rawdata"] = data, ["extra"] = extra }
 
-	tinsert(group.guides,{full=title,short=tit or title,num=#self.registeredguides+1})
-	tinsert(self.registeredguides,guide)
+	tinsert(group.guides, { full = title, short = tit or title, num = #self.registeredguides + 1 })
+	tinsert(self.registeredguides, guide)
 end
 
-me.registered_mapspotset_groups = { groups={},guides={}}
+me.registered_mapspotset_groups = { groups = {}, guides = {} }
 
-function me:RegisterMapSpots(title,data)
-	local group,tit = title:match("^(.*)\\+(.-)$")
+function me:RegisterMapSpots(title, data)
+	local group, tit = title:match("^(.*)\\+(.-)$")
 	if group then
-		group = FindGroup(self.registered_mapspotset_groups,group)
+		group = FindGroup(self.registered_mapspotset_groups, group)
 	else
 		group = self.registered_mapspotset_groups
 	end
 
-	local set = self.MapSpotSetProto:NewRaw(title,tit or title,data)
+	local set = self.MapSpotSetProto:NewRaw(title, tit or title, data)
 
-	tinsert(group.guides,{full=title,short=tit or title,num=#self.registeredmapspotsets+1})
-	tinsert(self.registeredmapspotsets,set)
+	tinsert(group.guides, { full = title, short = tit or title, num = #self.registeredmapspotsets + 1 })
+	tinsert(self.registeredmapspotsets, set)
 end
 
 --[[
@@ -3301,7 +3927,9 @@ end
 --]]
 
 function me:Startup()
-	if self.guidesloaded then return end
+	if self.guidesloaded then
+		return
+	end
 	if me:ParseGuides() then
 		self:OnGuidesLoaded()
 	end
@@ -3323,7 +3951,7 @@ function me:OnGuidesLoaded()
 
 	self.pause = true
 
-	self:Print(L['welcome_guides']:format(#self.registeredguides))
+	self:Print(L["welcome_guides"]:format(#self.registeredguides))
 
 	self:UpdateFrame(true)
 
@@ -3331,25 +3959,33 @@ function me:OnGuidesLoaded()
 end
 
 function me:ParseGuides()
-	if not self.db.char.maint_startguides then return true end
-	self.loading=true
+	if not self.db.char.maint_startguides then
+		return true
+	end
+	self.loading = true
 
-	if #self.registeredguides>0 then
-		for i,guide in ipairs(self.registeredguides) do
+	if #self.registeredguides > 0 then
+		for i, guide in ipairs(self.registeredguides) do
 			if guide.rawdata then
-				local status,parsed,err,line,linedata = pcall(self.ParseEntry,self,guide.rawdata)
+				local status, parsed, err, line, linedata = pcall(self.ParseEntry, self, guide.rawdata)
 				if status and parsed then
-					for k,v in pairs(parsed) do guide[k]=v end
-					guide.rawdata=nil
-					self.loadprogress = i/#self.registeredguides
+					for k, v in pairs(parsed) do
+						guide[k] = v
+					end
+					guide.rawdata = nil
+					self.loadprogress = i / #self.registeredguides
 				else
-					if not status then err=parsed end
+					if not status then
+						err = parsed
+					end
 					if err then
-						self:Print(L["message_errorloading_full"]:format(guide.title,line or 0,linedata or "???",err))
+						self:Print(
+							L["message_errorloading_full"]:format(guide.title, line or 0, linedata or "???", err)
+						)
 					else
 						self:Print(L["message_errorloading_brief"]:format(guide.title))
 					end
-					guide.rawdata=nil
+					guide.rawdata = nil
 				end
 				self:UpdateFrame(true)
 				return false
@@ -3357,21 +3993,25 @@ function me:ParseGuides()
 		end
 	end
 
-	if #self.registeredmapspotsets>0 then
-		for i,guide in ipairs(self.registeredmapspotsets) do
+	if #self.registeredmapspotsets > 0 then
+		for i, guide in ipairs(self.registeredmapspotsets) do
 			if guide.rawdata then
-				local status,parsedset,err,line,linedata = pcall(self.MapSpotSetProto.ParseRaw,guide)
+				local status, parsedset, err, line, linedata = pcall(self.MapSpotSetProto.ParseRaw, guide)
 				if status then
-					self.loadprogress = i/#self.registeredmapspotsets
+					self.loadprogress = i / #self.registeredmapspotsets
 					guide:Show()
 				else
-					if not status then err=parsedset line=0 linedata="" end
+					if not status then
+						err = parsedset
+						line = 0
+						linedata = ""
+					end
 					if err then
-						self:Print(L["message_errorloading_full"]:format(guide.title,line,linedata,err))
+						self:Print(L["message_errorloading_full"]:format(guide.title, line, linedata, err))
 					else
 						self:Print(L["message_errorloading_brief"]:format(guide.title))
 					end
-					guide.rawdata=nil
+					guide.rawdata = nil
 				end
 				self:UpdateFrame(true)
 				return false
@@ -3379,27 +4019,31 @@ function me:ParseGuides()
 		end
 
 		local tab1 = self.Frame.Border.Gears.Tab1
-		tab1:SetPoint("LEFT",self.Frame.Border,"TOPLEFT",65,-12)
+		tab1:SetPoint("LEFT", self.Frame.Border, "TOPLEFT", 65, -12)
 		tab1:SetText("Guides")
 		tab1:SetNormalFontObject(ZGVFTabFont)
 		--PanelTemplates_TabResize(self.Tab1,0);
 		--_G[self.Tab1:GetName().."HighlightTexture"]:SetWidth(self.Tab1:GetTextWidth() + 20);
-		tab1:SetScript("OnClick",function() ZGV:SetDisplayMode("guide") end)
+		tab1:SetScript("OnClick", function()
+			ZGV:SetDisplayMode("guide")
+		end)
 		tab1:Show()
 
 		local tab2 = self.Frame.Border.Gears.Tab2
-		tab2:SetPoint("LEFT",tab1,"RIGHT")
+		tab2:SetPoint("LEFT", tab1, "RIGHT")
 		tab2:SetText("Spots")
 		tab2:SetNormalFontObject(ZGVFTabFont)
 		--ZGVFrameTab2Text:SetText("Spots")
 		--PanelTemplates_TabResize(self.Tab2,0);
 		--_G[self.Tab2:GetName().."HighlightTexture"]:SetWidth(self.Tab2:GetTextWidth() + 20);
-		tab2:SetScript("OnClick",function() ZGV:SetDisplayMode("gold") end)
+		tab2:SetScript("OnClick", function()
+			ZGV:SetDisplayMode("gold")
+		end)
 		tab2:Show()
 	end
 
-	self.loading=nil
-	self.guidesloaded=true
+	self.loading = nil
+	self.guidesloaded = true
 	return true
 end
 
@@ -3414,23 +4058,31 @@ end
 --]]
 
 function me:UpdateMapButton()
-	if self.db.profile.showmapbutton then ZygorGuidesViewerMapIcon:Show() else ZygorGuidesViewerMapIcon:Hide() end
+	if self.db.profile.showmapbutton then
+		ZygorGuidesViewerMapIcon:Show()
+	else
+		ZygorGuidesViewerMapIcon:Hide()
+	end
 end
 
 function me:GetGuides()
-	if not ZygorGuidesViewer or not ZygorGuidesViewer.db or not ZygorGuidesViewer.registeredguides then return {} end
+	if not ZygorGuidesViewer or not ZygorGuidesViewer.db or not ZygorGuidesViewer.registeredguides then
+		return {}
+	end
 	local t = {}
-	for i,data in ipairs(ZygorGuidesViewer.registeredguides) do
-		t[i]=data.title
+	for i, data in ipairs(ZygorGuidesViewer.registeredguides) do
+		t[i] = data.title
 	end
 	return t
 end
 
 function me.GetGuidesRev()
-	if not ZygorGuidesViewer or not ZygorGuidesViewer.db or not ZygorGuidesViewer.registeredguides then return {} end
+	if not ZygorGuidesViewer or not ZygorGuidesViewer.db or not ZygorGuidesViewer.registeredguides then
+		return {}
+	end
 	local t = {}
-	for i,data in ipairs(ZygorGuidesViewer.registeredguides) do
-		t[data.title]=i
+	for i, data in ipairs(ZygorGuidesViewer.registeredguides) do
+		t[data.title] = i
 	end
 	return t
 end
@@ -3438,38 +4090,41 @@ end
 -- function me:Search(s) --removed
 -- function me:Find(s) --removed
 
-
 local function tostr(val)
-	if type(val)=="string" then
-		return '"'..val..'"'
-	elseif type(val)=="number" then
+	if type(val) == "string" then
+		return '"' .. val .. '"'
+	elseif type(val) == "number" then
 		return tostring(val)
 	elseif not val then
 		return "nil"
-	elseif type(val)=="boolean" then
-		return tostring(val).." ["..type(val).."]"
+	elseif type(val) == "boolean" then
+		return tostring(val) .. " [" .. type(val) .. "]"
 	end
 end
 
-local function superconcat(table,glue)
-	local s=""
-	for i=1,#table do
-		if #s>0 then s=s..glue end
-		s=s..tostring(table[i])
+local function superconcat(table, glue)
+	local s = ""
+	for i = 1, #table do
+		if #s > 0 then
+			s = s .. glue
+		end
+		s = s .. tostring(table[i])
 	end
 	return s
 end
 
 local function anytostring(s)
-	if type(s)=="table" then
-		return superconcat(s,",")
+	if type(s) == "table" then
+		return superconcat(s, ",")
 	else
 		return tostring(s)
 	end
 end
 
 function me:BugReport(maint)
-	if not self.dumpFrame then self:CreateDumpFrame() end
+	if not self.dumpFrame then
+		self:CreateDumpFrame()
+	end
 
 	HideUIPanel(InterfaceOptionsFrame)
 	HideUIPanel(ZygorGuidesViewerMaintenanceFrame)
@@ -3477,81 +4132,116 @@ function me:BugReport(maint)
 	local s = ""
 	s = ("Zygor Guides Viewer v%s\n"):format(self.version)
 	s = s .. "\n"
-	s = s .. ("Guide: %s\nStep: %d\n"):format(tostr(self.CurrentGuideName),tostr(self.CurrentStepNum))
-	
+	s = s .. ("Guide: %s\nStep: %d\n"):format(tostr(self.CurrentGuideName), tostr(self.CurrentStepNum))
+
 	if maint then
-		s = s .. "\nMAINTENANCE OPTIONS THAT WERE ENABLED PROPERLY: ______________\nMAINTENANCE OPTION THAT CAUSED DISCONNECTION: _______________\n\n"
+		s = s
+			.. "\nMAINTENANCE OPTIONS THAT WERE ENABLED PROPERLY: ______________\nMAINTENANCE OPTION THAT CAUSED DISCONNECTION: _______________\n\n"
 	end
 
 	local step = self.CurrentStep
 	if step then
-		for k,v in pairs(step) do
-			if k~="goals" and k~="num" and k~="L"
-			and k~="isobsolete" and k~="isauxiliary"
-			and type(v)~="function" then
-				s = s .. ("  %s: %s\n"):format(k,anytostring(v))
+		for k, v in pairs(step) do
+			if
+				k ~= "goals"
+				and k ~= "num"
+				and k ~= "L"
+				and k ~= "isobsolete"
+				and k ~= "isauxiliary"
+				and type(v) ~= "function"
+			then
+				s = s .. ("  %s: %s\n"):format(k, anytostring(v))
 			end
 		end
-		s = s .. ("  (completed: %s, auxiliary: %s, obsolete: %s)\n"):format(step:IsComplete() and "YES" or "no", step:IsAuxiliary() and "YES" or "no", step:IsObsolete() and "YES" or "no")
+		s = s
+			.. ("  (completed: %s, auxiliary: %s, obsolete: %s)\n"):format(
+				step:IsComplete() and "YES" or "no",
+				step:IsAuxiliary() and "YES" or "no",
+				step:IsObsolete() and "YES" or "no"
+			)
 
 		s = s .. "Goals: \n"
 
-		for i,goal in ipairs(step.goals) do
-			s = s .. ("%d. %s %s\n"):format(i,(". "):rep(goal.indent),goal.text and "\""..goal.text.."\"" or "<"..goal:GetText()..">")
-			for k,v in pairs(goal) do
-				if k~="map" and k~="x" and k~="y" and k~="dist" 
-				and k~="indent" and k~="text" and k~="parentStep" and k~="num" and k~="status"
-				and k~="useitem" and k~="useitemid"
-				and k~="castspell" and k~="castspellid"
-				and k~="quest" and k~="questid" and k~="questreqs"
-				and k~="mobs"
-				and k~="target" and k~="targetid" and k~="objnum"
-				and type(v)~="function" then
-					s = s .. ("    %s: %s\n"):format(k,anytostring(v))
+		for i, goal in ipairs(step.goals) do
+			s = s
+				.. ("%d. %s %s\n"):format(
+					i,
+					(". "):rep(goal.indent),
+					goal.text and '"' .. goal.text .. '"' or "<" .. goal:GetText() .. ">"
+				)
+			for k, v in pairs(goal) do
+				if
+					k ~= "map"
+					and k ~= "x"
+					and k ~= "y"
+					and k ~= "dist"
+					and k ~= "indent"
+					and k ~= "text"
+					and k ~= "parentStep"
+					and k ~= "num"
+					and k ~= "status"
+					and k ~= "useitem"
+					and k ~= "useitemid"
+					and k ~= "castspell"
+					and k ~= "castspellid"
+					and k ~= "quest"
+					and k ~= "questid"
+					and k ~= "questreqs"
+					and k ~= "mobs"
+					and k ~= "target"
+					and k ~= "targetid"
+					and k ~= "objnum"
+					and type(v) ~= "function"
+				then
+					s = s .. ("    %s: %s\n"):format(k, anytostring(v))
 				end
 			end
-			if goal.x or goal.y or goal.action=="goto" then
-				s = s .. ("    map: %s %s,%s"):format(goal.map or "unknown",goal.x or "nil",goal.y or "nil")
-				if goal.dist then s = s .. ("  +/- %s"):format(goal.dist) end
+			if goal.x or goal.y or goal.action == "goto" then
+				s = s .. ("    map: %s %s,%s"):format(goal.map or "unknown", goal.x or "nil", goal.y or "nil")
+				if goal.dist then
+					s = s .. ("  +/- %s"):format(goal.dist)
+				end
 				s = s .. "\n"
 			end
 			if goal.useitemid or goal.useitem then
-				s = s .. ("   useitem: \"%s\"  ##%s"):format(tostring(goal.useitem),tostring(goal.useitemid))
+				s = s .. ('   useitem: "%s"  ##%s'):format(tostring(goal.useitem), tostring(goal.useitemid))
 				if goal.useitemid then
-					local a={GetItemInfo(goal.useitemid)}
-					s = s .. ("  GetItemInfo(%d) == %s\n"):format(goal.useitemid,superconcat(a,","))
+					local a = { GetItemInfo(goal.useitemid) }
+					s = s .. ("  GetItemInfo(%d) == %s\n"):format(goal.useitemid, superconcat(a, ","))
 				elseif goal.useitem then
-					local a={GetItemInfo(goal.useitem)}
-					s = s .. ("  GetItemInfo(\"%s\") == %s\n"):format(goal.useitem,superconcat(a,","))
+					local a = { GetItemInfo(goal.useitem) }
+					s = s .. ('  GetItemInfo("%s") == %s\n'):format(goal.useitem, superconcat(a, ","))
 				end
 			end
 			if goal.castspellid or goal.castspell then
-				s = s .. ("   castspell: \"%s\"  ##%s"):format(tostring(goal.castspell),tostring(goal.castspellid))
+				s = s .. ('   castspell: "%s"  ##%s'):format(tostring(goal.castspell), tostring(goal.castspellid))
 				if goal.castspellid then
-					local a={GetSpellInfo(goal.castspellid)}
-					s = s .. ("  GetSpellInfo(%d) == %s\n"):format(goal.castspellid,superconcat(a,","))
+					local a = { GetSpellInfo(goal.castspellid) }
+					s = s .. ("  GetSpellInfo(%d) == %s\n"):format(goal.castspellid, superconcat(a, ","))
 				elseif goal.castspell then
-					local a={GetSpellInfo(goal.castspell)}
-					s = s .. ("  GetSpellInfo(\"%s\") == %s\n"):format(goal.castspell,superconcat(a,","))
+					local a = { GetSpellInfo(goal.castspell) }
+					s = s .. ('  GetSpellInfo("%s") == %s\n'):format(goal.castspell, superconcat(a, ","))
 				end
 			end
 			if goal.quest or goal.questid then
-				s = s .. ("    quest: \"%s\" ##%d"):format(tostring(goal.quest),tostring(goal.questid))
+				s = s .. ('    quest: "%s" ##%d'):format(tostring(goal.quest), tostring(goal.questid))
 				if goal.questid then
 					local questdata = self.questsbyid[goal.questid]
 					if goal.objnum then
 						if questdata then
 							local goaltext = questdata.goals[goal.objnum].item
-							if not goaltext then goaltext="???" end
-							s = s .. (" goal %d: \"%s\""):format(goal.objnum,goaltext)
+							if not goaltext then
+								goaltext = "???"
+							end
+							s = s .. (' goal %d: "%s"'):format(goal.objnum, goaltext)
 						else
 							s = s .. (" goal %d"):format(goal.objnum)
 						end
 					else
-						s = s .. (" (no goal)")
+						s = s .. " (no goal)"
 					end
 					if questdata then
-						s = s .. "  - quest \""..questdata['title'].."\" ##"..questdata['id'].." in log "
+						s = s .. '  - quest "' .. questdata["title"] .. '" ##' .. questdata["id"] .. " in log "
 					else
 						s = s .. "  - quest not in log "
 					end
@@ -3569,7 +4259,7 @@ function me:BugReport(maint)
 				s = s .. "\n"
 			end
 			if goal.target then
-				s = s .. ("    target: \"%s\""):format(goal.target)
+				s = s .. ('    target: "%s"'):format(goal.target)
 				if goal.targetid then
 					s = s .. (" ##%d\n"):format(goal.targetid)
 				end
@@ -3577,26 +4267,32 @@ function me:BugReport(maint)
 			end
 			if goal.mobs then
 				s = s .. "    mobs: "
-				for k,v in ipairs(goal.mobs) do
+				for k, v in ipairs(goal.mobs) do
 					s = s .. v.name .. "  "
 				end
 				s = s .. "\n"
 			end
-			if goal.questreqs and #goal.questreqs>0 then
-				s = s .. "    questreqs: "..superconcat(goal.questreqs,",").."\n"
+			if goal.questreqs and #goal.questreqs > 0 then
+				s = s .. "    questreqs: " .. superconcat(goal.questreqs, ",") .. "\n"
 			end
 			if goal.condition_visible then
-				s = s .. "    visibility condition: "..goal.condition_visible_raw.."\n"
+				s = s .. "    visibility condition: " .. goal.condition_visible_raw .. "\n"
 			end
 
 			if goal:IsCompleteable() then
-				local comp,poss = goal:IsComplete()
-				s = s .. ("    (complete: %s, possible: %s, auxiliary: %s, obsolete: %s)\n"):format(comp and "YES" or "no", poss and "YES" or "no", step:IsAuxiliary() and "YES" or "no", step:IsObsolete() and "YES" or "no")
+				local comp, poss = goal:IsComplete()
+				s = s
+					.. ("    (complete: %s, possible: %s, auxiliary: %s, obsolete: %s)\n"):format(
+						comp and "YES" or "no",
+						poss and "YES" or "no",
+						step:IsAuxiliary() and "YES" or "no",
+						step:IsObsolete() and "YES" or "no"
+					)
 			else
 				s = s .. "    (not completeable)\n"
 			end
 
-			s = s .. "    Status: "..goal:GetStatus().."\n"
+			s = s .. "    Status: " .. goal:GetStatus() .. "\n"
 		end
 		s = s .. "\n"
 	else
@@ -3604,72 +4300,97 @@ function me:BugReport(maint)
 	end
 
 	s = s .. "--- Player information ---\n"
-	s = s .. ("Race: %s  Class: %s  Level: %d\n"):format(select(2,UnitRace("player")),select(2,UnitClass("player")),UnitLevel("player"))
-	local x,y = GetPlayerMapPosition("player")
-	s = s .. ("Position: realzone:'%s' x:%g,y:%g (zone:'%s' subzone:'%s' minimapzone:'%s')\n"):format(GetRealZoneText(),x*100,y*100,GetZoneText(),GetSubZoneText(),GetMinimapZoneText())
-	if GetLocale()~="enUS" then
-		s = s .. ("    enUS: realzone:'%s' zone:'%s' subzone:'%s' minimapzone:'%s')\n"):format(BZR[GetRealZoneText()],BZR[GetZoneText()],BZR[GetSubZoneText()] or "("..GetSubZoneText()..")",BZR[GetMinimapZoneText()] or "("..GetMinimapZoneText()..")")
+	s = s
+		.. ("Race: %s  Class: %s  Level: %d\n"):format(
+			select(2, UnitRace("player")),
+			select(2, UnitClass("player")),
+			UnitLevel("player")
+		)
+	local x, y = GetPlayerMapPosition("player")
+	s = s
+		.. ("Position: realzone:'%s' x:%g,y:%g (zone:'%s' subzone:'%s' minimapzone:'%s')\n"):format(
+			GetRealZoneText(),
+			x * 100,
+			y * 100,
+			GetZoneText(),
+			GetSubZoneText(),
+			GetMinimapZoneText()
+		)
+	if GetLocale() ~= "enUS" then
+		s = s
+			.. ("    enUS: realzone:'%s' zone:'%s' subzone:'%s' minimapzone:'%s')\n"):format(
+				BZR[GetRealZoneText()],
+				BZR[GetZoneText()],
+				BZR[GetSubZoneText()] or "(" .. GetSubZoneText() .. ")",
+				BZR[GetMinimapZoneText()] or "(" .. GetMinimapZoneText() .. ")"
+			)
 		s = s .. ("Locale: %s\n"):format(GetLocale())
 	end
 	s = s .. "\n"
 
-
-
 	s = s .. "-- Cached quest log --\n"
-	for index,quest in pairs(self.quests) do
+	for index, quest in pairs(self.quests) do
 		s = s .. dumpquest(quest)
 	end
 	s = s .. "\n"
 
 	s = s .. "-- Cached quest log, by ID --\n"
-	for id,quest in pairs(self.questsbyid) do
-		s = s .. ("#%d: %s\n"):format(id,quest.title)
+	for id, quest in pairs(self.questsbyid) do
+		s = s .. ("#%d: %s\n"):format(id, quest.title)
 	end
 	s = s .. "\n"
 
 	s = s .. "-- Items --\n"
-	local inventory={}
-	for bag=-2,4 do
-		for slot=1,GetContainerNumSlots(bag) do
-			local item = GetContainerItemLink(bag,slot)
+	local inventory = {}
+	for bag = -2, 4 do
+		for slot = 1, GetContainerNumSlots(bag) do
+			local item = GetContainerItemLink(bag, slot)
 			if item then
-				local id,name = string.match(item,"item:(.-):.-|h%[(.-)%]")
-				local tex,count = GetContainerItemInfo(bag,slot)
-				tinsert(inventory,("    %s ##%d x%d\n"):format(name,id,count))
+				local id, name = string.match(item, "item:(.-):.-|h%[(.-)%]")
+				local tex, count = GetContainerItemInfo(bag, slot)
+				tinsert(inventory, ("    %s ##%d x%d\n"):format(name, id, count))
 			end
 		end
 	end
 	table.sort(inventory)
-	s = s .. table.concat(inventory,"")
+	s = s .. table.concat(inventory, "")
 	s = s .. "\n"
 
 	s = s .. "-- Buffs/debuffs --\n"
-	for i=1,30 do
-		local name,_,tex = UnitBuff("player",i)
-		if name then s=s..("%s (\"%s\")\n"):format(name,tex) end
+	for i = 1, 30 do
+		local name, _, tex = UnitBuff("player", i)
+		if name then
+			s = s .. ('%s ("%s")\n'):format(name, tex)
+		end
 	end
-	for i=1,30 do
-		local name,_,tex = UnitDebuff("player",i)
-		if name then s=s..("%s (\"%s\")\n"):format(name,tex) end
+	for i = 1, 30 do
+		local name, _, tex = UnitDebuff("player", i)
+		if name then
+			s = s .. ('%s ("%s")\n'):format(name, tex)
+		end
 	end
 	s = s .. "\n"
 
 	s = s .. "-- Pet action bar --\n"
-	for i=1,12 do
-		local name,_,tex = GetPetActionInfo(i)
-		if name then s=s..("%d. %s (\"%s\")\n"):format(i,name,tex) end
+	for i = 1, 12 do
+		local name, _, tex = GetPetActionInfo(i)
+		if name then
+			s = s .. ('%d. %s ("%s")\n'):format(i, name, tex)
+		end
 	end
 	s = s .. "\n"
 
 	s = s .. "-- Flight Paths --\n"
 	if self.LibTaxi then
-		s = s .. table.concat(TableKeys(self.db.char.taxis)," , ")
+		s = s .. table.concat(TableKeys(self.db.char.taxis), " , ")
 	end
 	s = s .. "\n\n"
 
 	s = s .. "-- Options --\n"
 	s = s .. "Profile:\n"
-	for k,v in pairs(self.db.profile) do s = s .. "  "..k.." = "..anytostring(v).."\n" end
+	for k, v in pairs(self.db.profile) do
+		s = s .. "  " .. k .. " = " .. anytostring(v) .. "\n"
+	end
 	s = s .. "\n"
 
 	--s = s .. self:DumpVal(self.quests,0,4,true)
@@ -3677,35 +4398,40 @@ function me:BugReport(maint)
 	s = s .. "-- Log --\n"
 	s = s .. self.Log:Dump(100)
 
-
 	self.dumpFrame.editBox:SetText(s)
 	local title = maint and "Zygor Guides Viewer" or (self.CurrentGuideName or L["report_notitle"])
-	local author = maint and "zygor@zygorguides.com" or (self.CurrentGuide and self.CurrentGuide.author or L["report_noauthor"])
-	self.dumpFrame.title:SetText(L["report_title"]:format(title,author))
+	local author = maint and "zygor@zygorguides.com"
+		or (self.CurrentGuide and self.CurrentGuide.author or L["report_noauthor"])
+	self.dumpFrame.title:SetText(L["report_title"]:format(title, author))
 	ShowUIPanel(self.dumpFrame)
 	self.dumpFrame.editBox:HighlightText(0)
 	self.dumpFrame.editBox:SetFocus(true)
 end
 
-function me:DumpVal(val,lev,maxlev,nofun)
-	if not lev then lev=1 end
-	if not maxlev then maxlev=1 end
+function me:DumpVal(val, lev, maxlev, nofun)
+	if not lev then
+		lev = 1
+	end
+	if not maxlev then
+		maxlev = 1
+	end
 
-	if lev>maxlev then return ("...") end
+	if lev > maxlev then
+		return "..."
+	end
 	local s = ""
-	if type(val)=="string" then
+	if type(val) == "string" then
 		s = ('"%s"'):format(val)
-	elseif type(val)=="number" then
+	elseif type(val) == "number" then
 		s = ("%s"):format(tostring(val))
-	elseif type(val)=="function" then
-		s = ("")
-	elseif type(val)=="table" then
+	elseif type(val) == "function" then
+		s = ""
+	elseif type(val) == "table" then
 		s = "\n"
-		for k,v in pairs(val) do
-			if type(k)~="string" or not k:find("^parent")
-			then
-				if type(v)~="function" then
-					s = s .. ("   "):rep(lev) .. ("%s=%s"):format(k,self:DumpVal(v,lev+1,maxlev,nofun))
+		for k, v in pairs(val) do
+			if type(k) ~= "string" or not k:find("^parent") then
+				if type(v) ~= "function" then
+					s = s .. ("   "):rep(lev) .. ("%s=%s"):format(k, self:DumpVal(v, lev + 1, maxlev, nofun))
 				elseif not nofun then
 					s = s .. ("   "):rep(lev) .. ("%s(function)\n"):format(k)
 				end
@@ -3713,9 +4439,8 @@ function me:DumpVal(val,lev,maxlev,nofun)
 		end
 	end
 
-	return s.."\n"
+	return s .. "\n"
 end
-
 
 -- misc:
 
@@ -3725,20 +4450,22 @@ function me:CreateDumpFrame()
 	local frame = CreateFrame("Frame", name, UIParent)
 	self.dumpFrame = frame
 	frame:SetBackdrop({
-	bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
-	edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
-	tile = true, tileSize = 16, edgeSize = 16,
-	insets = { left = 3, right = 3, top = 5, bottom = 3 }
+		bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
+		edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
+		tile = true,
+		tileSize = 16,
+		edgeSize = 16,
+		insets = { left = 3, right = 3, top = 5, bottom = 3 },
 	})
-	frame:SetBackdropColor(0,0,0,1)
+	frame:SetBackdropColor(0, 0, 0, 1)
 	frame:SetWidth(500)
 	frame:SetHeight(400)
 	frame:SetPoint("CENTER", UIParent, "CENTER")
 	frame:Hide()
 	frame:SetFrameStrata("DIALOG")
 	tinsert(UISpecialFrames, name)
-	
-	local scrollArea = CreateFrame("ScrollFrame", name.."Scroll", frame, "UIPanelScrollFrameTemplate")
+
+	local scrollArea = CreateFrame("ScrollFrame", name .. "Scroll", frame, "UIPanelScrollFrameTemplate")
 	scrollArea:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -50)
 	scrollArea:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 8)
 
@@ -3750,79 +4477,85 @@ function me:CreateDumpFrame()
 	editBox:SetFontObject(ChatFontSmall)
 	editBox:SetWidth(400)
 	editBox:SetHeight(270)
-	editBox:SetScript("OnEscapePressed", function() frame:Hide() end)
+	editBox:SetScript("OnEscapePressed", function()
+		frame:Hide()
+	end)
 	self.dumpFrame.editBox = editBox
-	
+
 	scrollArea:SetScrollChild(editBox)
-	
+
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", frame, "TOPRIGHT")
 
-	local title = frame:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+	local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	self.dumpFrame.title = title
 	title:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10)
 	title:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -30, -45)
 	title:SetJustifyH("CENTER")
 	title:SetJustifyV("TOP")
-
 end
 
 local math_floor = math.floor
 local function round(num, digits)
 	-- banker's rounding
-	local mantissa = 10^digits
-	local norm = num*mantissa
+	local mantissa = 10 ^ digits
+	local norm = num * mantissa
 	norm = norm + 0.5
 	local norm_f = math_floor(norm)
 	if norm == norm_f and (norm_f % 2) ~= 0 then
-		return (norm_f-1)/mantissa
+		return (norm_f - 1) / mantissa
 	end
-	return norm_f/mantissa
+	return norm_f / mantissa
 end
-function me:Test (arg1,arg2)
-	local a={GetMapZones(GetCurrentMapContinent())}
-	local x,y = GetPlayerMapPosition("player")
-	local id = round(x*10000, 0) + round(y*10000, 0)*10001
-	self:Print("You're in "..a[GetCurrentMapZone()].." at Cart2 coords "..id)
+function me:Test(arg1, arg2)
+	local a = { GetMapZones(GetCurrentMapContinent()) }
+	local x, y = GetPlayerMapPosition("player")
+	local id = round(x * 10000, 0) + round(y * 10000, 0) * 10001
+	self:Print("You're in " .. a[GetCurrentMapZone()] .. " at Cart2 coords " .. id)
 end
 
-function me:Echo (s)
-	--if not self.db.profile.silent then 
+function me:Echo(s)
+	--if not self.db.profile.silent then
 	self:Print(tostring(s))
 	--end
 end
 
-function me:Debug (s)
+function me:Debug(s)
 	self.Log:Add(s)
 	if self and self.db and self.db.profile and self.db.profile.debug then
 		self.DebugI = (self.DebugI or 0) + 1
-		self:Echo('|cffaaaaaa#' .. self.DebugI .. ': ' .. tostring(s))
+		self:Echo("|cffaaaaaa#" .. self.DebugI .. ": " .. tostring(s))
 	end
 end
 
-
 function me:GetQuestData(qid)
-	if not self.db.char.maint_fetchquestdata then return nil end
-	Gratuity:SetHyperlink("|Hquest:"..qid..":1|h[q]|h")
+	if not self.db.char.maint_fetchquestdata then
+		return nil
+	end
+	Gratuity:SetHyperlink("|Hquest:" .. qid .. ":1|h[q]|h")
 
 	local n = Gratuity:NumLines()
-	if n <= 0 then return end
+	if n <= 0 then
+		return
+	end
 
 	local title, objs
 
-	for i = 1,n do
+	for i = 1, n do
 		local line = Gratuity:GetLine(i):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("[\n\t]", " ")
 		if i == 1 then
 			title = line
 		else
-			local line=line:match("^%s+%- (.+)$")
+			local line = line:match("^%s+%- (.+)$")
 			if line then
 				local o, n = line:match("^(.-) x.?.?(%d+)$")
-				if not o then o = line end
+				if not o then
+					o = line
+				end
 				if not objs then
 					objs = {}
 				end
-				table.insert(objs,o)
+				table.insert(objs, o)
 			end
 		end
 	end
@@ -3830,19 +4563,25 @@ function me:GetQuestData(qid)
 	return title, objs
 end
 
-function me:GetItemData(itemid,n)
-	if not self.db.char.maint_fetchitemdata then return nil end
-	if not itemid then return end
-	Gratuity:SetHyperlink("|Hitem:"..itemid..":0:0:0:0:0:0:0:0|h[q]|h")
+function me:GetItemData(itemid, n)
+	if not self.db.char.maint_fetchitemdata then
+		return nil
+	end
+	if not itemid then
+		return
+	end
+	Gratuity:SetHyperlink("|Hitem:" .. itemid .. ":0:0:0:0:0:0:0:0|h[q]|h")
 
 	local n = Gratuity:NumLines()
-	if n <= 0 then return end
+	if n <= 0 then
+		return
+	end
 
 	local title, objs
 
 	local line = Gratuity:GetLine(1)
 	line = line:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("[\n\t]", " ")
-	if line==RETRIEVING_ITEM_INFO then
+	if line == RETRIEVING_ITEM_INFO then
 		return
 	else
 		return line
@@ -3850,17 +4589,22 @@ function me:GetItemData(itemid,n)
 end
 
 -- HACKS
-function me:ListQuests(from,to)
-	local CQI=Cartographer_QuestInfo
+function me:ListQuests(from, to)
+	local CQI = Cartographer_QuestInfo
 	local qlog = ""
-	for i=from,to do
+	for i = from, to do
 		local level = CQI:PeekQuest(i)
 		--if not level then level=0 end
 		if level then
-			local title,_,_,_,nobjs = CQI:GetQuestText(i,level)
+			local title, _, _, _, nobjs = CQI:GetQuestText(i, level)
 			--if not title then title = CQI:GetQuestText(i,level) end -- well, they said to repeat it...
 			--self:Print(i..": |cff808080|Hquest:"..i..":"..level.."|h["..tostring(title).."]|h|r "..(type(objs)=="table" and "{"..table.concat(nobjs,",").."}" or ""))
-			qlog = qlog .. i..": "..tostring(title)..(type(nobjs)=="table" and " {"..table.concat(nobjs,",").."}" or "") .. "|n"
+			qlog = qlog
+				.. i
+				.. ": "
+				.. tostring(title)
+				.. (type(nobjs) == "table" and " {" .. table.concat(nobjs, ",") .. "}" or "")
+				.. "|n"
 		end
 	end
 	if Chatter then
@@ -3871,29 +4615,41 @@ function me:ListQuests(from,to)
 end
 
 function me:GetTranslatedNPC(num)
-	if not ZygorGuidesNPCs then return end
-	local s=ZygorGuidesNPCs[num]
-	if not s then return end
-	local name,desc = s:match(".|(.-)|(.*)")
-	if desc=="" then desc=nil end
-	return name,desc
+	if not ZygorGuidesNPCs then
+		return
+	end
+	local s = ZygorGuidesNPCs[num]
+	if not s then
+		return
+	end
+	local name, desc = s:match(".|(.-)|(.*)")
+	if desc == "" then
+		desc = nil
+	end
+	return name, desc
 end
 
 function me:PruneNPCs()
-	if not ZygorGuidesNPCs then return end
-	local faction,_ = UnitFactionGroup("player")
-	if not faction then return end
-	local badf = (faction=="Alliance") and "H" or "A"
-	for i,d in pairs(ZygorGuidesNPCs) do
-		if d:sub(1,1)==badf then ZygorGuidesNPCs[i]=nil end
+	if not ZygorGuidesNPCs then
+		return
+	end
+	local faction, _ = UnitFactionGroup("player")
+	if not faction then
+		return
+	end
+	local badf = (faction == "Alliance") and "H" or "A"
+	for i, d in pairs(ZygorGuidesNPCs) do
+		if d:sub(1, 1) == badf then
+			ZygorGuidesNPCs[i] = nil
+		end
 	end
 end
 
 function me:ReloadTranslation()
-	for i,guide in ipairs(self.registeredguides) do
-		for s,step in ipairs(guide.steps) do
-			for g,goal in ipairs(step.goals) do
-				goal.L=false
+	for i, guide in ipairs(self.registeredguides) do
+		for s, step in ipairs(guide.steps) do
+			for g, goal in ipairs(step.goals) do
+				goal.L = false
 			end
 		end
 	end
@@ -3914,23 +4670,21 @@ function me.ConditionTrue(subject,case)
 end
 --]]
 
-function me.gradient3(perc,ar,ag,ab,br,bg,bb,cr,cg,cb, middle)
+function me.gradient3(perc, ar, ag, ab, br, bg, bb, cr, cg, cb, middle)
 	if perc == 1 then
-		return cr,cg,cb
-	elseif perc==0 then
-		return ar,ag,ab
+		return cr, cg, cb
+	elseif perc == 0 then
+		return ar, ag, ab
 	else
-		if perc<=middle then
-			perc=perc/middle
-			return ar+(br-ar)*perc, ag+(bg-ag)*perc, ab+(bb-ab)*perc
+		if perc <= middle then
+			perc = perc / middle
+			return ar + (br - ar) * perc, ag + (bg - ag) * perc, ab + (bb - ab) * perc
 		else
-			perc=(perc-middle)/(1-middle)
-			return br+(cr-br)*perc, bg+(cg-bg)*perc, bb+(cb-bb)*perc
+			perc = (perc - middle) / (1 - middle)
+			return br + (cr - br) * perc, bg + (cg - bg) * perc, bb + (cb - bb) * perc
 		end
 	end
 end
 
 --hooksecurefunc("WorldMapFrame_UpdateQuests",function() if not InCombatLockdown() then text=nil end end)
 --hooksecurefunc("QuestInfo_Display",function() if not InCombatLockdown() then shownFrame=nil bottomShownFrame=nil end end)
-
-
