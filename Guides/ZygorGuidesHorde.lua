@@ -3,14 +3,15 @@
 
 local ZygorGuidesViewer = ZygorGuidesViewer
 if not ZygorGuidesViewer then
-	return
+  return
 end
-if UnitFactionGroup("player") ~= "Horde" then
-	return
+if UnitFactionGroup('player') ~= 'Horde' then
+  return
 end
 
-
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Main Guide (13-20)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Main Guide (13-20)",
+  [[
 author support@zygorguides.com
 next Zygor's Horde Leveling Guides\\Levels (20-25)
 startlevel 13
@@ -858,9 +859,12 @@ step //200
   .get 8 Altered Snapjaw Shell|q 880/1
 step //201
   ding 20
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Levels (20-25)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Levels (20-25)",
+  [[
 author support@zygorguides.com
 next Zygor's Horde Leveling Guides\\Levels (25-30)
 startlevel 20
@@ -1674,9 +1678,12 @@ step //198
   ..turnin Cry of the Thunderhawk##913
 step //199
   ding 25
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Levels (25-30)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Levels (25-30)",
+  [[
 author support@zygorguides.com
 next Zygor's Horde Leveling Guides\\Levels (30-35)
 startlevel 25
@@ -2235,9 +2242,12 @@ step //137
   ..turnin The Den##1089
 step //138
   ding 30
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Levels (30-35)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Levels (30-35)",
+  [[
 author support@zygorguides.com
 next Zygor's Horde Leveling Guides\\Levels (35-40)
 startlevel 30
@@ -3002,9 +3012,12 @@ step //177
   .get Bloodscalp Totem|q 9436/1
 step //178
   ding 35
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Levels (35-40)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Levels (35-40)",
+  [[
 author support@zygorguides.com
 next Zygor's Horde Leveling Guides\\Levels (40-45)
 startlevel 35
@@ -3744,9 +3757,12 @@ step //172
   ..accept Marg Speaks##1261
 step //173
   ding 40
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Levels (40-45)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Levels (40-45)",
+  [[
 author support@zygorguides.com
 next Zygor's Horde Leveling Guides\\Levels (45-50)
 startlevel 40
@@ -4551,9 +4567,12 @@ step //191
   .get 20 Southsea Pirate Hat|q 8365/1
 step //192
   ding 45
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Levels (45-50)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Levels (45-50)",
+  [[
 author support@zygorguides.com
 next Zygor's Horde Leveling Guides\\Levels (50-55)
 startlevel 45
@@ -5311,9 +5330,12 @@ step //173
   home Gadgetzan
 step //174
   ding 50
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Levels (50-55)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Levels (50-55)",
+  [[
 author support@zygorguides.com
 next Zygor's Horde Leveling Guides\\Levels (55-60)
 startlevel 50
@@ -6292,9 +6314,12 @@ step //215
   ..turnin Alien Ecology##3883
 step //216
   ding 55
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Levels (55-60)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Levels (55-60)",
+  [[
 author support@zygorguides.com
 startlevel 55
 step //1
@@ -7204,9 +7229,12 @@ step //215
   .'Click the Portal to Blasted Lands|goto Blasted Lands|noway|c
 step //216
   ding 60
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Orc (1-13)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Orc (1-13)",
+  [[
 author support@zygorguides.com
 defaultfor Orc
 next Zygor's Horde Leveling Guides\\Main Guide (13-20)
@@ -8023,9 +8051,12 @@ step //191
   'Hearth to Razor Hill|goto Durotar,51.5,41.7,0.5|use hearthstone##6948|noway|c
 step //192
   'Go west to the Barrens|goto The Barrens
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Tauren (1-13)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Tauren (1-13)",
+  [[
 author support@zygorguides.com
 defaultfor Tauren
 next Zygor's Horde Leveling Guides\\Main Guide (13-20)
@@ -8880,9 +8911,12 @@ step //194
   ..accept Conscript of the Horde##840
 step //195
   'Go west to the Barrens|goto The Barrens
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Troll (1-13)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Troll (1-13)",
+  [[
 author support@zygorguides.com
 defaultfor Troll
 next Zygor's Horde Leveling Guides\\Main Guide (13-20)
@@ -9692,9 +9726,12 @@ step //186
   'Hearth to Razor Hill|goto 51.5,41.7,0.1|use hearthstone##6948|noway|c
 step //187
   'Go west to the Barrens|goto The Barrens
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Horde Leveling Guides\\Undead (1-13)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Horde Leveling Guides\\Undead (1-13)",
+  [[
 author support@zygorguides.com
 defaultfor Scourge
 next Zygor's Horde Leveling Guides\\Main Guide (13-20)
@@ -10409,8 +10446,7 @@ step //168
   ..accept Conscript of the Horde##840
 step //169
   'Go west to the Barrens|goto The Barrens
-]])
+]]
+)
 
-
-ZygorGuidesViewer.HordeInstalled = true 
-
+ZygorGuidesViewer.HordeInstalled = true

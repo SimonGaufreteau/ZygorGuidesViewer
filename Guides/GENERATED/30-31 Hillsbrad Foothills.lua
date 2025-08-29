@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\30-31 Hillsbrad Foothills",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\30-31 Hillsbrad Foothills',
+  [[
 author TUGs
 next GENERATED\\31-33 STV+TN
 startlevel 30
@@ -84,4 +90,5 @@ Get your level 30 spells at your trainer
 |only if Warlock,Mage,Warrior
 step
 If you have 60 silk already: TurnIn: [QT7793] A Donation of silk at: [G44.3, 73.9 Stormwind City]
-]])
+]]
+)

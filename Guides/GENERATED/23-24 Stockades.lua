@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\23-24 Stockades",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\23-24 Stockades',
+  [[
 author TUGs
 next GENERATED\\24-25Ashenvale
 startlevel 23
@@ -57,4 +63,5 @@ step
 accept Items of Some Consequence##2746
 step
 We will turn in the other 2 dungeons quests in the next guide.
-]])
+]]
+)

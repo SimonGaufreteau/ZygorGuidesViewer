@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\11-14Darkshore",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\11-14Darkshore',
+  [[
 author TUGs
 next GENERATED\\14-17Loch Modan
 startlevel 11
@@ -213,4 +219,5 @@ use Hearthstone##6948
 |only if Dwarf,Gnome,Human
 step
 Buy lvl 15 Food/Water (I recommend 30-40 each)
-]])
+]]
+)

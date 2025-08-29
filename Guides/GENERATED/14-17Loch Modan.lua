@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\14-17Loch Modan",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\14-17Loch Modan',
+  [[
 author TUGs
 next GENERATED\\17-19Darkshore
 startlevel 14
@@ -158,4 +164,5 @@ step
 fpath Wetlands
 step
 Take the boat to Darkshore
-]])
+]]
+)

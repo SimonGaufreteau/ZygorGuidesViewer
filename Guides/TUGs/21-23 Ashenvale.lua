@@ -1,9 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-ZygorGuidesViewer:RegisterGuide("TUGs\\21-23 Ashenvale",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\21-23 Ashenvale',
+  [[
 	author TUGs
 	next TUGs\\23-24 Stockades
 	startlevel 21
@@ -95,11 +101,14 @@ step //43
 ..turnin Raene's Cleansing##1023
 step //44
 ..turnin Culling the Threat##1054
-]])
-ZygorGuidesViewer:RegisterGuide("TUGs\\Darkshore 11-15",[[
+]]
+)
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\Darkshore 11-15',
+  [[
 
-]])
-
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -107,4 +116,4 @@ ZygorGuidesViewer:RegisterGuide("TUGs\\Darkshore 11-15",[[
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

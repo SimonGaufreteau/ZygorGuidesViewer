@@ -3,14 +3,15 @@
 
 local ZygorGuidesViewer = ZygorGuidesViewer
 if not ZygorGuidesViewer then
-	return
+  return
 end
-if UnitFactionGroup("player") ~= "Alliance" then
-	return
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
 end
 
-
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Dwarf (1-13)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Dwarf (1-13)",
+  [[
 author support@zygorguides.com
 defaultfor Dwarf
 next Zygor's Alliance Leveling Guides\\Main Guide (13-20)
@@ -717,9 +718,12 @@ step //162
   ..accept Report to Gryan Stoutmantle##109
 step //163
   'Go southwest to Westfall|goto Westfall|noway|c
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Night Elf (1-13)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Night Elf (1-13)",
+  [[
 author support@zygorguides.com
 defaultfor NightElf
 next Zygor's Alliance Leveling Guides\\Main Guide (13-20)
@@ -1566,9 +1570,12 @@ step //207
   ..accept Report to Gryan Stoutmantle##109
 step //208
   'Go southwest to Westfall|goto Westfall|noway|c
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Gnome (1-13)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Gnome (1-13)",
+  [[
 author support@zygorguides.com
 defaultfor Gnome
 next Zygor's Alliance Leveling Guides\\Main Guide (13-20)
@@ -2195,9 +2202,12 @@ step //149
   ..accept Report to Gryan Stoutmantle##109
 step //150
   'Go southwest to Westfall|goto Westfall|noway|c
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Human (1-13)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Human (1-13)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Main Guide (13-20)
 startlevel 1
@@ -3032,9 +3042,12 @@ step //179
   ..accept Report to Gryan Stoutmantle##109
 step //180
   'Go southwest to Westfall|goto Westfall|noway|c
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Main Guide (13-20)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Levels (20-25)
 startlevel 13
@@ -3868,9 +3881,12 @@ step //204
   ..turnin Underbelly Scales##122
 step //205
   ding 20
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Levels (20-25)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Levels (20-25)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Levels (25-30)
 startlevel 20
@@ -4492,9 +4508,12 @@ step //152
   .get Gobbler's Head|q 279/2
 step //153
   ding 25
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Levels (25-30)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Levels (25-30)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Levels (30-35)
 startlevel 25
@@ -5108,9 +5127,12 @@ step //175
   ..turnin Bride of the Embalmer##253
 step //176
   ding 30
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Levels (30-35)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Levels (30-35)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Levels (35-40)
 startlevel 30
@@ -5861,9 +5883,12 @@ step //197
   .' Finish getting the 30 Rocket Car Parts you need|goal 30 Rocket Car Parts|q 1110/1
 step //198
   ding 35
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Levels (35-40)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Levels (35-40)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Levels (40-45)
 startlevel 35
@@ -6640,9 +6665,12 @@ step //189
   ..accept Cleansing Witch Hill##11183
 step //190
   ding 40
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Levels (40-45)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Levels (40-45)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Levels (45-50)
 startlevel 40
@@ -7526,9 +7554,12 @@ step //206
   .kill 10 Southsea Swashbuckler|q 8366/4
 step //207
   ding 45
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Levels (45-50)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Levels (45-50)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Levels (50-55)
 startlevel 45
@@ -8349,9 +8380,12 @@ step //200
   ..turnin The Decisive Striker##2585
 step //201
   ding 50
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Levels (50-55)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Levels (50-55)",
+  [[
 author support@zygorguides.com
 next Zygor's Alliance Leveling Guides\\Levels (55-60)
 startlevel 50
@@ -9338,9 +9372,12 @@ step //233
   ..turnin Cleansing Felwood##4101
 step //234
   ding 55
-]])
+]]
+)
 
-ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Levels (55-60)", [[
+ZygorGuidesViewer:RegisterGuide(
+  "Zygor's Alliance Leveling Guides\\Levels (55-60)",
+  [[
 author support@zygorguides.com
 startlevel 55
 step //1
@@ -10328,8 +10365,7 @@ step //248
   goto Darnassus,40.4,82.0|n
 step //249
   ding 60
-]])
+]]
+)
 
-
-ZygorGuidesViewer.AllianceInstalled = true 
-
+ZygorGuidesViewer.AllianceInstalled = true

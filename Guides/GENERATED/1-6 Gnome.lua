@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\1-6 Gnome",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\1-6 Gnome',
+  [[
 author TUGs
 next GENERATED\\6-9Gnome
 startlevel 1
@@ -97,4 +103,5 @@ step
 accept ##420
 step
 accept ##2160
-]])
+]]
+)

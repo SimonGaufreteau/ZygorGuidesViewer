@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\1-6Northshire",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\1-6Northshire',
+  [[
 author TUGs
 next GENERATED\\6-9ElwynnForest
 startlevel 1
@@ -109,4 +115,5 @@ step
 turnin Grape Manifest##3905
 step
 accept Rest and Relaxation##2158
-]])
+]]
+)

@@ -1,9 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-ZygorGuidesViewer:RegisterGuide("TUGs\\25-27 Ashenvale+WetlandsI",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\25-27 Ashenvale+WetlandsI',
+  [[
 	author TUGs
 	next TUGs\\27-29 DuskwoodII+WetlandsII
 	startlevel 25
@@ -185,7 +191,8 @@ step //80
 'Learn your spells at your trainer
 step //81
 'Fly to: Duskwood
-]])
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -193,4 +200,4 @@ step //81
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

@@ -1,0 +1,15 @@
+name: Check Lua formatting
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  stylua-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install stylua
+        run: cargo install stylua
+      - name: Run stylua check
+        run: stylua --check .

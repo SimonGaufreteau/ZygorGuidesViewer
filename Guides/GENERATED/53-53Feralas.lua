@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\53-53Feralas",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\53-53Feralas',
+  [[
 author TUGs
 next GENERATED\\53-53Winterspring
 startlevel 53
@@ -199,4 +205,5 @@ step
 turnin Purified!##4442
 step
 Run to 62.5,24.2 |goto Felwood 62.5,24.2
-]])
+]]
+)

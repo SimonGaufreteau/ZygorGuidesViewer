@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\41-41 Uldaman",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\41-41 Uldaman',
+  [[
 author TUGs
 next GENERATED\\41-42 SwampOfSorrows
 startlevel 41
@@ -137,4 +143,5 @@ step
 turnin Restoring the Necklace##2361
 step
 turnin The Platinum Discs##2439
-]])
+]]
+)

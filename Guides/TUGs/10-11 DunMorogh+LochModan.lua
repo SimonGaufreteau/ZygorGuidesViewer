@@ -1,10 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-
-ZygorGuidesViewer:RegisterGuide("TUGs\\10-11 DunMorogh+Loch",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\10-11 DunMorogh+Loch',
+  [[
 	author TUGs
 	next TUGs\\11-15 Darkshore
 	startlevel 10
@@ -154,7 +159,8 @@ step //59
 only Human
 step //60
 Take the ship to Darkshore
-]])
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -162,4 +168,4 @@ Take the ship to Darkshore
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

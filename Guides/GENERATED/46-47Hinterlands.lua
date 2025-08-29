@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\46-47Hinterlands",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\46-47Hinterlands',
+  [[
 author TUGs
 next GENERATED\\47-49Searing Gorge
 startlevel 46
@@ -71,4 +77,5 @@ step
 home Loch Modan
 step
 Run to 46.9,78.4 |goto Loch Modan 46.9,78.4
-]])
+]]
+)

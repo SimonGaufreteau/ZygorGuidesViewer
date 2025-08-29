@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\55-55BS",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\55-55BS',
+  [[
 author TUGs
 next GENERATED\\56-56WPL
 startlevel 55
@@ -47,4 +53,5 @@ step
 Do (Optional): The True Masters
 step
 accept A Call to Arms: The Plaguelands!##5066
-]])
+]]
+)

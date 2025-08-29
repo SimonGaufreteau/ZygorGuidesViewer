@@ -1,57 +1,89 @@
 local ZGV = ZygorGuidesViewer
-local L = ZygorGuidesViewer_L("Main")
+local L = ZygorGuidesViewer_L('Main')
 
 function toboolean(value)
-	if value then return true else return false end
+  if value then
+    return true
+  else
+    return false
+  end
 end
 
-function MakeOptionsControls(self,options,host)
-	local ctrl,pctrl,pctrly
+function MakeOptionsControls(self, options, host)
+  local ctrl, pctrl, pctrly
 
-	if type(options)~="table" then error("Parameter 1 must be an Ace-style 'options' table.") end
-	if host and type(host)~="table" then error("Parameter 2 must be an object hosting callback methods.") end
-	if type(options.args)~="table" then error("Parameter 1 must be an Ace-style 'options' table, with an 'args' field.") end
+  if type(options) ~= 'table' then
+    error("Parameter 1 must be an Ace-style 'options' table.")
+  end
+  if host and type(host) ~= 'table' then
+    error('Parameter 2 must be an object hosting callback methods.')
+  end
+  if type(options.args) ~= 'table' then
+    error("Parameter 1 must be an Ace-style 'options' table, with an 'args' field.")
+  end
 
-	local title, subText = self:MakeTitleTextAndSubText(options.name, options.desc)
+  local title, subText = self:MakeTitleTextAndSubText(options.name, options.desc)
 
-	pctrl = subText
-	pctrly = 16
+  pctrl = subText
+  pctrly = 16
 
-	for k,v in pairs(options.args) do
-		if (v.type=="group") then
-			--AddSuboptionsPanel(v.name, function(self)
-			
-		elseif (v.type=="range") then
-			ctrl = self:MakeSlider(
-				'name', v.name,
-				'description', v.desc,
-				'minText', v.minText or tostring(v.min),
-				'maxText', v.maxText or tostring(v.max),
-				'minValue', v.min, -- v.isPercent and ... * 100 ...
-				'maxValue', v.max,
-				'step', v.step,
-				'bigstep', v.bigstep,
-				'default', v.max,
-				'setFunc', function(value)  return host[v.set](host,value)  end,
-				'getFunc', function()  return host[v.get](host)  end
-			)
-			ctrl:SetPoint("TOPLEFT", pctrl, "BOTTOMLEFT", 0, -pctrly - 15)
-			pctrl = ctrl
-			pctrly = 10
-		elseif (v.type=="toggle") then
-			ctrl = self:MakeToggle(
-				'name', v.name,
-				'description', v.desc,
-				'default', toboolean(v.default),
-				'setFunc', function(value)  return host[v.set](host,value)  end,
-				'getFunc', function()  return host[v.get](host)  end
-			)
-			ctrl:SetPoint("TOPLEFT", pctrl, "BOTTOMLEFT", 0, -pctrly)
-			pctrl = ctrl
-			pctrly = 0
-		end
-
-	end
+  for k, v in pairs(options.args) do
+    if v.type == 'group' then
+      --AddSuboptionsPanel(v.name, function(self)
+    elseif v.type == 'range' then
+      ctrl = self:MakeSlider(
+        'name',
+        v.name,
+        'description',
+        v.desc,
+        'minText',
+        v.minText or tostring(v.min),
+        'maxText',
+        v.maxText or tostring(v.max),
+        'minValue',
+        v.min, -- v.isPercent and ... * 100 ...
+        'maxValue',
+        v.max,
+        'step',
+        v.step,
+        'bigstep',
+        v.bigstep,
+        'default',
+        v.max,
+        'setFunc',
+        function(value)
+          return host[v.set](host, value)
+        end,
+        'getFunc',
+        function()
+          return host[v.get](host)
+        end
+      )
+      ctrl:SetPoint('TOPLEFT', pctrl, 'BOTTOMLEFT', 0, -pctrly - 15)
+      pctrl = ctrl
+      pctrly = 10
+    elseif v.type == 'toggle' then
+      ctrl = self:MakeToggle(
+        'name',
+        v.name,
+        'description',
+        v.desc,
+        'default',
+        toboolean(v.default),
+        'setFunc',
+        function(value)
+          return host[v.set](host, value)
+        end,
+        'getFunc',
+        function()
+          return host[v.get](host)
+        end
+      )
+      ctrl:SetPoint('TOPLEFT', pctrl, 'BOTTOMLEFT', 0, -pctrly)
+      pctrl = ctrl
+      pctrly = 0
+    end
+  end
 end
 
 --ZGVLSO = {}
@@ -385,4 +417,3 @@ AddSuboptionsPanel(L["Modules"], function(self)
 end)
 
 --]]
-

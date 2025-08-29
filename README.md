@@ -26,9 +26,8 @@ Important : Coordinates and quest ids might not work as expected in the first fe
 
 Either :
 
-
 - **(Recommended) Use [GitAddonsManager](https://woblight.gitlab.io/overview/gitaddonsmanager/). Then change the folder name to `ZygorGuidesViewer` (the name is very important, otherwise the addon won't load)**
-- (Alternative for git users) Clone the repository in your `Addon` folder with name `ZygorGuidesViewer` 
+- (Alternative for git users) Clone the repository in your `Addon` folder with name `ZygorGuidesViewer`
 - (Not recommended as you will not get updates) Download the Addon as a zip file, unzip it in your Addon folder, rename the extrated folder to `ZygorGuidesViewer`
 
 ## Contributing
@@ -43,6 +42,8 @@ In order to contribute :
 - Open an issue [in Github here](https://github.com/SimonGaufreteau/VanillaEpochLeveling/issues) with the changes you think should be made. Each issue should cover 1 change "idea"
   (eg. you can include multiple quests change in 1 zone if they relate to each other in the route. Changes across multiple zones should be split except if related).
 - If you would like to directly implement the change in the code base, create [a pull request](https://github.com/SimonGaufreteau/VanillaEpochLeveling/pulls) linking to an issue.
+  - Note : you will need `stylua` to format the lua code, [see here](https://github.com/JohnnyMorganz/StyLua) for installation
+  - Use `make format` to apply formatting or make sure your IDE uses `stylua`
 
 Please read the guide format [here](./guide_format.html) on how to write Zygor formatted guides (open in your browser).
 

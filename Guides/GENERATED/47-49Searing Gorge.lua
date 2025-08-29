@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\47-49Searing Gorge",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\47-49Searing Gorge',
+  [[
 author TUGs
 next GENERATED\\49-51Un_Goro
 startlevel 47
@@ -266,4 +272,5 @@ step
 turnin The Stone Watcher##2954
 step
 Run to 27.1,56.9 |goto Tanaris 27.1,56.9
-]])
+]]
+)

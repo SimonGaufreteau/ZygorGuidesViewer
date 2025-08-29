@@ -1,9 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-ZygorGuidesViewer:RegisterGuide("TUGs\\22-23 Duskwood",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\22-23 Duskwood',
+  [[
 	author TUGs
 	next TUGs\\23-24 Stockades
 	startlevel 22
@@ -195,7 +201,8 @@ step //88
 ..accept The Legend of Stalvan##74
 step //89
 The next guide will include stockades and the Elite quests in Redridge. If you are not going to do theses quests, skip to: 23-24 Redridge.
-]])
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -203,4 +210,4 @@ The next guide will include stockades and the Elite quests in Redridge. If you a
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

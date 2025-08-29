@@ -1,10 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-
-ZygorGuidesViewer:RegisterGuide("TUGs\\15-17 Redridge Mountains+Loch Modan",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\15-17 Redridge Mountains+Loch Modan',
+  [[
 	author TUGs
 	next TUGs\\17-20 DarkshoreII
 	startlevel 15
@@ -194,7 +199,8 @@ step //83
 ..turnin Report to Ironforge##301
 step //84
 Take the boat to Darkshore
-]])
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -202,4 +208,4 @@ Take the boat to Darkshore
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

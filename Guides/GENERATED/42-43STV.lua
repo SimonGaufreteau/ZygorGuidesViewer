@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\42-43STV",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\42-43STV',
+  [[
 author TUGs
 next GENERATED\\43-44Tanaris
 startlevel 42
@@ -99,4 +105,5 @@ step
 Wait untill Rizzle Brassbolts leaves the building.
 step
 accept Rizzle's Schematics##1194
-]])
+]]
+)

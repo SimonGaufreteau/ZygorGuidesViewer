@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\6-9ElwynnForest",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\6-9ElwynnForest',
+  [[
 author TUGs
 next GENERATED\\11-14Darkshore
 startlevel 6
@@ -179,4 +185,5 @@ step
 fpath Ironforge |goto Ironforge 55.5,47.8
 step
 home Ironforge
-]])
+]]
+)

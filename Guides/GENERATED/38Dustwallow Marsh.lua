@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\38Dustwallow Marsh",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\38Dustwallow Marsh',
+  [[
 author TUGs
 next GENERATED\\39STV
 startlevel 38Dustwallow Marsh
@@ -91,4 +97,5 @@ step
 fpath Ratchet
 step
 Take the boat to Booty bay
-]])
+]]
+)

@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\45-46Tanaris",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\45-46Tanaris',
+  [[
 author TUGs
 next GENERATED\\46-47Hinterlands
 startlevel 45
@@ -122,4 +128,5 @@ step
 accept To The Hinterlands##1449
 step
 fpath Hillsbrad Foothills
-]])
+]]
+)

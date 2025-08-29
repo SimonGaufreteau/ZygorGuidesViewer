@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\41-42 SwampOfSorrows",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\41-42 SwampOfSorrows',
+  [[
 author TUGs
 next GENERATED\\42-43STV
 startlevel 41
@@ -105,4 +111,5 @@ step
 turnin Down the Scarlet Path##261
 step
 use Hearthstone##6948
-]])
+]]
+)

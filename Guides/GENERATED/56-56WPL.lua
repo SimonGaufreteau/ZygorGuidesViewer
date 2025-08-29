@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\56-56WPL",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\56-56WPL',
+  [[
 author TUGs
 next GENERATED\\56-59Plaguelands
 startlevel 56
@@ -91,4 +97,5 @@ step
 turnin Cortello's Riddle##626
 step
 use Hearthstone##6948
-]])
+]]
+)

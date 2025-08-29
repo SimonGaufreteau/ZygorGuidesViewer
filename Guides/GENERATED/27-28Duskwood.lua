@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\27-28Duskwood",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\27-28Duskwood',
+  [[
 author TUGs
 next GENERATED\\28-30 Ashenvale
 startlevel 27
@@ -171,4 +177,5 @@ step
 accept The Missing Diplomat##1243
 step
 use Hearthstone##6948
-]])
+]]
+)

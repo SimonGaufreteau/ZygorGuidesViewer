@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\31-33 STV+TN",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\31-33 STV+TN',
+  [[
 author TUGs
 next GENERATED\\32 Gnomeregan
 startlevel 31
@@ -155,4 +161,5 @@ step
 Do: Tiger Mastery |q 187
 step
 Do: Raptor Mastery |q 194
-]])
+]]
+)

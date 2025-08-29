@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\17-19Darkshore",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\17-19Darkshore',
+  [[
 author TUGs
 next GENERATED\\19-21Deadmines
 startlevel 17
@@ -148,4 +154,5 @@ step
 If it is in stock: Buy a Bronzetube at [G55.3,7.1Stormwind City]
 step
 turnin Speak with Shoni##2041
-]])
+]]
+)
