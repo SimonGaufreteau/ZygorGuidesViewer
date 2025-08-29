@@ -159,6 +159,7 @@ ZygorGuidesViewer_L("Main", "enUS", function() return {
 	['opt_skin_blue'] = "|cff99aaffBlue",
 	['opt_skin_orange'] = "|cffffbb00Orange",
 	['opt_skin_modern'] = "|cffffffffModern",
+	['opt_skin_classic'] = "|cffffffffClassic",
 
 	['opt_backopacity'] = "Background opacity",
 	['opt_backopacity_desc'] = "Opacity of the window's background.",
