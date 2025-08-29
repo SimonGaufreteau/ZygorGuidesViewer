@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\52-53Felwood",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\52-53Felwood',
+  [[
 author TUGs
 next GENERATED\\53-53Feralas
 startlevel 52
@@ -77,4 +83,5 @@ step
 accept Sister Pamela##5601
 step
 fpath Winterspring |goto Winterspring 61.4,38.8
-]])
+]]
+)

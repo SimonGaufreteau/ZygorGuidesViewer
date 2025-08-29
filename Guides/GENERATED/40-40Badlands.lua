@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\40-40Badlands",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\40-40Badlands',
+  [[
 author TUGs
 next GENERATED\\41-41 Uldaman
 startlevel 40
@@ -99,4 +105,5 @@ step
 turnin Badlands Reagent Run##2500
 step
 If you dont intent to do Uldaman, Grind till 41 and skip to the next guide after
-]])
+]]
+)

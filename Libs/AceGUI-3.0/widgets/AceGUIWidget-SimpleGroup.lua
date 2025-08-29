@@ -1,5 +1,4 @@
-local AceGUI = LibStub("AceGUI-3.0")
-
+local AceGUI = LibStub('AceGUI-3.0')
 
 -------------
 -- Widgets --
@@ -34,64 +33,66 @@ local AceGUI = LibStub("AceGUI-3.0")
 ]]
 
 do
-	local Type = "SimpleGroup"
-	local Version = 5
-	
-	local function OnAcquire(self)
-		self:SetWidth(300)
-		self:SetHeight(100)
-	end
-	
-	local function OnRelease(self)
-		self.frame:ClearAllPoints()
-		self.frame:Hide()
-	end
+  local Type = 'SimpleGroup'
+  local Version = 5
 
-	local function LayoutFinished(self, width, height)
-		if self.noAutoHeight then return end
-		self:SetHeight(height or 0)
-	end
-	
-	local function OnWidthSet(self, width)
-		local content = self.content
-		content:SetWidth(width)
-		content.width = width
-	end
+  local function OnAcquire(self)
+    self:SetWidth(300)
+    self:SetHeight(100)
+  end
 
-	local function OnHeightSet(self, height)
-		local content = self.content
-		content:SetHeight(height)
-		content.height = height
-	end
-	
-	local function Constructor()
-		local frame = CreateFrame("Frame",nil,UIParent)
-		local self = {}
-		self.type = Type
+  local function OnRelease(self)
+    self.frame:ClearAllPoints()
+    self.frame:Hide()
+  end
 
-		self.OnRelease = OnRelease
-		self.OnAcquire = OnAcquire
-		self.frame = frame
-		self.LayoutFinished = LayoutFinished
-		self.OnWidthSet = OnWidthSet
-		self.OnHeightSet = OnHeightSet
-		
-		frame.obj = self
-		
-		frame:SetHeight(100)
-		frame:SetWidth(100)
-		frame:SetFrameStrata("FULLSCREEN_DIALOG")
-		
-		--Container Support
-		local content = CreateFrame("Frame",nil,frame)
-		self.content = content
-		content.obj = self
-		content:SetPoint("TOPLEFT",frame,"TOPLEFT",0,0)
-		content:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",0,0)
-		
-		AceGUI:RegisterAsContainer(self)
-		return self
-	end
-	
-	AceGUI:RegisterWidgetType(Type,Constructor,Version)
+  local function LayoutFinished(self, width, height)
+    if self.noAutoHeight then
+      return
+    end
+    self:SetHeight(height or 0)
+  end
+
+  local function OnWidthSet(self, width)
+    local content = self.content
+    content:SetWidth(width)
+    content.width = width
+  end
+
+  local function OnHeightSet(self, height)
+    local content = self.content
+    content:SetHeight(height)
+    content.height = height
+  end
+
+  local function Constructor()
+    local frame = CreateFrame('Frame', nil, UIParent)
+    local self = {}
+    self.type = Type
+
+    self.OnRelease = OnRelease
+    self.OnAcquire = OnAcquire
+    self.frame = frame
+    self.LayoutFinished = LayoutFinished
+    self.OnWidthSet = OnWidthSet
+    self.OnHeightSet = OnHeightSet
+
+    frame.obj = self
+
+    frame:SetHeight(100)
+    frame:SetWidth(100)
+    frame:SetFrameStrata('FULLSCREEN_DIALOG')
+
+    --Container Support
+    local content = CreateFrame('Frame', nil, frame)
+    self.content = content
+    content.obj = self
+    content:SetPoint('TOPLEFT', frame, 'TOPLEFT', 0, 0)
+    content:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 0, 0)
+
+    AceGUI:RegisterAsContainer(self)
+    return self
+  end
+
+  AceGUI:RegisterWidgetType(Type, Constructor, Version)
 end

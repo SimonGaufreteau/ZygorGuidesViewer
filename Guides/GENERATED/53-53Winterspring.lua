@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\53-53Winterspring",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\53-53Winterspring',
+  [[
 author TUGs
 next GENERATED\\55-55BS
 startlevel 53
@@ -127,4 +133,5 @@ step
 accept The Smoldering Ruins of Thaurissan##3701
 step
 fpath Redridge
-]])
+]]
+)

@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\1-10 Nightelf",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\1-10 Nightelf',
+  [[
 author TUGs
 next GENERATED\\11-14Darkshore
 startlevel 1
@@ -301,4 +307,5 @@ step
 accept ##6342
 step
 fpath Auberdine
-]])
+]]
+)

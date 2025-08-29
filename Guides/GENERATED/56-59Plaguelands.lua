@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\56-59Plaguelands",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\56-59Plaguelands',
+  [[
 author TUGs
 next GENERATED\\59-60BS
 startlevel 56
@@ -177,4 +183,5 @@ step
 turnin Heroes of Darrowshire##5168
 step
 fpath Ironforge
-]])
+]]
+)

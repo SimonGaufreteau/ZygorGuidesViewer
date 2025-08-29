@@ -1,10 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-
-ZygorGuidesViewer:RegisterGuide("TUGs\\17-20 DarkshoreII",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\17-20 DarkshoreII',
+  [[
 	author TUGs
 	next TUGs\\20-21 Redridge MountainsII
 	startlevel 17
@@ -133,7 +138,8 @@ step //59
 'Learn your spells at your trainer
 step //60
 'Buy https://classic.wowhead.com/quest=1 at 62,30
-]])
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -141,4 +147,4 @@ step //60
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

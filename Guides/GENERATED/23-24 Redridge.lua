@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\23-24 Redridge",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\23-24 Redridge',
+  [[
 author TUGs
 next GENERATED\\23-24 Stockades
 startlevel 23
@@ -116,4 +122,5 @@ step
 home Wetlands
 step
 Take the boat to Auberdine
-]])
+]]
+)

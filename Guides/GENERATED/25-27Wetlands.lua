@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\25-27Wetlands",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\25-27Wetlands',
+  [[
 author TUGs
 next GENERATED\\27-28Duskwood
 startlevel 25
@@ -140,4 +146,5 @@ step
 turnin Return the Statuette##286
 step
 turnin The Cursed Crew##289
-]])
+]]
+)

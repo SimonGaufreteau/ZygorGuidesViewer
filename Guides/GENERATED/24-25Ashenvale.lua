@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\24-25Ashenvale",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\24-25Ashenvale',
+  [[
 author TUGs
 next GENERATED\\25-27Wetlands
 startlevel 24
@@ -114,4 +120,5 @@ step
 turnin Culling the Threat##1054
 step
 use Hearthstone##6948
-]])
+]]
+)

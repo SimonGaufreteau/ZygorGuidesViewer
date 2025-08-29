@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\22-23Duskwood",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\22-23Duskwood',
+  [[
 author TUGs
 next GENERATED\\23-24 Redridge
 startlevel 22
@@ -109,4 +115,5 @@ step
 accept The Legend of Stalvan##74
 step
 The next guide is 23-24 Redridge Mountains. There is another 23-24 guide if you want to do stockades(what I would suggest doing now).
-]])
+]]
+)

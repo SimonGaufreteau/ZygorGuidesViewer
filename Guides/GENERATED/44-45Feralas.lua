@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\44-45Feralas",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\44-45Feralas',
+  [[
 author TUGs
 next GENERATED\\45-46Tanaris
 startlevel 44
@@ -87,4 +93,5 @@ step
 accept Delivering the Relic##2871
 step
 fpath Darnassus
-]])
+]]
+)

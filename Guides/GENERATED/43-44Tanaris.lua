@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\43-44Tanaris",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\43-44Tanaris',
+  [[
 author TUGs
 next GENERATED\\44-45Feralas
 startlevel 43
@@ -47,4 +53,5 @@ step
 accept Deliver to MacKinley##2874
 step
 accept Handle With Care##3022
-]])
+]]
+)

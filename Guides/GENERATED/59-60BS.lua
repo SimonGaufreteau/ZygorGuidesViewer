@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\59-60BS",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\59-60BS',
+  [[
 author TUGs
 startlevel 59
 step
@@ -44,4 +50,5 @@ step
 accept Overmaster Pyron##4262
 step
 If youre not 60 by now there are basically 2 options: Finish the Winterspring quests or do a Full BRD run (and Stratholme/Scholo if thats still not enough)
-]])
+]]
+)

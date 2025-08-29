@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\32 Gnomeregan",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\32 Gnomeregan',
+  [[
 author TUGs
 next GENERATED\\33-36 Desolace
 startlevel 32 Gnomeregan
@@ -17,4 +23,5 @@ step
 turnin Klockmort's Essentials##2925
 step
 Next part is optional,as its Gnomeregan, continue with Accept The Brassbolt Brother
-]])
+]]
+)

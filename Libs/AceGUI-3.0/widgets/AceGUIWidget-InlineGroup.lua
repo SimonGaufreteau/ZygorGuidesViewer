@@ -1,5 +1,4 @@
-local AceGUI = LibStub("AceGUI-3.0")
-
+local AceGUI = LibStub('AceGUI-3.0')
 
 -------------
 -- Widgets --
@@ -34,103 +33,105 @@ local AceGUI = LibStub("AceGUI-3.0")
 ]]
 
 do
-	local Type = "InlineGroup"
-	local Version = 5
-	
-	local function OnAcquire(self)
-		self:SetWidth(300)
-		self:SetHeight(100)
-	end
-	
-	local function OnRelease(self)
-		self.frame:ClearAllPoints()
-		self.frame:Hide()
-	end
+  local Type = 'InlineGroup'
+  local Version = 5
 
-	local PaneBackdrop  = {
-		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true, tileSize = 16, edgeSize = 16,
-		insets = { left = 3, right = 3, top = 5, bottom = 3 }
-	}
-	
-	local function SetTitle(self,title)
-		self.titletext:SetText(title)
-	end
+  local function OnAcquire(self)
+    self:SetWidth(300)
+    self:SetHeight(100)
+  end
 
+  local function OnRelease(self)
+    self.frame:ClearAllPoints()
+    self.frame:Hide()
+  end
 
-	local function LayoutFinished(self, width, height)
-		if self.noAutoHeight then return end
-		self:SetHeight((height or 0) + 40)
-	end
-	
-	local function OnWidthSet(self, width)
-		local content = self.content
-		local contentwidth = width - 20
-		if contentwidth < 0 then
-			contentwidth = 0
-		end
-		content:SetWidth(contentwidth)
-		content.width = contentwidth
-	end
-	
-	
-	local function OnHeightSet(self, height)
-		local content = self.content
-		local contentheight = height - 20
-		if contentheight < 0 then
-			contentheight = 0
-		end
-		content:SetHeight(contentheight)
-		content.height = contentheight
-	end
-	
-	local function Constructor()
-		local frame = CreateFrame("Frame",nil,UIParent)
-		local self = {}
-		self.type = Type
+  local PaneBackdrop = {
+    bgFile = 'Interface\\ChatFrame\\ChatFrameBackground',
+    edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border',
+    tile = true,
+    tileSize = 16,
+    edgeSize = 16,
+    insets = { left = 3, right = 3, top = 5, bottom = 3 },
+  }
 
-		self.OnRelease = OnRelease
-		self.OnAcquire = OnAcquire
-		self.SetTitle = SetTitle
-		self.frame = frame
-		self.LayoutFinished = LayoutFinished
-		self.OnWidthSet = OnWidthSet
-		self.OnHeightSet = OnHeightSet
-		
-		frame.obj = self
-		
-		frame:SetHeight(100)
-		frame:SetWidth(100)
-		frame:SetFrameStrata("FULLSCREEN_DIALOG")
-		
-		local titletext = frame:CreateFontString(nil,"OVERLAY","GameFontNormal")
-		titletext:SetPoint("TOPLEFT",frame,"TOPLEFT",14,0)
-		titletext:SetPoint("TOPRIGHT",frame,"TOPRIGHT",-14,0)
-		titletext:SetJustifyH("LEFT")
-		titletext:SetHeight(18)
-		
-		self.titletext = titletext	
-		
-		local border = CreateFrame("Frame",nil,frame)
-		self.border = border
-		border:SetPoint("TOPLEFT",frame,"TOPLEFT",3,-17)
-		border:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-3,3)
-		
-		border:SetBackdrop(PaneBackdrop)
-		border:SetBackdropColor(0.1,0.1,0.1,0.5)
-		border:SetBackdropBorderColor(0.4,0.4,0.4)
-		
-		--Container Support
-		local content = CreateFrame("Frame",nil,border)
-		self.content = content
-		content.obj = self
-		content:SetPoint("TOPLEFT",border,"TOPLEFT",10,-10)
-		content:SetPoint("BOTTOMRIGHT",border,"BOTTOMRIGHT",-10,10)
-		
-		AceGUI:RegisterAsContainer(self)
-		return self
-	end
-	
-	AceGUI:RegisterWidgetType(Type,Constructor,Version)
+  local function SetTitle(self, title)
+    self.titletext:SetText(title)
+  end
+
+  local function LayoutFinished(self, width, height)
+    if self.noAutoHeight then
+      return
+    end
+    self:SetHeight((height or 0) + 40)
+  end
+
+  local function OnWidthSet(self, width)
+    local content = self.content
+    local contentwidth = width - 20
+    if contentwidth < 0 then
+      contentwidth = 0
+    end
+    content:SetWidth(contentwidth)
+    content.width = contentwidth
+  end
+
+  local function OnHeightSet(self, height)
+    local content = self.content
+    local contentheight = height - 20
+    if contentheight < 0 then
+      contentheight = 0
+    end
+    content:SetHeight(contentheight)
+    content.height = contentheight
+  end
+
+  local function Constructor()
+    local frame = CreateFrame('Frame', nil, UIParent)
+    local self = {}
+    self.type = Type
+
+    self.OnRelease = OnRelease
+    self.OnAcquire = OnAcquire
+    self.SetTitle = SetTitle
+    self.frame = frame
+    self.LayoutFinished = LayoutFinished
+    self.OnWidthSet = OnWidthSet
+    self.OnHeightSet = OnHeightSet
+
+    frame.obj = self
+
+    frame:SetHeight(100)
+    frame:SetWidth(100)
+    frame:SetFrameStrata('FULLSCREEN_DIALOG')
+
+    local titletext = frame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    titletext:SetPoint('TOPLEFT', frame, 'TOPLEFT', 14, 0)
+    titletext:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', -14, 0)
+    titletext:SetJustifyH('LEFT')
+    titletext:SetHeight(18)
+
+    self.titletext = titletext
+
+    local border = CreateFrame('Frame', nil, frame)
+    self.border = border
+    border:SetPoint('TOPLEFT', frame, 'TOPLEFT', 3, -17)
+    border:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', -3, 3)
+
+    border:SetBackdrop(PaneBackdrop)
+    border:SetBackdropColor(0.1, 0.1, 0.1, 0.5)
+    border:SetBackdropBorderColor(0.4, 0.4, 0.4)
+
+    --Container Support
+    local content = CreateFrame('Frame', nil, border)
+    self.content = content
+    content.obj = self
+    content:SetPoint('TOPLEFT', border, 'TOPLEFT', 10, -10)
+    content:SetPoint('BOTTOMRIGHT', border, 'BOTTOMRIGHT', -10, 10)
+
+    AceGUI:RegisterAsContainer(self)
+    return self
+  end
+
+  AceGUI:RegisterWidgetType(Type, Constructor, Version)
 end

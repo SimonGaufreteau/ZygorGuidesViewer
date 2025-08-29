@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\36-37Arathi",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\36-37Arathi',
+  [[
 author TUGs
 next GENERATED\\38Dustwallow Marsh
 startlevel 36
@@ -59,4 +65,5 @@ step
 Do (Optional): Attack on the Tower
 step
 use Hearthstone##6948
-]])
+]]
+)

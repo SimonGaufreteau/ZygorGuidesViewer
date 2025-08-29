@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\19-21RR",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\19-21RR',
+  [[
 author TUGs
 next GENERATED\\21-22Ashenvale
 startlevel 19
@@ -115,4 +121,5 @@ step
 turnin The Absent Minded Prospector##942
 step
 Take the boat to Auberdine.
-]])
+]]
+)

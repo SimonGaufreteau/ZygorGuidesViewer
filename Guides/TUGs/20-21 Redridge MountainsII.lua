@@ -1,9 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-ZygorGuidesViewer:RegisterGuide("TUGs\\20-21 Redridge MountainsII",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\20-21 Redridge MountainsII',
+  [[
 	author TUGs
 	next TUGs\\21-23 Ashenvale
 	startlevel 20
@@ -66,11 +72,14 @@ step //26
 ..turnin Selling Fish##127
 step //27
 use Hearthstone##6948
-]])
-ZygorGuidesViewer:RegisterGuide("TUGs\\Darkshore 11-15",[[
+]]
+)
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\Darkshore 11-15',
+  [[
 
-]])
-
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -78,4 +87,4 @@ ZygorGuidesViewer:RegisterGuide("TUGs\\Darkshore 11-15",[[
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

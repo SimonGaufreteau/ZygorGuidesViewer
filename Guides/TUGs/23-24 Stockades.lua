@@ -1,9 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-ZygorGuidesViewer:RegisterGuide("TUGs\\23-24 Stockades",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\23-24 Stockades',
+  [[
 	author TUGs
 	next TUGs\\23-25 Redridge MountainsIII
 	startlevel 23
@@ -61,7 +67,8 @@ step //25
 ..accept Items of Some Consequence##2746
 step //26
 We will turn in the other 2 dungeons quests in the next guide.
-]])
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -69,4 +76,4 @@ We will turn in the other 2 dungeons quests in the next guide.
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

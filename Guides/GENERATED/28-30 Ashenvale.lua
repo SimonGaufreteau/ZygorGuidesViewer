@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\28-30 Ashenvale",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\28-30 Ashenvale',
+  [[
 author TUGs
 next GENERATED\\30-31 Hillsbrad Foothills
 startlevel 28
@@ -147,4 +153,5 @@ step
 Do (Optional): The Dark Iron War
 step
 fpath Arathi Highlands |goto Arathi Highlands 45.7, 46.1
-]])
+]]
+)

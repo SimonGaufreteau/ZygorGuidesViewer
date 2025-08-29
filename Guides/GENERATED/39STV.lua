@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\39STV",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\39STV',
+  [[
 author TUGs
 next GENERATED\\40-40Badlands
 startlevel 39STV
@@ -39,4 +45,5 @@ step
 accept The Bloodsail Buccaneers##599
 step
 fpath Stormwind City
-]])
+]]
+)

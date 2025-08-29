@@ -1,9 +1,15 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
 --TRIAL if ZygorGuidesViewer.AllianceInstalled then return end
-if UnitFactionGroup("player")~="Alliance" then return end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
 
-ZygorGuidesViewer:RegisterGuide("TUGs\\33 Gnomeregan",[[
+ZygorGuidesViewer:RegisterGuide(
+  'TUGs\\33 Gnomeregan',
+  [[
 	author TUGs
 	next TUGs\\33-34 Stranglethorn Valley
 	startlevel 33
@@ -37,7 +43,8 @@ step //14
 ..turnin Save Techbot's Brain!##2922
 step //15
 ..turnin The Grand Betrayal##2929
-]])
+]]
+)
 
 --TRIAL ZygorGuidesViewer:RegisterGuide("Zygor's Alliance Leveling Guides\\Main Guide (13-20)",[[
 --TRIAL 	author support@zygorguides.com
@@ -45,4 +52,4 @@ step //15
 --TRIAL 		' Thank you for trying the Zygor Guides Version 2.0 Leveling Guides Demo.  Please visit ZygorGuides.com to purchase the complete in-game Version 2.0 leveling guides.  Take care
 --TRIAL 		level 13
 --TRIAL ]])
-ZygorGuidesViewer.AllianceInstalled=true --!TRIAL
+ZygorGuidesViewer.AllianceInstalled = true --!TRIAL

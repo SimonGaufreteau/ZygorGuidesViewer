@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\33-36 Desolace",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\33-36 Desolace',
+  [[
 author TUGs
 next GENERATED\\36-37Arathi
 startlevel 33
@@ -214,4 +220,5 @@ step
 accept The Missing Diplomat##1249
 step
 Do: The Missing Diplomat |q 1249
-]])
+]]
+)

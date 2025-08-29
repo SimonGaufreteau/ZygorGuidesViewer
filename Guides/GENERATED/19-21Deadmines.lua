@@ -1,7 +1,13 @@
-local ZygorGuidesViewer=ZygorGuidesViewer
-if not ZygorGuidesViewer then return end
-if UnitFactionGroup("player")~="Alliance" then return end
-ZygorGuidesViewer:RegisterGuide("GENERATED\\19-21Deadmines",[[
+local ZygorGuidesViewer = ZygorGuidesViewer
+if not ZygorGuidesViewer then
+  return
+end
+if UnitFactionGroup('player') ~= 'Alliance' then
+  return
+end
+ZygorGuidesViewer:RegisterGuide(
+  'GENERATED\\19-21Deadmines',
+  [[
 author TUGs
 next GENERATED\\19-21RR
 startlevel 19
@@ -49,4 +55,5 @@ step
 accept Bazil Thredd##389
 step
 turnin Bazil Thredd##389
-]])
+]]
+)
