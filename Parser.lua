@@ -29,12 +29,12 @@ local function split (s,t)
 end
 --]]
 
-me.actionmeta = {
-  goto = { skippable = true },
-  fpath = { skippable = true },
-  home = { skippable = true },
-  hearth = { skippable = true },
-}
+-- me.actionmeta = {
+--   goto = { skippable = true },
+--   fpath = { skippable = true },
+--   home = { skippable = true },
+--   hearth = { skippable = true },
+-- }
 
 local function split(str, sep)
   local fields = {}
