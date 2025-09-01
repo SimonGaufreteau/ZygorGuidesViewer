@@ -1084,6 +1084,16 @@ function Goal:Prepare()
       end
       self.macro = macro
     end
+
+		if self.action == "kill" then		
+			--print("Killmacro for "..ZGV:GetTranslatedNPC(self.targetid))
+      --local macroname = 'ZygorGuidesKillMacro' .. self.num
+      --local macro = GetMacroIndexByName(macroname)
+      --if macro == 0 then
+      --  macro = CreateMacro(macroname, 1, '/run ' .. self.script, 1)
+      --end
+      --self.macro = macro			
+		end	
   end
 
   if self.autoscript then

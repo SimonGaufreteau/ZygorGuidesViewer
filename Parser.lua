@@ -255,7 +255,7 @@ ZGV.ConditionEnv = {
         elseif key == 'selfmade' then
           return false
         elseif key == 'walking' then
-          return IsFlying()
+          return not IsFlying()
         else
           print(tostring(key) .. ' Condition not found, may be a typo in the guide')
           table[key] = 0

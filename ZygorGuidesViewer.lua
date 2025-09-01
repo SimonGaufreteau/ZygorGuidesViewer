@@ -3704,12 +3704,14 @@ function me:GoalOnClick(goalframe, button)
   --local goal = self.CurrentStep.goals[num]
   if button == 'LeftButton' then
     if goal.x and not goal.force_noway then
+			
       self:SetWaypoint(goal.num)
     elseif goal.questid then
       --if InCombatLockdown() then return end
       if self.questsbyid[goal.questid] and WorldMap_OpenToQuest then -- 3.3.0
         WorldMap_OpenToQuest(goal.questid)
         local done, posX, posY, obj = QuestPOIGetIconInfo(goal.questid)
+				--print(done,posX,poyY,obj)
         if posX or posY then
           local q = self.questsbyid[goal.questid]
           local title
@@ -3717,6 +3719,7 @@ function me:GoalOnClick(goalframe, button)
             title = q.title
           end
           self:Debug('Setting waypoint to POI: ' .. posX .. ' ' .. posY)
+					
           self:SetWaypoint(posX * 100, posY * 100, title)
         end
       end

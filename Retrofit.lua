@@ -3,36 +3,18 @@ ZGV.Retrofit = {}
 ZGV.Retrofit.IsClassicSoD = false
 ZGV.IMAGESDIR = 'nothing'
 
-if not GetClassInfo then
-  local CLASS_INFO = {
-    [1] = { 'Warrior', 'WARRIOR' },
-    [2] = { 'Paladin', 'PALADIN' },
-    [3] = { 'Hunter', 'HUNTER' },
-    [4] = { 'Rogue', 'ROGUE' },
-    [5] = { 'Priest', 'PRIEST' },
-    [6] = { 'Death Knight', 'DEATHKNIGHT' },
-    [7] = { 'Shaman', 'SHAMAN' },
-    [8] = { 'Mage', 'MAGE' },
-    [9] = { 'Warlock', 'WARLOCK' },
-    [11] = { 'Druid', 'DRUID' },
-  }
-
-  function GetClassInfo(classID)
-    local info = CLASS_INFO[classID]
-    if info then
-      return info[1], info[2], classID
-    end
-    return nil, nil, nil
-  end
-end
-
-ZGV.ClassToNumber = {}
-for i = 1, 20 do --GetNumClasses() do
-  local name, tag, id = GetClassInfo(i)
-  if tag then
-    ZGV.ClassToNumber[tag] = i
-  end
-end
+ZGV.ClassToNumber = {
+    ['WARRIOR'] = 1,
+    ['PALADIN'] = 2,
+    ['HUNTER'] = 3,
+    ['ROGUE'] = 4,
+    ['PRIEST'] = 5,
+    ['DEATHKNIGHT'] = 6,
+    ['SHAMAN'] = 7,
+    ['MAGE'] = 8,
+    ['WARLOCK'] = 9,
+    ['DRUID'] = 11,
+}
 
 -- C_Item helper
 ZGV.Retrofit.C_Item = {
