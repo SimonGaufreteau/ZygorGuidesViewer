@@ -666,10 +666,10 @@ function me:SetMacroButton(slot, text)
     local macroname = 'ZGV:' .. slot
     local macro = GetMacroIndexByName(macroname)
     if macro == 0 then
-      macro = CreateMacro(macroname, 1, text, 1)
+      macro = CreateMacro(macroname, 1, text, 0)
     end
 
-    macro = EditMacro(macroname, 'ZGV:' .. slot, 1, text, 1)
+    macro = EditMacro(macroname, 'ZGV:' .. slot, 1, text, 0)
   end
 end
 
