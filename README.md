@@ -1,5 +1,7 @@
 # VanillaEpochLeveling
 
+# PROJECT CURRENTLY IN STANDBY, WAITING FOR EPOCH UPDATES
+
 ## Overview
 
 This is a port of Zygor 3.3.5 addon to Project Epoch (Vanilla+ 1-60), with the following guides :
