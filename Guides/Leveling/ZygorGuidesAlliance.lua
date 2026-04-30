@@ -142,6 +142,8 @@ Kill enemies around this area
 ding 3,1150 |goto Elwynn Forest 47.49,36.15
 You can find more around [51.18,37.25]
 step
+accept The Soaked Barrel##26777 |goto Elwynn Forest 53.6,41.9
+step
 talk Godric Rothgar##1213
 |tip You will need 1-2 silver for spells.
 Sell your trash |vendor Godric Rothgar##1213 |q 15 |goto Elwynn Forest/0 47.69,41.42
@@ -228,6 +230,9 @@ step
 talk Godric Rothgar##1213
 Sell your trash |vendor Godric Rothgar##1213 |q 6 |goto Elwynn Forest/0 47.69,41.42
 step
+talk Merissa Stilwell##11940
+accept Swiftpaw##26776 |goto Elwynn Forest 47.4,41.9
+step
 kill 12 Kobold Laborer##80 |q 21/1 |goto Elwynn Forest 47.67,31.86
 |tip Inside the mine.
 step
@@ -236,11 +241,17 @@ Kill enemies around this area
 ding 5 |goto Elwynn Forest 47.67,31.86
 step
 Leave the mine |goto Elwynn Forest 47.66,31.89 < 15 |walk |only if subzone("Echo Ridge Mine") and _G.IsIndoors()
+kill Swiftpaw##45326 
+collect Swiftpaw's Snout##60388 |q 26776/1 |goto 54.9,37.6
+step
 talk Milly Osworth##9296
 |tip Outside, behind the building.
 turnin Milly Osworth##3903 |goto Elwynn Forest 50.69,39.35
 accept Milly's Harvest##3904 |goto Elwynn Forest 50.69,39.35
+turnin The Soaked Barrel##26777 |goto Elwynn Forest 50.69,39.35
+accept Find the Brother##26778 |goto Elwynn Forest 50.69,39.35
 step
+In the house
 kill Garrick Padfoot##103
 collect Garrick's Head##182 |q 6/1 |goto Elwynn Forest 57.51,48.25
 step
@@ -281,6 +292,8 @@ Run up the stairs |goto Elwynn Forest 49.56,41.61 < 7 |walk
 talk Brother Neals##952
 |tip Upstairs inside the building, all the way at the top.
 turnin Grape Manifest##3905 |goto Elwynn Forest 49.47,41.58
+turnin Find the Brother##26778 |goto Elwynn Forest 49.47,41.58
+accept A Brother's Disgust##26779 |goto Elwynn Forest 49.47,41.58
 step
 talk Priestess Anetta##375
 |tip Inside the building, on the ground floor.
@@ -291,18 +304,21 @@ Follow the road |goto Elwynn Forest 47.05,47.69 < 20 |only if walking
 talk Falkhaan Isenstrider##6774
 accept Rest and Relaxation##2158 |goto Elwynn Forest 45.56,47.74
 step
-talk Marshal Dughan##240
-turnin Report to Goldshire##54 |goto Elwynn Forest 42.11,65.93
-accept The Fargodeep Mine##62 |goto Elwynn Forest 42.11,65.93
+talk Matron Darcy##45021
+accept Spider Elixir##26774 |goto Elwynn Forest 42.0,67.0
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+talk Marshal Dughan##240
+turnin Report to Goldshire##54 |goto Elwynn Forest 39.5,68.9
+accept The Fargodeep Mine##62 |goto Elwynn Forest 39.5,68.9
+step
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk William Pestle##253
 |tip Inside the building.
-accept Kobold Candles##60 |goto Elwynn Forest 43.32,65.70
+accept Kobold Candles##60 |goto Elwynn Forest 38.9,68.4
 step
 talk Innkeeper Farley##295
 |tip Inside the building.
-turnin Rest and Relaxation##2158 |goto Elwynn Forest 43.77,65.81
+turnin Rest and Relaxation##2158 |goto Elwynn Forest 38.1,68.1
 step
 talk Brog Hamfist##151
 |tip Inside the building.
@@ -371,7 +387,7 @@ Heal and Fortify Guard Roberts |q 5624/1 |goto Elwynn Forest/0 48.14,68.04
 |tip Second, cast your "Power Word: Fortitude" spell on him.
 |only if Human Priest
 step
-Enter the building |goto Elwynn Forest/0 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest/0 38.9,68.4 < 10 |walk
 talk Priestess Josetta##377
 |tip Upstairs inside the building.
 turnin Garments of the Light##5624 |goto Elwynn Forest/0 43.28,65.72
@@ -410,8 +426,8 @@ Visit the Vendor |vendor Corina Steele##54 |goto Elwynn Forest 41.53,65.90 |q 60
 |only if Rogue and itemcount(2494) == 0
 step
 talk Smith Argus##514
-Select _"Train me."_ |gossip 95665 |goto Elwynn Forest/0 41.71,65.55
-Train Apprentice Blacksmithing |skillmax Blacksmithing,75 |goto Elwynn Forest/0 41.71,65.55
+Select _"Train me."_ |gossip 95665 |goto Elwynn Forest/0 42.4,69.5
+Train Apprentice Blacksmithing |skillmax Blacksmithing,75 |goto Elwynn Forest/0 42.4,69.5
 |tip Weapon stones are up to a 30% damage increase at this level and are very worthwhile.
 |tip We'll get rough stones from Kobolds soon.
 |only if Warrior or Rogue or Paladin
@@ -428,7 +444,10 @@ learnspell Holy Light##639 |goto Elwynn Forest/0 41.10,66.03
 |only if Paladin and level >= 6
 step
 talk Remy "Two Times"##241
-accept Gold Dust Exchange##47 |goto Elwynn Forest 42.14,67.26
+accept Gold Dust Exchange##47 |goto Elwynn Forest 38.5,70.1
+step
+talk Robert Miston##45085
+accept Lost Equipment##26771 |goto Elwynn Forest 42.5,69.2
 stickystart "Collect_Chunks_Of_Boar_Meat"
 step
 talk "Auntie" Bernice Stonefield##246
@@ -531,27 +550,36 @@ talk "Auntie" Bernice Stonefield##246
 turnin Goldtooth##87 |goto Elwynn Forest 34.49,84.25
 step
 talk Remy "Two Times"##241
-turnin Gold Dust Exchange##47 |goto Elwynn Forest 42.14,67.26
-accept A Fishy Peril##40 |goto Elwynn Forest 42.14,67.26
+turnin Gold Dust Exchange##47 |goto Elwynn Forest 38.5,70.1
+accept A Fishy Peril##40 |goto Elwynn Forest 38.5,70.1
 step
 talk Marshal Dughan##240
-turnin A Fishy Peril##40 |goto Elwynn Forest 42.11,65.93
-accept Further Concerns##35 |goto Elwynn Forest 42.11,65.93
-turnin The Fargodeep Mine##62 |goto Elwynn Forest 42.11,65.93
-accept The Jasperlode Mine##76 |goto Elwynn Forest 42.11,65.93
+turnin A Fishy Peril##40 |goto Elwynn Forest 39.5,68.9
+accept Further Concerns##35 |goto Elwynn Forest 39.5,68.9
+turnin The Fargodeep Mine##62 |goto Elwynn Forest 39.5,68.9
+accept The Jasperlode Mine##76 |goto Elwynn Forest 39.5,68.9
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk William Pestle##253
 |tip Inside the building.
-turnin Kobold Candles##60 |goto Elwynn Forest 43.32,65.70
-accept Shipment to Stormwind##61 |goto Elwynn Forest 43.32,65.70
-turnin Note to William##107 |goto Elwynn Forest 43.32,65.70
-accept Collecting Kelp##112 |goto Elwynn Forest 43.32,65.70
+turnin Kobold Candles##60 |goto Elwynn Forest 38.9,68.4
+accept Shipment to Stormwind##61 |goto Elwynn Forest 38.9,68.4
+turnin Note to William##107 |goto Elwynn Forest 38.9,68.4
+accept Collecting Kelp##112 |goto Elwynn Forest 38.9,68.4
 step
 talk Innkeeper Farley##295
 |tip Inside the building.
 |tip This will create a Hearthstone for you, so you have one again.
-home Goldshire |goto Elwynn Forest 43.77,65.81 |q 1097 |future
+home Goldshire |goto Elwynn Forest 38.1,68.1 |q 1097 |future
+step
+talk Melika Isenstrider##6778 |goto Elwynn Forest 38.2,68.6
+turnin A Brother's Disgust##26779 |goto Elwynn Forest 38.2,68.6
+accept A Mage's Advice##26780 |goto Elwynn Forest 38.2,68.6
+step
+talk Zaldimar Wefhellt##328
+|tip At the upper level of the inn
+turnin A Mage's Advice##26780 |goto Elwynn Forest 38.0,68.3
+accept Linus Stone Tips##26781 |goto Elwynn Forest 38.0,68.3
 step
 talk Brog Hamfist##151
 |tip Inside the building.
@@ -631,18 +659,17 @@ buy Stiletto##2494 |n
 Visit the Vendor |vendor Corina Steele##54 |goto Elwynn Forest 41.53,65.90 |q 112
 |only if Rogue and itemcount(2494) == 0
 step
+kill Linus Royston##45027
+collect Depleted Translocation Stone##60024 |q 26781/1 |goto 42.5,58.5
+step
 Kill Murloc enemies around this area
 collect 4 Crystal Kelp Frond##1256 |q 112/1 |goto Elwynn Forest 50.20,66.86
 You can find more around [Elwynn Forest 55.90,66.66]
 step
-Enter the mine |goto Elwynn Forest 61.71,53.87 < 10 |walk
-Scout Through the Jasperlode Mine |q 76/1 |goto Elwynn Forest 60.38,49.68
-|tip Inside the mine.
-|tip Watch for patrols and respawns while in the area. |only if hardcore
-|tip Kobold Geomancers deal heavy damage. |only if hardcore
-|tip Use Line of Sight to cancel their casts and maneuver them into move favorable positions when possible. |only if hardcore
+If you see Lorkiz Quietbit on the road to the east pick up this quest, coordinates are for the the next step
+talk Lorkiz Quietbit##45032
+accept Wanted: Big Blue##26794 |goto Elwynn Forest 73.97,72.18
 step
-Leave the mine |goto Elwynn Forest 61.74,53.88 < 10 |walk |only if subzone("Jasperlode Mine") and _G.IsIndoors()
 talk Guard Thomas##261
 |tip Grind mobs en route to this quest.
 turnin Further Concerns##35 |goto Elwynn Forest 73.97,72.18
@@ -655,6 +682,9 @@ click A Half-Eaten Body##55
 |tip Grind mobs en route to the body.
 turnin Find the Lost Guards##37 |goto Elwynn Forest 72.65,60.33
 accept Discover Rolf's Fate##45 |goto Elwynn Forest 72.65,60.33
+step
+kill Big Blue##45030
+collect Big Blue's Wing##60030 |q 26794/1 |goto Elwynn Forest 70.7,59.7
 step
 talk Supervisor Raelen##10616
 accept A Bundle of Trouble##5545 |goto Elwynn Forest 81.38,66.11
@@ -704,6 +734,19 @@ talk Sara Timberlain##278
 |tip In front of the building.
 accept Red Linen Goods##83 |goto Elwynn Forest 79.46,68.78
 step
+Enter the mine |goto Elwynn Forest 61.71,53.87 < 10 |walk
+Scout Through the Jasperlode Mine |q 76/1 |goto Elwynn Forest 60.38,49.68
+|tip Inside the mine.
+|tip Watch for patrols and respawns while in the area. |only if hardcore
+|tip Kobold Geomancers deal heavy damage. |only if hardcore
+|tip Use Line of Sight to cancel their casts and maneuver them into move favorable positions when possible. |only if hardcore
+collect 4 Mine Spider Mandible##60018|q 26774/1
+|tip From Mine Spiders
+kill 4 Webbed Miner##45023 |q 26774/2
+collect 8 Mining Equipment |q 26771/1
+|tip Click Mining Equipment in the cave
+step
+Leave the mine |goto Elwynn Forest 61.74,53.88 < 10 |walk |only if subzone("Jasperlode Mine") and _G.IsIndoors()
 talk Guard Thomas##261
 turnin Protect the Frontier##52 |goto Elwynn Forest 73.97,72.18
 turnin Report to Thomas##71 |goto Elwynn Forest 73.97,72.18
@@ -780,17 +823,21 @@ talk William Pestle##253
 |tip Inside the building.
 accept The Escape##114 |goto Elwynn Forest 43.32,65.71
 step
+talk Zaldimar Wefhellt##328
+|tip At the upper level of the inn (skip follow up)
+turnin Linus Stone Tips##26781 |goto Elwynn Forest 38.0,68.3
+step
 talk Marshal Dughan##240
-turnin Deliver Thomas' Report##39 |goto Elwynn Forest 42.11,65.93
-turnin The Jasperlode Mine##76 |goto Elwynn Forest 42.11,65.93
-accept Westbrook Garrison Needs Help!##239 |goto Elwynn Forest 42.11,65.93
-accept Cloth and Leather Armor##59 |goto Elwynn Forest 42.11,65.93 |only if Warlock
+turnin Deliver Thomas' Report##39 |goto Elwynn Forest 39.5,68.9
+turnin The Jasperlode Mine##76 |goto Elwynn Forest 39.5,68.9
+accept Westbrook Garrison Needs Help!##239 |goto Elwynn Forest 39.5,68.9
+accept Cloth and Leather Armor##59 |goto Elwynn Forest 39.5,68.9 |only if Warlock
 step
 talk Smith Argus##514
 |tip Inside the building.
-accept Elmore's Task##1097 |goto Elwynn Forest 41.71,65.55
+accept Elmore's Task##1097 |goto Elwynn Forest 42.4,69.5
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk Priestess Josetta##377
 |tip Upstairs inside the building.
 accept Desperate Prayer##5635 |goto Elwynn Forest 43.28,65.72
@@ -801,7 +848,7 @@ learnspell Resurrection##2006 |goto Elwynn Forest 43.28,65.72
 |tip Only train Resurrection if you plan to do group content.
 |only if Human Priest and level >= 10
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk Maximillian Crowe##906
 |tip Downstairs in the inn.
 |tip Enter from the kitchen.
@@ -839,6 +886,20 @@ learnspell Slice and Dice##5171 |goto Elwynn Forest/0 43.87,65.93
 learnspell Sap##6770 |goto Elwynn Forest/0 43.87,65.93
 |tip Sap is low priority if you are low on money.
 |only if Rogue and level >= 10
+step
+talk Robert Miston##45085 
+turnin Lost Equipment##26771 |goto Elwynn Forest 42.5,69.2
+step
+talk Matron Darcy##45021 
+turnin Spider Elixir##26774 |goto Elwynn Forest 42.0,67.0
+accept Tend to the Wounded##26775 |goto Elwynn Forest 42.0,67.0
+step
+Use the Spider Elixir in your bags on the Sickly Miner in the tend
+use Spider Elixir##60020
+Complete Tend to the Wounded |q 26775/1 |goto Elwynn Forest 42.0,67.0
+step
+talk Matron Darcy##45021 
+turnin Tend to the Wounded##26775 |goto Elwynn Forest 42.0,67.0
 step
 Enter the building |goto Elwynn Forest 43.00,89.40 < 10 |walk
 talk Maybell Maclure##251
@@ -1177,12 +1238,12 @@ trainer Arthur the Faithful##5491 |goto Stormwind City/0 38.65,32.80 |only if Pa
 |tip Train your spells.
 step
 talk Marshal Dughan##240
-turnin The Collector##123 |goto Elwynn Forest 42.11,65.93
-accept Manhunt##147 |goto Elwynn Forest 42.11,65.93
+turnin The Collector##123 |goto Elwynn Forest 39.5,68.9
+accept Manhunt##147 |goto Elwynn Forest 39.5,68.9
 |only if Human Warlock and haveq(123)
 step
 talk Marshal Dughan##240
-turnin Wanted: "Hogger"##176 |goto Elwynn Forest 42.11,65.93
+turnin Wanted: "Hogger"##176 |goto Elwynn Forest 39.5,68.9
 |only if Human Warlock and readyq(176)
 step
 Leave the building |goto Stormwind City 29.15,74.18 < 10 |walk |only if subzone("The Slaughtered Lamb")
@@ -1216,7 +1277,7 @@ Grind XP Until You Can Hearth |complete C_Container.GetItemCooldown(6948) == 0 |
 |only if Human Warlock and C_Container.GetItemCooldown(6948) <= 600 and not haveq(147)
 step
 talk Marshal Dughan##240
-turnin Manhunt##147 |goto Elwynn Forest 42.11,65.93
+turnin Manhunt##147 |goto Elwynn Forest 39.5,68.9
 |only if Human Warlock and haveq(147)
 step
 Enter the building |goto Stormwind City 29.15,74.18 < 10 |walk
@@ -23531,7 +23592,7 @@ talk Gakin the Darkbinder##6122
 turnin The Binding##1689 |goto Stormwind City 25.25,78.53
 |only if Gnome Warlock
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk Remen Marcot##6121
 |tip Downstairs inside the building.
 accept Gakin's Summons##1685 |goto Elwynn Forest 44.49,66.27
