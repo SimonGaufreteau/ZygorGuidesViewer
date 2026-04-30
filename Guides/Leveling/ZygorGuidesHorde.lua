@@ -97,7 +97,6 @@ step
 talk Maximillion##2126
 |tip Inside the building.
 turnin Tainted Scroll##3099 |goto Tirisfal Glades 30.91,66.34
-accept The Lost Rune##77672 |goto Tirisfal Glades 30.91,66.34 |only if ZGV.IsClassicSoD
 |only if Scourge Warlock
 step
 talk Venya Marthand##5667
@@ -108,69 +107,6 @@ step
 Summon Your Imp |complete warlockpet("Imp") |q 376
 |tip Use the "Summon Imp" ability.
 |only if Scourge Warlock and not warlockpet("Imp")
-step
-Enter the building |goto Tirisfal Glades 32.22,65.62 < 10 |walk
-talk David Trias##2122
-|tip Inside the building.
-turnin Encrypted Scroll##3096 |goto Tirisfal Glades 32.53,65.65
-accept The Scarlet Rune##77669 |goto Tirisfal Glades 32.53,65.65
-|only if Scourge Rogue and ZGV.IsClassicSoD
-step
-kill Scarlet Convert##1506+
-|tip They look like humans.
-|tip You can also pickpocket them.
-collect Rune of Shadowstrike##204795 |goto Tirisfal Glades 36.89,67.82 |q 77669
-|only if Scourge Rogue and ZGV.IsClassicSoD
-step
-use the Rune of Shadowstrike##204795
-Learn Engrave Gloves - Shadowstrike |q 77669/1
-|only if Scourge Rogue and ZGV.IsClassicSoD
-step
-Enter the building |goto Tirisfal Glades 32.22,65.62 < 10 |walk
-talk David Trias##2122
-|tip Inside the building.
-turnin The Scarlet Rune##77669 |goto Tirisfal Glades 32.53,65.65
-|only if Scourge Rogue and ZGV.IsClassicSoD
-step
-talk Dark Cleric Duesten##2123
-|tip Inside the building.
-turnin Hallowed Scroll##3097 |goto Tirisfal Glades 31.11,66.03
-accept Meditation on Undeath##77670 |goto Tirisfal Glades 31.11,66.03
-|only if Scourge Priest and ZGV.IsClassicSoD
-step
-Gain the Meditation on Undeath Buff |complete hasbuff(418459) |goto Tirisfal Glades 31.46,64.90
-|tip Use the "/kneel" emote at this location.
-|only if Scourge Priest and ZGV.IsClassicSoD
-step
-use the Memory of a Troubled Acolyte##205951
-Learn Spell: Engrave Gloves - Penance |q 77670/1 |goto Tirisfal Glades 31.46,64.90
-|only if Scourge Priest and ZGV.IsClassicSoD
-step
-Enter the building |goto Tirisfal Glades 31.39,66.20 < 10 |walk
-talk Dark Cleric Duesten##2123
-|tip Inside the building.
-turnin Meditation on Undeath##77670 |goto Tirisfal Glades 31.11,66.03
-|only if Scourge Priest and ZGV.IsClassicSoD
-step
-talk Isabella##2124
-|tip Inside the building.
-turnin Glyphic Scroll##3098 |goto Tirisfal Glades 30.94,66.06
-accept Spell Research##77671 |goto Tirisfal Glades 30.93,66.06
-|only if Scourge Mage and ZGV.IsClassicSoD
-step
-kill Scarlet Initiate##1507+
-|tip They look like humans.
-collect Spell Notes: CALE ENCI##203751 |goto Tirisfal Glades 36.89,67.82 |q 77671
-|only if Scourge Mage and ZGV.IsClassicSoD
-step
-use the Spell Notes: CALE ENCI##203751
-Learn: Engrave Gloves - Ice Lance |q 77671/1
-|only if Scourge Mage and ZGV.IsClassicSoD
-step
-Enter the building |goto Tirisfal Glades 31.39,66.20 < 10 |walk
-talk Isabella##2124
-turnin Spell Research##77671 |goto Tirisfal Glades 30.93,66.06
-|only if Scourge Mage and ZGV.IsClassicSoD
 stickystart "Collect_Scavenger_Paws"
 stickystart "Collect_Duskbat_Wings"
 step
@@ -262,16 +198,6 @@ step
 kill 10 Young Night Web Spider##1504 |q 380/1 |goto Tirisfal Glades 28.55,58.19
 |tip Outside the mine.
 step
-Enter the mine |goto Tirisfal Glades 26.84,59.42 < 15 |walk
-click Lost Stash##406736
-|tip Inside the mine.
-collect Rune of Haunting##205230 |goto Tirisfal Glades 24.60,59.45 |q 77672
-|only if Scourge Warlock and ZGV.IsClassicSoD
-step
-use the Rune of Haunting##205230
-Learn Engrave Gloves - Haunt |q 77672/1
-|only if Scourge Warlock and ZGV.IsClassicSoD
-step
 label "Kill_Night_Web_Spiders"
 kill 8 Night Web Spider##1505 |q 380/2 |goto Tirisfal Glades 26.84,59.41
 |tip Inside the mine.
@@ -296,12 +222,6 @@ Resurrect at the Spirit Healer |complete not isdead |goto Tirisfal Glades 31.24,
 step
 talk Deathguard Saltain##1740
 turnin Scavenging Deathknell##3902 |goto Tirisfal Glades 31.61,65.60
-step
-Enter the building |goto Tirisfal Glades 31.38,66.20 < 10 |walk
-talk Maximillion##2126
-|tip Inside the building.
-turnin The Lost Rune##77672 |goto Tirisfal Glades 30.91,66.34
-|only if Scourge Warlock and ZGV.IsClassicSoD
 step
 talk Executor Arren##1570
 turnin Night Web's Hollow##380 |goto Tirisfal Glades 32.15,66.01
@@ -1866,34 +1786,11 @@ talk Kawnie Softbreeze##3072
 collect 800 Light Shot##2516 |only if Hunter
 Visit the Vendor |vendor Kawnie Softbreeze##3072 |q 750 |goto Mulgore/0 45.29,76.52
 step
-talk Meela Dawnstrider##3062
-|tip Inside the building.
-turnin Rune-Inscribed Note##3093 |goto Mulgore 45.01,75.94
-accept Icons of Power##77652 |goto Mulgore 45.01,75.94
-|only if Tauren Shaman and ZGV.IsClassicSoD
-step
-talk Gart Mistrunner##3060
-|tip Inside the building.
-turnin Verdant Note##3094 |goto Mulgore 45.09,75.93
-accept Relics of the Tauren##77648 |goto Mulgore 45.09,75.93
-|only if Tauren Druid and ZGV.IsClassicSoD
-step
 Enter the building |goto Mulgore 44.32,76.21 < 7 |walk
 talk Chief Hawkwind##2981
 |tip Inside the building.
 turnin A Humble Task##753 |goto Mulgore 44.18,76.06
 accept Rites of the Earthmother##755 |goto Mulgore 44.18,76.06
-step
-talk Grull Hawkwind##2980
-|tip Inside the building.
-turnin Simple Note##3091 |goto Mulgore 44.01,76.13
-|only if Tauren Warrior and ZGV.IsClassicSoD
-step
-talk Lanka Farshot##3061
-|tip Inside the building.
-turnin Etched Note##3092 |goto Mulgore 44.26,75.69
-accept A Hunter's Strength##77649 |goto Mulgore 44.26,75.69
-|only if Tauren Hunter and ZGV.IsClassicSoD
 step
 kill Mountain Cougar##2961+
 collect 10 Mountain Cougar Pelt##4742 |q 750/1 |goto Mulgore 48.29,90.11
@@ -1949,13 +1846,6 @@ step
 talk Brave Windfeather##3209
 |tip She walks around this area.
 accept Break Sharptusk!##3376 |goto Mulgore 44.94,77.04
-step
-_NOTE:_
-Learn the Moonfire Ability
-|tip Make sure to learn the Moonfire ability from your class trainer.
-|tip You will need it to get a rune soon.
-Click Here to Continue |confirm
-|only if Tauren Druid and ZGV.IsClassicSoD
 stickystart "Collect_Battleboar_Flanks"
 step
 kill Battleboar##2966+
@@ -1991,57 +1881,6 @@ collect Dirt-stained Map##4851 |n
 use the Dirt-stained Map##4851
 accept Attack on Camp Narache##781 |goto Mulgore 63.24,82.70
 step
-kill Bristleback Shaman##2953+
-|tip They look like quilboars wearing purple robes around this area.
-|tip They seem to mostly be inside or near buildings.
-collect Dyadic Icon##206381 |goto Mulgore 64.40,79.09 |q 77652
-|only if Tauren Shaman and ZGV.IsClassicSoD
-step
-Equip the Dyadic Icon |equipped Dyadic Icon##206381 |q 77652
-|only if Tauren Shaman and ZGV.IsClassicSoD
-step
-kill Bristleback Shaman##2953+
-|tip They look like quilboars wearing purple robes around this area.
-|tip They seem to mostly be inside or near buildings.
-|tip They will use abilities that deal Nature damage.
-|tip You will gain a buff.
-|tip Repeat this process until you have 10 stacks of the Building Inspiration buff.
-Gain the Inspired Buff |havebuff Inspired##408828 |goto Mulgore 64.40,79.09 |q 77652
-|only if Tauren Shaman and ZGV.IsClassicSoD
-step
-use the Dyadic Icon##206381
-Learn: Engrave Chest - Overload |q 77652/1
-|only if Tauren Shaman and ZGV.IsClassicSoD
-step
-Follow the path up |goto Mulgore 62.19,75.79 < 15 |walk
-click Bristlebark Loot Cache##403102
-|tip It looks like a brown wooden chest.
-|tip Up on the plateau.
-collect Lunar Idol##208414 |goto Mulgore 61.61,76.02 |q 77648
-|only if Tauren Druid and ZGV.IsClassicSoD
-step
-Equip the Lunar Idol |equipped Lunar Idol##208414 |q 77648
-|only if Tauren Druid and ZGV.IsClassicSoD
-step
-Kill enemies around this area
-|tip Make sure they die while affected by your "Moonfire" ability.
-|tip You will gain a buff.
-|tip Repeat this process until you have 6 stacks of the Building Inspiration buff.
-Gain the Inspired Buff |havebuff Inspired##408828 |goto Mulgore 46.36,82.84 |q 77648
-|only if Tauren Druid and ZGV.IsClassicSoD
-step
-use the Lunar Idol##208414
-Learn Engrave Chest - Fury of Stormrage |q 77648/1
-|only if Tauren Druid and ZGV.IsClassicSoD
-step
-label "Learn_Chimera_Shot_Tauren_Hunter"
-kill Bristleback Battleboar##2954+
-|tip They look like tan boars.
-collect Rune of the Chimera##206168 |n
-use the Rune of the Chimera##206168
-Learn Engrave Gloves - Chimera Shot |q 77649/1 |goto Mulgore 63.58,78.00
-|only if Tauren Hunter and ZGV.IsClassicSoD
-step
 label "Collect_Ritual_Salves"
 kill Bristleback Shaman##2953+
 |tip They can be pretty spread out around this area.
@@ -2064,20 +1903,10 @@ talk Brave Windfeather##3209
 |tip She walks around this area.
 turnin Break Sharptusk!##3376 |goto Mulgore 44.94,77.04
 step
-talk Meela Dawnstrider##3062
-|tip Inside the hut.
-turnin Icons of Power##77652 |goto Mulgore 45.01,75.94
-|only if Tauren Shaman and ZGV.IsClassicSoD
-step
 talk Seer Ravenfeather##5888
 turnin Call of Earth##1519 |goto Mulgore 44.73,76.19
 accept Call of Earth##1520 |goto Mulgore 44.73,76.19
 |only if Tauren Shaman
-step
-talk Gart Mistrunner##3060
-|tip Inside the building.
-turnin Relics of the Tauren##77648 |goto Mulgore 45.09,75.93
-|only if Tauren Druid and ZGV.IsClassicSoD
 step
 Enter the building |goto Mulgore 44.32,76.21 < 7 |walk
 talk Chief Hawkwind##2981
@@ -2096,11 +1925,6 @@ step
 talk Seer Ravenfeather##5888
 turnin Call of Earth##1521 |goto Mulgore 44.73,76.19
 |only if Tauren Shaman
-step
-talk Lanka Farshot##3061
-|tip Inside the building.
-turnin A Hunter's Strength##77649 |goto Mulgore 44.26,75.69
-|only if Tauren Hunter and ZGV.IsClassicSoD
 step
 Follow the path |goto Mulgore 39.45,82.40 < 20 |only if walking
 talk Antur Fallow##6775
@@ -3186,42 +3010,6 @@ Kill enemies around this area
 |tip Being a level higher will help.
 ding 2 |goto Durotar 42.57,63.25
 step
-talk Ken'jai##3707
-accept Wisdom of the Loa##77642 |goto Durotar 42.36,68.81
-|only if Troll Priest and ZGV.IsClassicSoD
-step
-Leave the Valley of Trials |goto Durotar 49.59,68.29 < 20 |only if walking
-talk Serpent Loa##208307
-|tip Target the Loa Altar.
-|tip It looks like a stone pedastal with 2 stone snakes on top of it.
-|tip Use the "/kneel" emote while standing next to it.
-|tip The Serpent Loa looks like a snake that appears next to the altar.
-Select _"Thank you, great spirit. (Receive Blessing of the Loa)"_
-Gain the Meditation on the Loa |complete hasbuff(417316) |goto Durotar 55.35,72.73 |q 77642
-|tip You will gain a buff that allows you to learn Priest runes.
-|only if Troll Priest and ZGV.IsClassicSoD
-step
-use the Memory of a Troubled Acolyte##205951
-Learn Spell: Engrave Gloves - Penance |q 77642/1
-|only if Troll Priest and ZGV.IsClassicSoD
-step
-Enter the Valley of Trials |goto Durotar 49.59,68.29 < 20 |only if walking
-talk Ken'jai##3707
-turnin Wisdom of the Loa##77642 |goto Durotar 42.36,68.81
-|only if Troll Priest and ZGV.IsClassicSoD
-step
-Enter the cave |goto Durotar 42.28,68.43 < 10 |walk
-talk Rwag##3155
-|tip Inside the cave.
-accept Atop the Cliffs##77583 |goto Durotar 41.28,68.00
-|only if Orc Rogue and ZGV.IsClassicSoD
-step
-Enter the cave |goto Durotar 42.28,68.43 < 10 |walk
-talk Rwag##3155
-|tip Inside the cave.
-accept Atop the Cliffs##77592 |goto Durotar 41.28,68.00
-|only if Troll Rogue and ZGV.IsClassicSoD
-step
 label "Collect_Vile_Familiar_Heads"
 kill Vile Familiar##3101+
 |tip Don't go inside the cave.
@@ -3257,26 +3045,6 @@ talk Zureetha Fargaze##3145
 turnin Vile Familiars##1499 |goto Durotar 42.85,69.15
 |only if Orc Warlock
 step
-Jump down carefully to the ledge below, then jump over to the ledge with the chest |goto Durotar 42.86,69.78 < 10 |only if walking
-click Hidden Cache
-|tip It looks like a wooden chest up on a ledge.
-collect Rune of Shadowstrike##204795 |goto Durotar 43.25,69.57 |q 77583
-|only if Orc Rogue and ZGV.IsClassicSoD
-step
-use the Rune of Shadowstrike##204795
-Learn Engrave Gloves - Shadowstrike |q 77583/1
-|only if Orc Rogue and ZGV.IsClassicSoD
-step
-Jump down carefully to the ledge below, then jump over to the ledge with the chest |goto Durotar 42.86,69.78 < 10 |only if walking
-click Hidden Cache
-|tip It looks like a wooden chest up on a ledge.
-collect Rune of Shadowstrike##204795 |goto Durotar 43.25,69.57 |q 77592
-|only if Troll Rogue and ZGV.IsClassicSoD
-step
-use the Rune of Shadowstrike##204795
-Learn Engrave Gloves - Shadowstrike |q 77592/1
-|only if Troll Rogue and ZGV.IsClassicSoD
-step
 Enter the cave |goto Durotar 42.29,68.43 < 10 |walk
 talk Gornek##3143
 |tip Inside the cave.
@@ -3299,19 +3067,16 @@ step
 talk Rwag##3155
 |tip Inside the cave.
 turnin Encrypted Parchment##3088 |goto Durotar 41.28,68.00
-turnin Atop the Cliffs##77583 |goto Durotar 41.28,68.00 |only if ZGV.IsClassicSoD
 |only if Orc Rogue
 step
 talk Rwag##3155
 |tip Inside the cave.
 turnin Encrypted Tablet##3083 |goto Durotar 41.28,68.00
-turnin Atop the Cliffs##77592 |goto Durotar 41.28,68.00 |only if ZGV.IsClassicSoD
 |only if Troll Rogue
 step
 talk Nartok##3156
 |tip Inside the cave.
 turnin Tainted Parchment##3090 |goto Durotar 40.65,68.51
-accept Stolen Power##77586 |goto Durotar 40.65,68.51 |only if ZGV.IsClassicSoD
 |only if Orc Warlock
 step
 talk Hraug##12776
@@ -3343,7 +3108,6 @@ turnin Hallowed Tablet##3085 |goto Durotar 42.36,68.82
 step
 talk Mai'ah##5884
 turnin Glyphic Tablet##3086 |goto Durotar 42.51,69.04
-accept Spell Research##77643 |goto Durotar 42.51,69.04 |only if ZGV.IsClassicSoD
 |only if Troll Mage
 step
 talk Zureetha Fargaze##3145
@@ -3360,71 +3124,19 @@ turnin Simple Tablet##3065 |goto Durotar 42.89,69.43
 step
 talk Jen'shan##3154
 turnin Etched Parchment##3087 |goto Durotar 42.84,69.32
-accept Hunt for the Rune##77584 |goto Durotar 42.83,69.33 |only if ZGV.IsClassicSoD
 |only if Orc Hunter
 step
 talk Jen'shan##3154
 turnin Etched Tablet##3082 |goto Durotar 42.84,69.32
-accept Rugged Terrain##77590 |goto Durotar 42.83,69.33 |only if ZGV.IsClassicSoD
 |only if Troll Hunter
 step
 talk Foreman Thazz'ril##11378
 |tip You must be level 3 before this quest is available.
 accept Lazy Peons##5441 |goto Durotar 44.62,68.64
-step
-talk Shikrik##3157
-turnin Rune-Inscribed Parchment##3089 |goto Durotar 42.39,69.00
-accept Icons of Power##77585 |goto Durotar 42.39,69.00
-|only if Orc Shaman and ZGV.IsClassicSoD
 stickystart "Collect_Scorpid_Worker_Tails"
-step
-kill Scorpid Worker##3124+
-|tip They look like scorpions.
-collect Dyadic Icon##206381 |goto Durotar 40.80,62.65 |q 77585
-|only if Orc Shaman and ZGV.IsClassicSoD
-step
-Equip the Dyadic Icon |equipped Dyadic Icon##206381 |q 77585
-|only if Orc Shaman and ZGV.IsClassicSoD
-step
-kill Scorpid Worker##3124+
-|tip They look like scorpions.
-|tip They will use abilities that deal Nature damage.
-|tip You will gain a buff.
-|tip Repeat this process until you have 10 stacks of the Building Inspiration buff.
-Gain the Inspired Buff |havebuff Inspired##408828 |goto Durotar 40.80,62.65 |q 77585
-|only if Orc Shaman and ZGV.IsClassicSoD
 stickystop "Collect_Scorpid_Worker_Tails"
-step
-use the Dyadic Icon##206381
-Learn: Engrave Chest - Overload |q 77585/1
-|only if Orc Shaman and ZGV.IsClassicSoD
-step
-talk Shikrik##3157
-turnin Rune-Inscribed Tablet##3084 |goto Durotar 42.39,69.00
-accept Icons of Power##77587 |goto Durotar 42.39,69.00
-|only if Troll Shaman and ZGV.IsClassicSoD
 stickystart "Collect_Scorpid_Worker_Tails"
-step
-kill Scorpid Worker##3124+
-|tip They look like scorpions.
-collect Dyadic Icon##206381 |goto Durotar 40.80,62.65 |q 77587
-|only if Troll Shaman and ZGV.IsClassicSoD
-step
-Equip the Dyadic Icon |equipped Dyadic Icon##206381 |q 77587
-|only if Troll Shaman and ZGV.IsClassicSoD
-step
-kill Scorpid Worker##3124+
-|tip They look like scorpions.
-|tip They will use abilities that deal Nature damage.
-|tip You will gain a buff.
-|tip Repeat this process until you have 10 stacks of the Building Inspiration buff.
-Gain the Inspired Buff |havebuff Inspired##408828 |goto Durotar 40.80,62.65 |q 77587
-|only if Troll Shaman and ZGV.IsClassicSoD
 stickystop "Collect_Scorpid_Worker_Tails"
-step
-use the Dyadic Icon##206381
-Learn: Engrave Chest - Overload |q 77587/1
-|only if Troll Shaman and ZGV.IsClassicSoD
 stickystart "Collect_Cactus_Apples"
 stickystart "Collect_Scorpid_Worker_Tails"
 stickystart "Learn_Chimera_Shot_Orc"
@@ -3471,22 +3183,6 @@ step
 label "Collect_Scorpid_Worker_Tails"
 kill Scorpid Worker##3124+
 collect 10 Scorpid Worker Tail##4862 |q 789/1 |goto Durotar 40.71,62.45
-step
-label "Learn_Chimera_Shot_Orc"
-kill Scorpid Worker##3124+
-|tip They look like scorpions. |notinsticky
-collect Rune of the Chimera##206168 |n
-use the Rune of the Chimera##206168
-Learn Engrave Gloves - Chimera Shot |q 77584/1 |goto Durotar 40.71,62.45
-|only if Orc Hunter and ZGV.IsClassicSoD
-step
-label "Learn_Chimera_Shot_Troll"
-kill Scorpid Worker##3124+
-|tip They look like scorpions. |notinsticky
-collect Rune of the Chimera##206168 |n
-use the Rune of the Chimera##206168
-Learn Engrave Gloves - Chimera Shot |q 77590/1 |goto Durotar 40.71,62.45
-|only if Troll Hunter and ZGV.IsClassicSoD
 step
 Kill enemies around this area
 ding 4 |goto Durotar 40.71,62.45
@@ -3545,14 +3241,6 @@ talk Nartok##3156
 learnspell Corruption##172 |goto Durotar 40.65,68.51
 |only if Warlock and level >= 4
 step
-talk Jen'shan##3154
-turnin Hunt for the Rune##77584 |goto Durotar 42.83,69.33
-|only if Orc Hunter and ZGV.IsClassicSoD
-step
-talk Jen'shan##3154
-turnin Rugged Terrain##77590 |goto Durotar 42.83,69.33
-|only if Troll Hunter and ZGV.IsClassicSoD
-step
 talk Foreman Thazz'ril##11378
 turnin Lazy Peons##5441 |goto Durotar 44.62,68.64
 accept Thazz'ril's Pick##6394 |goto Durotar 44.62,68.64
@@ -3574,26 +3262,6 @@ Continue following the path |goto Durotar 43.39,52.01 < 10 |walk
 kill Yarrog Baneshadow##3183
 |tip Inside the cave.
 collect Burning Blade Medallion##4859 |q 794/1 |goto Durotar 42.71,52.95
-step
-click Waterlogged Stashbox##404695
-|tip It looks like a chest, underwater in a small nook.
-|tip Inside the cave.
-collect Rune of Haunting##205230 |goto Durotar 43.00,54.46 |q 77586
-|only if Orc Warlock and ZGV.IsClassicSoD
-step
-use the Rune of Haunting##205230
-Learn Spell: Engrave Gloves - Haunt |q 77586/1
-|only if Orc Warlock and ZGV.IsClassicSoD
-step
-click Waterlogged Stashbox##404695
-|tip It looks like a chest, underwater in a small nook.
-|tip Inside the cave.
-collect Spell Notes: CALE ENCI##203751 |goto Durotar 43.00,54.46 |q 77643
-|only if Troll Mage and ZGV.IsClassicSoD
-step
-use the Spell Notes: CALE ENCI##203751
-Learn: Engrave Gloves - Ice Lance |q 77643/1
-|only if Troll Mage and ZGV.IsClassicSoD
 step
 Kill enemies around this area
 |tip Inside the cave.
@@ -3649,19 +3317,9 @@ step
 Enter the cave |goto Durotar 42.29,68.43 < 10 |walk
 talk Nartok##3156
 |tip Inside the cave.
-turnin Stolen Power##77586 |goto Durotar 40.65,68.51
-|only if Orc Warlock and ZGV.IsClassicSoD
-step
-Enter the cave |goto Durotar 42.29,68.43 < 10 |walk
-talk Nartok##3156
-|tip Inside the cave.
 learnspell Life Tap##1454 |goto Durotar 40.65,68.51
 learnspell Shadow Bolt##695 |goto Durotar 40.65,68.51
 |only if Warlock and level >= 6
-step
-talk Mai'ah##5884
-turnin Spell Research##77643 |goto Durotar 42.51,69.04
-|only if Troll Mage and ZGV.IsClassicSoD
 step
 Enter the cave |goto Durotar 42.28,68.43 < 10 |walk
 talk Rwag##3155
@@ -16683,10 +16341,6 @@ talk Rekkul##3334
 |tip Open your poison crafting window and purchase the ingredients you need.
 Visit the Vendor |vendor Rekkul##3334 |goto Orgrimmar 42.11,49.48 |q 81
 |only if Rogue
-step
-talk Belgrom Rockmaul##4485
-accept Betrayed##3504 |goto Orgrimmar 75.23,34.24
-|only if not ZGV.IsClassicSoD
 step
 Enter the building |goto Orgrimmar 58.97,37.57 < 10 |walk
 talk Dran Droffers##6986

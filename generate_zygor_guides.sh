@@ -1,1 +1,0 @@
-source .venv/bin/activate && python ./src/epoch/build_zygor.py &&  cp ./src/epoch/out/alliance_guide.lua ./Guides/ZygorGuidesAlliance.lua && cp ./src/epoch/out/horde_guide.lua ./Guides/ZygorGuidesHorde.lua
