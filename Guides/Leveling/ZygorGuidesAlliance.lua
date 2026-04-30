@@ -142,6 +142,9 @@ Kill enemies around this area
 ding 3,1150 |goto Elwynn Forest 47.49,36.15
 You can find more around [51.18,37.25]
 step
+(Custom content)
+accept The Soaked Barrel##26777 |goto Elwynn Forest 48.3,58.2
+step
 talk Godric Rothgar##1213
 |tip You will need 1-2 silver for spells.
 Sell your trash |vendor Godric Rothgar##1213 |q 15 |goto Elwynn Forest/0 47.69,41.42
