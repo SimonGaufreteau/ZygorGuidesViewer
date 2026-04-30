@@ -311,7 +311,7 @@ talk Marshal Dughan##240
 turnin Report to Goldshire##54 |goto Elwynn Forest 39.5,68.9
 accept The Fargodeep Mine##62 |goto Elwynn Forest 39.5,68.9
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk William Pestle##253
 |tip Inside the building.
 accept Kobold Candles##60 |goto Elwynn Forest 38.9,68.4
@@ -387,7 +387,7 @@ Heal and Fortify Guard Roberts |q 5624/1 |goto Elwynn Forest/0 48.14,68.04
 |tip Second, cast your "Power Word: Fortitude" spell on him.
 |only if Human Priest
 step
-Enter the building |goto Elwynn Forest/0 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest/0 38.9,68.4 < 10 |walk
 talk Priestess Josetta##377
 |tip Upstairs inside the building.
 turnin Garments of the Light##5624 |goto Elwynn Forest/0 43.28,65.72
@@ -559,7 +559,7 @@ accept Further Concerns##35 |goto Elwynn Forest 39.5,68.9
 turnin The Fargodeep Mine##62 |goto Elwynn Forest 39.5,68.9
 accept The Jasperlode Mine##76 |goto Elwynn Forest 39.5,68.9
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk William Pestle##253
 |tip Inside the building.
 turnin Kobold Candles##60 |goto Elwynn Forest 38.9,68.4
@@ -668,9 +668,8 @@ You can find more around [Elwynn Forest 55.90,66.66]
 step
 If you see Lorkiz Quietbit on the road to the east pick up this quest, coordinates are for the the next step
 talk Lorkiz Quietbit##45032
-accept Wanted: Big Blue##26794 |goto Elwynn Forest 39.5,68.9
+accept Wanted: Big Blue##26794 |goto Elwynn Forest 73.97,72.18
 step
-Leave the mine |goto Elwynn Forest 61.74,53.88 < 10 |walk |only if subzone("Jasperlode Mine") and _G.IsIndoors()
 talk Guard Thomas##261
 |tip Grind mobs en route to this quest.
 turnin Further Concerns##35 |goto Elwynn Forest 73.97,72.18
@@ -747,6 +746,7 @@ kill 4 Webbed Miner##45023 |q 26774/2
 collect 8 Mining Equipment |q 26771/1
 |tip Click Mining Equipment in the cave
 step
+Leave the mine |goto Elwynn Forest 61.74,53.88 < 10 |walk |only if subzone("Jasperlode Mine") and _G.IsIndoors()
 talk Guard Thomas##261
 turnin Protect the Frontier##52 |goto Elwynn Forest 73.97,72.18
 turnin Report to Thomas##71 |goto Elwynn Forest 73.97,72.18
@@ -837,7 +837,7 @@ talk Smith Argus##514
 |tip Inside the building.
 accept Elmore's Task##1097 |goto Elwynn Forest 42.4,69.5
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk Priestess Josetta##377
 |tip Upstairs inside the building.
 accept Desperate Prayer##5635 |goto Elwynn Forest 43.28,65.72
@@ -848,7 +848,7 @@ learnspell Resurrection##2006 |goto Elwynn Forest 43.28,65.72
 |tip Only train Resurrection if you plan to do group content.
 |only if Human Priest and level >= 10
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk Maximillian Crowe##906
 |tip Downstairs in the inn.
 |tip Enter from the kitchen.
@@ -896,7 +896,7 @@ accept Tend to the Wounded##26775 |goto Elwynn Forest 42.0,67.0
 step
 Use the Spider Elixir in your bags on the Sickly Miner in the tend
 use Spider Elixir##60020
-Complete Tend to the Wounded |q 26775/1
+Complete Tend to the Wounded |q 26775/1 |goto Elwynn Forest 42.0,67.0
 step
 talk Matron Darcy##45021 
 turnin Tend to the Wounded##26775 |goto Elwynn Forest 42.0,67.0
@@ -23592,7 +23592,7 @@ talk Gakin the Darkbinder##6122
 turnin The Binding##1689 |goto Stormwind City 25.25,78.53
 |only if Gnome Warlock
 step
-Enter the building |goto Elwynn Forest 42.95,65.65 < 10 |walk
+Enter the building |goto Elwynn Forest 38.9,68.4 < 10 |walk
 talk Remen Marcot##6121
 |tip Downstairs inside the building.
 accept Gakin's Summons##1685 |goto Elwynn Forest 44.49,66.27
