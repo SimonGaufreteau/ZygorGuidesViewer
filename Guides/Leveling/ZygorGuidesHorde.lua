@@ -1863,7 +1863,6 @@ ding 4,1500 |goto Mulgore 55.97,83.14
 You can find more around [56.89,87.89]
 stickystart "Collect_Bristleback_Belts"
 stickystart "Collect_Ritual_Salves"
-stickystart "Learn_Chimera_Shot_Tauren_Hunter"
 step
 Enter the tunnel |goto Mulgore 58.15,85.02 < 15 |only if walking
 Leave the tunnel |goto Mulgore 59.69,83.29 < 15 |only if walking
@@ -3139,8 +3138,6 @@ stickystart "Collect_Scorpid_Worker_Tails"
 stickystop "Collect_Scorpid_Worker_Tails"
 stickystart "Collect_Cactus_Apples"
 stickystart "Collect_Scorpid_Worker_Tails"
-stickystart "Learn_Chimera_Shot_Orc"
-stickystart "Learn_Chimera_Shot_Troll"
 step
 use the Foreman's Blackjack##16114
 |tip Use it on Lazy Peons at each location.

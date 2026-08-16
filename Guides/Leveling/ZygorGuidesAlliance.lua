@@ -2422,8 +2422,6 @@ buy Grimoire of Blood Pact (Rank 1)##16321 |n
 use the Grimoire of Blood Pact (Rank 1)##16321
 Teach Your Imp Blood Pact (Rank 1) |learnpetspell Blood Pact##6307 |goto Dun Morogh 28.80,66.16
 |only if Gnome Warlock
-stickystart "Learn_Engrave_Gloves_Victory_Rush_Dwarf_Warrior"
-stickystart "Learn_Engrave_Gloves_Victory_Rush_Gnome_Warrior"
 stickystart "Kill_Frostmane_Troll_Whelps"
 step
 Leave the building |goto Dun Morogh 28.79,69.05 < 10 |walk |only if subzone("Anvilmar")
@@ -4213,7 +4211,6 @@ You can find more around [62.60,37.94]
 step
 label "Kill_Thistle_Boars"
 kill 7 Thistle Boar##1985 |q 457/2 |goto Teldrassil 60.12,35.06
-stickystart "Learn_Engrave_Gloves_Victory_Rush_Night_Elf_Warrior"
 stickystart "Collect_Webwood_Venom_Sacs"
 step
 Follow the path |goto Teldrassil 55.45,32.85 < 20 |only if walking
